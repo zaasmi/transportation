@@ -31,9 +31,8 @@ Esri's sample services can be used with this repository to extend the applicatio
 
 ### Your Services
 
-* ArcGIS for Desktop 10.2 - Standard or Advanced - [About](http://www.esri.com/software/arcgis/arcgis-for-desktop)
+* ArcGIS Online for Organizations or
 * ArcGIS for Server 10.2 - Standard or Advanced - [About](http://www.esri.com/software/arcgis/arcgisserver)
-* Local Government Information Model for Local Government Implementations - [About](http://www.arcgis.com/home/item.html?id=ae175b36c4154dda987127dff879350d)
 * Microsoft ASP.NET Framework 4.0 available from the [Microsoft website](http://www.microsoft.com/en-us/download/details.aspx?id=17851)
 
 ## Resources
