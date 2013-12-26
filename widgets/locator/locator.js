@@ -48,8 +48,6 @@ define([
              nls: nls,
              lastSearchString: null,
              stagedSearch: null,
-             mapPoint: null,
-             nameArray: [],
              splashScreenScrollbar: null,
 
              /**
@@ -74,7 +72,6 @@ define([
                          }
                      }
                  }));
-
                  this.domNode = domConstruct.create("div", { "title": this.title, "class": "esriCTTdHeaderSearch" }, null);
                  domConstruct.place(this.divAddressContainer, dom.byId("esriCTParentDivContainer"));
                  this.own(on(this.domNode, "click", lang.hitch(this, function () {
@@ -85,11 +82,9 @@ define([
                      topic.publish("toggleWidget", "locator");
                      this._showLocateContainer();
                  })));
-
                  domStyle.set(this.divAddressContainer, "display", "block");
-                 this.divAddressContainer.title = "";
+                 domAttr.set(this.divAddressContainer, "title", "");
                  this.imgSearchLoader.src = dojoConfig.baseURL + "/themes/images/blue-loader.gif";
-
                  this._setDefaultTextboxValue();
                  this._attachLocatorEvents();
              },
@@ -100,14 +95,14 @@ define([
              * @memberOf widgets/locator/locator
              */
              _setDefaultTextboxValue: function () {
-                 var locatorSettings = dojo.configData.LocatorSettings.Locators;
+                 var locatorSettings = dojo.configData.LocatorSettings;
                  /**
                  * txtAddress Textbox for search text
                  * @member {textbox} txtAddress
                  * @private
                  * @memberOf widgets/locator/locator
                  */
-                 domAttr.set(this.txtAddress, "defaultAddress", locatorSettings[0].LocatorDefaultAddress);
+                 domAttr.set(this.txtAddress, "defaultAddress", locatorSettings.LocatorDefaultAddress);
              },
 
              /**
@@ -118,9 +113,11 @@ define([
 
                  this.own(on(this.esriCTSearch, "click", lang.hitch(this, function (evt) {
                      domStyle.set(this.imgSearchLoader, "display", "block");
+                     domStyle.set(this.close, "display", "none");
                      this._locateAddress(evt);
                  })));
                  this.own(on(this.txtAddress, "keyup", lang.hitch(this, function (evt) {
+                     domStyle.set(this.close, "display", "block");
                      this._submitAddress(evt);
                  })));
                  this.own(on(this.txtAddress, "dblclick", lang.hitch(this, function (evt) {
@@ -132,10 +129,18 @@ define([
                  this.own(on(this.txtAddress, "focus", lang.hitch(this, function () {
                      domClass.add(this.txtAddress, "esriCTColorChange");
                  })));
+                 this.own(on(this.close, "click", lang.hitch(this, function () {
+                     this._hideText();
+                 })));
              },
 
+             _hideText: function () {
+                 this.txtAddress.value = "";
+                 //                 RemoveChildren(dojo.byId("tblAddressResults"));
+                 domStyle.set(this.close, "display", "none");
+             },
              /**
-             * show/hide locator widget and set default search text in address, feature and activity tabs
+             * show/hide locator widget and set default search text
              * @memberOf widgets/locator/locator
              */
              _showLocateContainer: function () {
@@ -160,9 +165,8 @@ define([
 
                      domStyle.set(this.txtAddress, "verticalAlign", "middle");
                      this.txtAddress.value = domAttr.get(this.txtAddress, "defaultAddress");
-                     this.lastSearchString = lang.trim(this.txtAddress.value)
+                     this.lastSearchString = lang.trim(this.txtAddress.value);
                  }
-
                  this._setHeightAddressResults();
              },
 
@@ -176,6 +180,7 @@ define([
                      if (evt.keyCode == dojo.keys.ENTER) {
                          if (this.txtAddress.value != '') {
                              domStyle.set(this.imgSearchLoader, "display", "block");
+                             domStyle.set(this.close, "display", "none");
                              this._locateAddress(evt);
                              return;
                          }
@@ -192,7 +197,6 @@ define([
                          evt.stopPropagation && evt.stopPropagation();
                          return;
                      }
-
                      /**
                      * call locator service if search text is not empty
                      */
@@ -213,14 +217,15 @@ define([
                                      * stage a new search, which will launch if no new searches show up
                                      * before the timeout
                                      */
-                                     this.stagedSearch = setTimeout(function () {
-                                         _this._locateAddress();
-                                     }, 500);
+                                     this.stagedSearch = setTimeout(lang.hitch(this, function () {
+                                         this.stagedSearch = this._locateAddress();
+                                     }), 500);
                                  }
                              }
                          } else {
                              this.lastSearchString = lang.trim(this.txtAddress.value);
                              domStyle.set(this.imgSearchLoader, "display", "none");
+                             domStyle.set(this.close, "display", "block");
                              domConstruct.empty(this.divAddressResults);
                          }
                      }
@@ -235,6 +240,7 @@ define([
                  domConstruct.empty(this.divAddressResults);
                  if (lang.trim(this.txtAddress.value) == '') {
                      domStyle.set(this.imgSearchLoader, "display", "none");
+                     domStyle.set(this.close, "display", "block");
                      domConstruct.empty(this.divAddressResults);
                      return;
                  } else {
@@ -247,25 +253,25 @@ define([
              * @memberOf widgets/locator/locator
              */
              _searchLocation: function () {
-
+                 var nameArray = { Address: [] };
                  domStyle.set(this.imgSearchLoader, "display", "block");
+                 domStyle.set(this.close, "display", "none");
                  domAttr.set(this.txtAddress, "defaultAddress", this.txtAddress.value);
                  this._setHeightAddressResults();
+
                  /**
                  * call locator service specified in configuration file
                  */
-
-                 var locatorSettings = dojo.configData.LocatorSettings.Locators;
-                 var locator = new Locator(locatorSettings[0].LocatorURL);
-                 var searchFieldName = locatorSettings[0].LocatorParameters.SearchField;
+                 var locatorSettings = dojo.configData.LocatorSettings;
+                 var locator = new Locator(locatorSettings.LocatorURL);
+                 var searchFieldName = locatorSettings.LocatorParameters.SearchField;
                  var addressField = {};
                  addressField[searchFieldName] = lang.trim(this.txtAddress.value);
                  var baseMapExtent = this.map.getLayer(this.map.basemapLayerIds[0]).fullExtent;
-
                  var options = {};
                  options["address"] = addressField;
-                 options["outFields"] = locatorSettings[0].LocatorOutFields;
-                 options[locatorSettings[0].LocatorParameters.SearchBoundaryField] = baseMapExtent;
+                 options["outFields"] = locatorSettings.LocatorOutFields;
+                 options[locatorSettings.LocatorParameters.SearchBoundaryField] = baseMapExtent;
                  locator.outSpatialReference = this.map.spatialReference;
 
                  /**
@@ -273,41 +279,77 @@ define([
                  * @param {object} options Contains address, outFields and basemap extent for locator service
                  * @param {object} candidates Contains results from locator service
                  */
+                 var defferedArray = [];
+                 for (index = 0; index < dojo.configData.SearchAnd511Settings.length; index++) {
+                     this._locateLayersearchResult(defferedArray, index);
 
-                 var nameArray = { Route: [], Address: [] };
-                 var query = new Query();
-                 query.where = "UPPER(" + locatorSettings[1].DisplayField + ") LIKE '" + lang.trim(this.txtAddress.value).toUpperCase() + "%'";
-                 domStyle.set(this.imgSearchLoader, "display", "block");
-                 var layer = this.map.getLayer("roadCenterLinesLayerID");
-                 layer.queryFeatures(query, lang.hitch(this, function (featureSet) {
-                     this.txtAddress.value = lang.trim(this.txtAddress.value);
-                     if (query.where.toUpperCase().match(this.txtAddress.value.toUpperCase())) {
+                 }
+                 var locatorDef = locator.addressToLocations(options);
+                 locator.on("address-to-locations-complete", lang.hitch(this, function (candidates) {
+                     var deferred = new dojo.Deferred();
+                     deferred.resolve(candidates);
+                     return deferred.promise;
+                 }), function () {
+                     domStyle.set(this.imgSearchLoader, "display", "none");
+                     domStyle.set(this.close, "display", "block");
+                     this._locatorErrBack();
+                 });
 
-                         for (var order = 0; order < featureSet.features.length; order++) {
-                             nameArray.Route.push({ name: featureSet.features[order].attributes[locatorSettings[1].DisplayField], attributes: featureSet.features[order].attributes, geometry: featureSet.features[order].geometry });
+                 defferedArray.push(locatorDef);
+                 var deferredListResult = new dojo.DeferredList(defferedArray);
+                 deferredListResult.then(lang.hitch(this, function (result) {
+                     if (result) {
+                         if (result.length > 0) {
+                             for (var num = 0; num < result.length; num++)
+                                 if (dojo.configData.SearchAnd511Settings[num]) {
+                                     var key = dojo.configData.SearchAnd511Settings[num].SearchDisplayTitle;
+                                     nameArray[key] = [];
+                                     for (var order = 0; order < result[num][1].features.length; order++) {
+                                         nameArray[key].push({
+                                             name: string.substitute(dojo.configData.SearchAnd511Settings[num].SearchDisplayFields, result[num][1].features[order].attributes),
+                                             attributes: result[num][1].features[order].attributes
+                                         });
+                                     }
+                                 } else {
+                                     this._addressResult(result[num][1], nameArray);
+                                 }
                          }
-                         nameArray.Route.sort(function (a, b) {
-                             var nameA = a.name.toLowerCase();
-                             var nameB = b.name.toLowerCase();
-                             if (nameA < nameB) //sort string ascending
-                                 return -1
-                             if (nameA >= nameB)
-                                 return 1
-                         });
-
                      }
-                     locator.addressToLocations(options);
-                     locator.on("address-to-locations-complete", lang.hitch(this, function (candidates) {
-                         for (var order = 0; order < candidates.addresses.length; order++) {
-                             nameArray.Address.push({ name: candidates.addresses[order] });
-                         }
-                         this._showLocatedAddress(nameArray);
-
-                     }), function () {
-                         domStyle.set(this.imgSearchLoader, "display", "none");
-                         this._locatorErrBack();
-                     });
+                     this._showLocatedAddress(nameArray);
                  }));
+
+             },
+
+             _addressResult: function (candidates, nameArray) {
+                 for (var order = 0; order < candidates.length; order++) {
+                     nameArray.Address.push({
+                         name: string.substitute(dojo.configData.LocatorSettings.DisplayField, candidates[order].attributes),
+                         attributes: candidates[order].attributes
+                     });
+                 }
+             },
+
+             _locateLayersearchResult: function (defferedArray, index) {
+                 var layerobject = dojo.configData.SearchAnd511Settings[index];
+                 domStyle.set(this.imgSearchLoader, "display", "block");
+                 domStyle.set(this.close, "display", "none");
+                 if (layerobject.QueryURL) {
+                     var queryTask = new esri.tasks.QueryTask(layerobject.QueryURL);
+                     var query = new Query();
+                     query.where = string.substitute(layerobject.SearchExpression, [lang.trim(this.txtAddress.value).toUpperCase()]);
+                     query.outSpatialReference = this.map.spatialReference;
+                     query.returnGeometry = false;
+                     query.outFields = ["*"];
+                     var queryTaskResult = queryTask.execute(query, lang.hitch(this, function (featureSet) {
+                         var deferred = new dojo.Deferred();
+                         deferred.resolve(featureSet);
+                         return deferred.promise;
+                     }), function (err) {
+                         alert("error");
+                     });
+                     defferedArray.push(queryTaskResult);
+
+                 }
              },
 
              /**
@@ -324,6 +366,7 @@ define([
                      this.splashScreenScrollbar.setContent(this.divAddressResults);
                      this.splashScreenScrollbar.createScrollBar();
                      domStyle.set(this.imgSearchLoader, "display", "none");
+                     domStyle.set(this.close, "display", "block");
                      return;
                  }
                  /**
@@ -338,107 +381,15 @@ define([
                  this.splashScreenScrollbar = new scrollBar({ domNode: this.divAddressScrollContent });
                  this.splashScreenScrollbar.setContent(this.divAddressResults);
                  this.splashScreenScrollbar.createScrollBar();
-
-                 if (candidates.Address.length > 0) {
-                     var hasValidRecords = false;
-                     var validResult = true;
-                     var locatorSettings = dojo.configData.LocatorSettings.Locators;
-                     var searchFields = [];
-                     var addressFieldName = locatorSettings[0].AddressSearch.FilterFieldName;
-                     var addressFieldValues = locatorSettings[0].AddressSearch.FilterFieldValues;
-                     var placeFieldName = locatorSettings[0].PlaceNameSearch.FilterFieldName;
-                     var placeFieldValues = locatorSettings[0].PlaceNameSearch.FilterFieldValues;
-                     for (var s in addressFieldValues) {
-                         searchFields.push(addressFieldValues[s]);
-                     }
-                     if (locatorSettings[0].PlaceNameSearch.enabled) {
-                         searchFields.push(locatorSettings[0].PlaceNameSearch.LocatorFieldValue);
-                     }
-                     if (candidates.Address) {
+                 for (var candidateArray in candidates) {
+                     if (candidates[candidateArray].length > 0) {
                          var divAddressCounty = domConstruct.create("div", { "class": "esriCTBottomBorder esriCTCursorPointer esriAddressCounty" }, this.divAddressResults);
-                         divAddressCounty.innerHTML = nls.addressDisplayText;
-
-                         for (var i in candidates.Address) {
-                             /**
-                             * for every result returned by locator service verify if match score is greater than minimum match score specified in configuration file
-                             */
-                             if (candidates.Address[i].name.attributes[locatorSettings[0].AddressMatchScore.Field] > locatorSettings[0].AddressMatchScore.Value) {
-                                 for (j in searchFields) {
-                                     /**
-                                     * verify if FilterFieldName of results match with FilterFieldValues of locator settings specified in configuration file
-                                     */
-                                     if (candidates.Address[i].name.attributes[addressFieldName].toUpperCase() == searchFields[j].toUpperCase()) {
-                                         if (candidates.Address[i].name.attributes[addressFieldName].toUpperCase() == locatorSettings[0].PlaceNameSearch.LocatorFieldValue.toUpperCase()) {
-                                             for (var placeField in placeFieldValues) {
-                                                 if (candidates.Address[i].name.attributes[placeFieldName].toUpperCase() != placeFieldValues[placeField].toUpperCase()) {
-                                                     validResult = false;
-                                                     domConstruct.empty(this.divAddressResults);
-                                                 } else {
-                                                     validResult = true;
-                                                     break;
-                                                 }
-                                             }
-                                         } else {
-                                             validResult = true;
-                                         }
-                                         /**
-                                         * display the result if it is valid
-                                         */
-                                         if (validResult) {
-                                             hasValidRecords = this._displayValidLocations(candidates.Address[i].name);
-                                         }
-                                     }
-                                 }
-                             }
-                         }
-                         if (!hasValidRecords && candidates.Route.length == 0) {
-                             this._locatorErrBack();
-                         }
+                         domAttr.set(divAddressCounty, "innerHTML", candidateArray);
                          domStyle.set(this.imgSearchLoader, "display", "none");
-                         this._setHeightAddressResults();
-
-                     }
-                 }
-                 else {
-                     this.mapPoint = null;
-                     this._locatorErrBack();
-                 }
-                 if (candidates.Route.length > 0) {
-                     if (candidates.Route) {
-                         var divAddressCounty = domConstruct.create("div", { "class": "esriCTBottomBorder esriCTCursorPointer esriAddressCounty" }, this.divAddressResults);
-                         divAddressCounty.innerHTML = nls.activityDisplayText;
-                         for (var k in candidates.Route) {
-                             var numUnique = 0;
-                             var searchString = lang.trim(this.txtAddress.value).toLowerCase();
-                             if (candidates.Route[k].attributes) {
-                                 if (0 == k || searchString != candidates.Route[k].attributes[locatorSettings[1].DisplayField].toLowerCase()) {
-                                     if (k > 0) {
-                                         var previousFoundName = candidates.Route[k - 1].attributes[locatorSettings[1].DisplayField];
-                                     } else {
-                                         var previousFoundName = "";
-                                     }
-                                     if (candidates.Route[k].attributes[locatorSettings[1].DisplayField] != previousFoundName) {
-                                         ++numUnique;
-                                         validResult = true;
-
-                                     } else {
-                                         validResult = false;
-                                     }
-                                     if (validResult) {
-                                         hasValidRecords = this._displayValidLocations(candidates.Route[k]);
-                                     }
-                                 }
-                             }
+                         domStyle.set(this.close, "display", "block");
+                         for (var i = 0; i < candidates[candidateArray].length; i++) {
+                             this._displayValidLocations(candidates[candidateArray][i]);
                          }
-                         if (!hasValidRecords && candidates.Address.length == 0) {
-                             this._locatorErrBack();
-                         }
-                         domStyle.set(this.imgSearchLoader, "display", "none");
-                         this._setHeightAddressResults();
-                         if (1 < numUnique) {
-                         }
-                         domStyle.set(this.imgSearchLoader, "display", "none");
-                         this._setHeightAddressResults();
                      }
                  }
              },
@@ -450,86 +401,18 @@ define([
              * @memberOf widgets/locator/locator
              */
              _displayValidLocations: function (candidate) {
-                 var locatorSettings = dojo.configData.LocatorSettings.Locators;
-                 var tdData = domConstruct.create("div", { "class": "esriCTContentBottomBorder esriCTCursorPointer" }, this.divAddressResults);
+                 domClass.add(this.divAddressContent, "esriCTAddressContainerHeight");
+                 var candidateDate = domConstruct.create("div", { "class": "esriCTContentBottomBorder esriCTCursorPointer" }, this.divAddressResults);
                  try {
-                     if (candidate.geometry) {
-
-                         tdData.innerHTML = candidate.attributes[locatorSettings[1].DisplayField];
-                         tdData.setAttribute("OBJECTID", candidate.attributes[this.map.getLayer("roadCenterLinesLayerID").objectIdField]);
-                     } else if (candidate.location) {
-
-                         /**
-                         * bind x, y co-ordinates and address of search result with respective row in search panel
-                         */
-                         tdData.innerHTML = string.substitute(locatorSettings[0].DisplayField, candidate.attributes);
-
-                         domAttr.set(tdData, "x", candidate.location.x);
-                         domAttr.set(tdData, "y", candidate.location.y);
-                         domAttr.set(tdData, "address", string.substitute(locatorSettings[0].DisplayField, candidate.attributes));
+                     if (candidate.name) {
+                         domAttr.set(candidateDate, "innerHTML", candidate.name);
+                     }
+                     else {
+                         domAttr.set(candidateDate, "innerHTML", candidate);
                      }
                  } catch (err) {
                      alert(nls.errorMessages.falseConfigParams);
                  }
-                 var _this = this;
-                 tdData.onclick = function () {
-                     /**
-                     * display result on map on click of search result
-                     */
-                     _this.txtAddress.value = this.innerHTML;
-                     domAttr.set(_this.txtAddress, "defaultAddress", this.innerHTML);
-                     if (candidate.location) {
-                         _this.mapPoint = new esri.geometry.Point(domAttr.get(this, "x"), domAttr.get(this, "y"), _this.map.spatialReference);
-                         _this._locateAddressOnMap(_this.mapPoint);
-                     }
-                     else if (candidate.geometry) {
-                         _this._findAndShowRoads();
-                         _this._hideAddressContainer();
-                     }
-                 };
-                 hasValidRecord = true;
-                 return hasValidRecord;
-             },
-
-             _findAndShowRoads: function () {
-                 var locatorSettings = dojo.configData.LocatorSettings.Locators;
-                 var query = new Query();
-                 query.where = "UPPER(" + locatorSettings[1].DisplayField + ") LIKE '" + lang.trim(this.txtAddress.value).toUpperCase() + "%'";
-                 this.map.getLayer("roadCenterLinesLayerID").selectFeatures(query, esri.layers.FeatureLayer.SELECTION_NEW, lang.hitch(this, function (features) {
-                     this._ShowSelectedRoads()
-                 }));
-             },
-
-             _ShowSelectedRoads: function () {
-                 var polyLine = new esri.geometry.Polyline(this.map.spatialReference);
-                 var numSegments = this.map.getLayer("roadCenterLinesLayerID").graphics.length;
-                 var roadArray = [];
-                 if (0 < numSegments) {
-                     for (var j = 0; j < numSegments; j++) {
-                         if (this.map.getLayer("roadCenterLinesLayerID").graphics[j]) {
-                             polyLine.addPath(this.map.getLayer("roadCenterLinesLayerID").graphics[j].geometry.paths[0]);
-                         }
-                         roadArray.push(this.map.getLayer("roadCenterLinesLayerID").graphics[j].attributes[this.map.getLayer("roadCenterLinesLayerID").objectIdField]);
-                     }
-                     this.map.setExtent(polyLine.getExtent().expand(2));
-                 }
-             },
-
-             /**
-             * add push pin on the map
-             * @param {object} mapPoint Map point of search result
-             * @memberOf widgets/locator/locator
-             */
-             _locateAddressOnMap: function (mapPoint) {
-                 var geoLocationPushpin, locatorMarkupSymbol, graphic;
-                 this.map.setLevel(dojo.configData.ZoomLevel);
-                 this.map.centerAt(mapPoint);
-                 geoLocationPushpin = dojoConfig.baseURL + dojo.configData.LocatorSettings.DefaultLocatorSymbol;
-                 locatorMarkupSymbol = new esri.symbol.PictureMarkerSymbol(geoLocationPushpin, "35", "35");
-                 graphic = new esri.Graphic(mapPoint, locatorMarkupSymbol, {}, null);
-                 this.map.getLayer("esriGraphicsLayerMapSettings").clear();
-                 this.map.getLayer("esriGraphicsLayerMapSettings").add(graphic);
-                 this._hideAddressContainer();
              },
 
              /**
@@ -587,8 +470,10 @@ define([
              _locatorErrBack: function () {
                  domConstruct.empty(this.divAddressResults);
                  domStyle.set(this.imgSearchLoader, "display", "none");
+                 domStyle.set(this.close, "display", "block");
+                 domClass.remove(this.divAddressContent, "esriCTAddressContainerHeight");
                  var errorAddressCounty = domConstruct.create("div", { "class": "esriCTBottomBorder esriCTCursorPointer esriAddressCounty" }, this.divAddressResults);
-                 errorAddressCounty.innerHTML = nls.errorMessages.invalidSearch;
+                 domAttr.set(errorAddressCounty, "innerHTML", nls.errorMessages.invalidSearch);
              },
 
              /**

@@ -40,6 +40,7 @@ define([
     "esri/renderers/SimpleRenderer",
     "dojo/_base/Color",
     "widgets/baseMapGallery/baseMapGallery",
+    "widgets/route/route",
     "widgets/legends/legends",
     "dojo/text!../legends/templates/legendsTemplate.html",
     "esri/geometry/Extent",
@@ -48,7 +49,7 @@ define([
     "esri/layers/ArcGISDynamicMapServiceLayer",
     "dojo/domReady!"
     ],
-     function (declare, domConstruct, domStyle, lang, esriUtils, on, dom, query, domClass, domGeom, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, nls, esriMap, Directions, FeatureLayer, GraphicsLayer, SimpleLineSymbol, SimpleRenderer, Color, baseMapGallery, legends, template, geometryExtent, HomeButton, spatialReference, arcGISDynamicMapServiceLayer) {
+     function (declare, domConstruct, domStyle, lang, esriUtils, on, dom, query, domClass, domGeom, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, nls, esriMap, Directions, FeatureLayer, GraphicsLayer, SimpleLineSymbol, SimpleRenderer, Color, baseMapGallery, route, legends, template, geometryExtent, HomeButton, spatialReference, arcGISDynamicMapServiceLayer) {
 
          //========================================================================================================================//
 
@@ -60,6 +61,7 @@ define([
              roadCenterLinesLayerID: "roadCenterLinesLayerID",
              nls: nls,
              esriCTLogoUrl: null,
+             stagedSearch: null,
 
              /**
              * initialize map object
@@ -74,7 +76,7 @@ define([
                  * @param {string} dojo.configData.DefaultExtent Default extent of map specified in configuration file
                  */
                  var extentPoints = dojo.configData && dojo.configData.DefaultExtent && dojo.configData.DefaultExtent.split(","),
-                 mapDefaultExtent = new geometryExtent({ "xmin": parseFloat(extentPoints[0]), "ymin": parseFloat(extentPoints[1]), "xmax": parseFloat(extentPoints[2]), "ymax": parseFloat(extentPoints[3]), "spatialReference": { "wkid": parseFloat(extentPoints[4])} }),
+                 mapDefaultExtent = new geometryExtent({ "xmin": parseFloat(extentPoints[0]), "ymin": parseFloat(extentPoints[1]), "xmax": parseFloat(extentPoints[2]), "ymax": parseFloat(extentPoints[3]), "spatialReference": { "wkid": parseFloat("102100")} }),
                  graphicsLayer = new GraphicsLayer();
                  graphicsLayer.id = this.tempGraphicsLayerId;
 
@@ -82,6 +84,8 @@ define([
                  * load map
                  * @param {string} dojo.configData.BaseMapLayers Basemap settings specified in configuration file
                  */
+                 this._generateLayerURL(dojo.configData.OperationalLayers);
+
                  if (dojo.configData.WebMapId) {
                      var mapDeferred = esriUtils.createMap(dojo.configData.WebMapId, "esriCTParentDivContainer", {
                          mapOptions: {
@@ -108,19 +112,6 @@ define([
                          extent: mapDefaultExtent
                      });
                      this.map.addLayer(graphicsLayer);
-                     var roadLineSymbol = new SimpleLineSymbol();
-                     roadLineSymbol.setWidth(5);
-                     var roadLinefillColor = new Color("#FF0000");
-                     roadLineSymbol.setColor(roadLinefillColor);
-                     var roadLineRenderer = new SimpleRenderer(roadLineSymbol);
-                     this._addLogoUrl();
-                     var roadCenterLinesLayer = new FeatureLayer(dojo.configData.RoadCenterLines, {
-                         mode: FeatureLayer.MODE_SELECTION,
-                         outFields: ["*"]
-                     });
-                     roadCenterLinesLayer.id = this.roadCenterLinesLayerID;
-                     roadCenterLinesLayer.setRenderer(roadLineRenderer);
-                     this.map.addLayer(roadCenterLinesLayer);
 
                      /**
                      * load esri 'Home Button' widget
@@ -136,8 +127,27 @@ define([
                          for (var i in dojo.configData.OperationalLayers) {
                              this._addOperationalLayerToMap(i, dojo.configData.OperationalLayers[i]);
                          }
+
                          var basMapObjectGallery = this._addbasMapGallery();
                      }));
+                 }
+             },
+
+             _generateLayerURL: function (operationalLayers) {
+                 for (var i = 0; i < operationalLayers.length; i++) {
+                     if (operationalLayers[i].ServiceURL) {
+                         var str = operationalLayers[i].ServiceURL.split('/');
+                         var layerTitle = str[str.length - 3];
+                         var layerId = str[str.length - 1];
+                         var searchSettings = dojo.configData.SearchAnd511Settings;
+                         for (var index = 0; index < searchSettings.length; index++) {
+                             if (searchSettings[index].Title && searchSettings[index].QueryLayerId) {
+                                 if (layerTitle == searchSettings[index].Title && layerId == searchSettings[index].QueryLayerId) {
+                                     searchSettings[index].QueryURL = str.join("/");
+                                 }
+                             }
+                         }
+                     }
                  }
              },
 
@@ -148,6 +158,7 @@ define([
                      domConstruct.place(this.esriCTLogoUrl, query(".esriControlsBR")[0]);
                  }
              },
+
              /**
              * load esri 'Home Button' widget which sets map extent to default extent
              * @return {object} Home button widget
@@ -206,14 +217,60 @@ define([
                      }));
 
                  } else if (layerInfo.LoadAsServiceType.toLowerCase() == "dynamic") {
-                     /*
-                     * load operational layer if it's type is dynamic
-                     */
-                     var dynamicMapSerivceLayer = new arcGISDynamicMapServiceLayer(layerInfo.ServiceURL, {
-                         id: index
-                     });
-                     this.map.addLayer(dynamicMapSerivceLayer);
+                     clearTimeout(this.stagedSearch);
+                     //                 var dojo.configData.OperationalLayers
+                     var str = layerInfo.ServiceURL.split('/');
+                     var lastIndex = str[str.length - 1];
+                     if (isNaN(lastIndex) || lastIndex == "") {
+                         if (lastIndex == "") {
+                             var layerTitle = str[str.length - 3];
+                         } else {
+                             var layerTitle = str[str.length - 2];
+                         }
+                     } else {
+                         var layerTitle = str[str.length - 3];
+                     }
+                     this.stagedSearch = setTimeout(lang.hitch(this, function () {
+                         this._addServiceLayers(layerTitle, layerInfo.ServiceURL);
+                     }), 500);
                  }
+             },
+
+             _addServiceLayers: function (layerId, layerURL) {
+                 var imageParams = new esri.layers.ImageParameters();
+                 var lastIndex = layerURL.lastIndexOf('/');
+                 var dynamicLayerId = layerURL.substr(lastIndex + 1);
+                 if (isNaN(dynamicLayerId) || dynamicLayerId == "") {
+                     if (isNaN(dynamicLayerId)) {
+                         var dynamicLayer = layerURL + "/";
+                     } else if (dynamicLayerId == "") {
+                         var dynamicLayer = layerURL;
+                     }
+                     var layertype = dynamicLayer.substring(((dynamicLayer.lastIndexOf("/")) + 1), (dynamicLayer.length));
+                     if (layerURL.indexOf("/FeatureServer") >= 0) {
+                         AddHostedServices(dynamicLayer, layerId);
+                     } else {
+                         this._createDynamicServiceLayer(dynamicLayer, imageParams, layerId);
+                     }
+                 } else {
+                     imageParams.layerIds = [dynamicLayerId];
+                     var dynamicLayer = layerURL.substring(0, lastIndex);
+                     var layertype = dynamicLayer.substring(((dynamicLayer.lastIndexOf("/")) + 1), (dynamicLayer.length));
+                     if (layerURL.indexOf("/FeatureServer") >= 0) {
+                         AddHostedServices(dynamicLayer, layerId);
+                     } else {
+                         this._createDynamicServiceLayer(dynamicLayer, imageParams, layerId);
+                     }
+                 }
+             },
+
+             _createDynamicServiceLayer: function (dynamicLayer, imageParams, layerId) {
+                 var dynamicMapService = new arcGISDynamicMapServiceLayer(dynamicLayer, {
+                     imageParameters: imageParams,
+                     id: layerId,
+                     visible: true
+                 });
+                 this.map.addLayer(dynamicMapService);
              },
 
              _addLegendBox: function (layer) {

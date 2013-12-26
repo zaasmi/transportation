@@ -6,10 +6,11 @@
                 <div class="esriCTFullWidth">
                     <div data-dojo-attach-point="divAddressSearch" class="divAddressSearch" align="left">
                         <div data-dojo-attach-point="divAddressPlaceHolder" class="esriCTAddressPlaceHolder">
-                            <img data-dojo-attach-point="imgSearchLoader" class="esriCTSearchLoader" />
                             <input type="text" data-dojo-attach-point="txtAddress" class="esriCTTxtAddress" onfocus="if(this.setSelectionRange)this.setSelectionRange(this.value.length, this.value.length);" />
                             <div class="esriCTSearchClose" data-dojo-attach-point="clearhide">
                                 <span class="clearInput" title="Clear" data-dojo-attach-point="close"></span>
+                                <div>
+                                    <img data-dojo-attach-point="imgSearchLoader" class="esriCTSearchLoader" /></div>
                             </div>
                         </div>
                         <div class="esriCTSearch" data-dojo-attach-point="esriCTSearch">
@@ -26,12 +27,6 @@
                                 </div>
                             </div>
                         </div>
-                        <div data-dojo-attach-point="tdActivitySearch" style="display: none;">
-                        </div>
-                    </div>
-                    <div data-dojo-attach-point="tdNameSearch">
-                    </div>
-                    <div data-dojo-attach-point="tdActivitySearch" style="display: none;">
                     </div>
                 </div>
             </div>

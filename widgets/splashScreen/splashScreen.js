@@ -56,9 +56,9 @@ define([
              showSplashScreenDialog: function () {
                  domStyle.set(this.domNode, "display", "block");
                  this.splashScreenContent = domConstruct.create("div", { "class": "esriGovtSplashContent" }, this.splashScreenScrollBarContainer);
+                 this.splashScreenScrollBarContainer.style.height = (this.splashScreenDialogContainer.offsetHeight - 70) + "px";
                  domAttr.set(this.splashScreenContent, "innerHTML", nls.splashScreenContent);
                  this.splashScreenScrollbar = new scrollBar({ domNode: this.splashScreenScrollBarContainer });
-                 domClass.add(this.splashScreenScrollbar._scrollBarContent, "splashScreenscrollBarheight");
                  this.splashScreenScrollbar.setContent(this.splashScreenContent);
                  this.splashScreenScrollbar.createScrollBar();
              },
