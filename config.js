@@ -133,40 +133,40 @@ define([], function () {
         //                    Supported service types are 'dynamic' or 'feature'.
         OperationalLayers: [{
             ServiceURL: "http://50.18.115.76:6080/arcgis/rest/services/RoadConditions/MapServer/11",
-            LoadAsServiceType: "dynamic"
+            LoadAsServiceType: "feature"
         }, {
             ServiceURL: "http://50.18.115.76:6080/arcgis/rest/services/RoadConditions/MapServer/10",
-            LoadAsServiceType: "dynamic"
+            LoadAsServiceType: "feature"
         }, {
             ServiceURL: "http://50.18.115.76:6080/arcgis/rest/services/RoadConditions/MapServer/9",
-            LoadAsServiceType: "dynamic"
+            LoadAsServiceType: "feature"
         }, {
             ServiceURL: "http://50.18.115.76:6080/arcgis/rest/services/RoadConditions/MapServer/8",
-            LoadAsServiceType: "dynamic"
+            LoadAsServiceType: "feature"
         }, {
             ServiceURL: "http://50.18.115.76:6080/arcgis/rest/services/RoadConditions/MapServer/7",
-            LoadAsServiceType: "dynamic"
+            LoadAsServiceType: "feature"
         }, {
             ServiceURL: "http://50.18.115.76:6080/arcgis/rest/services/RoadConditions/MapServer/6",
-            LoadAsServiceType: "dynamic"
+            LoadAsServiceType: "feature"
         }, {
             ServiceURL: "http://50.18.115.76:6080/arcgis/rest/services/RoadConditions/MapServer/5",
-            LoadAsServiceType: "dynamic"
+            LoadAsServiceType: "feature"
         }, {
             ServiceURL: "http://50.18.115.76:6080/arcgis/rest/services/RoadConditions/MapServer/4",
-            LoadAsServiceType: "dynamic"
+            LoadAsServiceType: "feature"
         }, {
             ServiceURL: "http://50.18.115.76:6080/arcgis/rest/services/RoadConditions/MapServer/3",
-            LoadAsServiceType: "dynamic"
+            LoadAsServiceType: "feature"
         }, {
             ServiceURL: "http://50.18.115.76:6080/arcgis/rest/services/RoadConditions/MapServer/2",
-            LoadAsServiceType: "dynamic"
+            LoadAsServiceType: "feature"
         }, {
             ServiceURL: "http://50.18.115.76:6080/arcgis/rest/services/RoadConditions/MapServer/1",
-            LoadAsServiceType: "dynamic"
+            LoadAsServiceType: "feature"
         }, {
             ServiceURL: "http://50.18.115.76:6080/arcgis/rest/services/RoadConditions/MapServer/0",
-            LoadAsServiceType: "dynamic"
+            LoadAsServiceType: "feature"
         }
         ],
 
@@ -218,7 +218,7 @@ define([], function () {
 		    InfoLayer: "true",
 		    InfoSearchExpression: "",
 		    InfoListText: "",
-		    InfoDetailFields: "$Hwy:{HwyName} / ${ConditionDesc}"
+		    InfoDetailFields: "Hwy:${HwyName} / ${ConditionDesc}"
 		}, {
 		    Title: "RoadConditions",
 		    QueryLayerId: "2",

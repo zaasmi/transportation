@@ -25,6 +25,7 @@ define([
     "esri/arcgis/utils",
     "dojo/on",
     "dojo/dom",
+    "dojo/dom-attr",
     "dojo/query",
     "dojo/dom-class",
     "dojo/dom-geometry",
@@ -33,11 +34,13 @@ define([
     "dijit/_WidgetsInTemplateMixin",
     "dojo/i18n!nls/localizedStrings",
     "esri/map",
+    "esri/layers/ImageParameters",
     "esri/dijit/Directions",
     "esri/layers/FeatureLayer",
     "esri/layers/GraphicsLayer",
     "esri/symbols/SimpleLineSymbol",
     "esri/renderers/SimpleRenderer",
+    "esri/dijit/Basemap",
     "dojo/_base/Color",
     "widgets/baseMapGallery/baseMapGallery",
     "widgets/route/route",
@@ -49,7 +52,7 @@ define([
     "esri/layers/ArcGISDynamicMapServiceLayer",
     "dojo/domReady!"
     ],
-     function (declare, domConstruct, domStyle, lang, esriUtils, on, dom, query, domClass, domGeom, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, nls, esriMap, Directions, FeatureLayer, GraphicsLayer, SimpleLineSymbol, SimpleRenderer, Color, baseMapGallery, route, legends, template, geometryExtent, HomeButton, spatialReference, arcGISDynamicMapServiceLayer) {
+     function (declare, domConstruct, domStyle, lang, esriUtils, on, dom, domAttr, query, domClass, domGeom, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, nls, esriMap, ImageParameters, Directions, FeatureLayer, GraphicsLayer, SimpleLineSymbol, SimpleRenderer, basemap, Color, baseMapGallery, route, legends, template, geometryExtent, HomeButton, spatialReference, arcGISDynamicMapServiceLayer) {
 
          //========================================================================================================================//
 
@@ -58,10 +61,10 @@ define([
              map: null,
              templateString: template,
              tempGraphicsLayerId: "esriGraphicsLayerMapSettings",
-             roadCenterLinesLayerID: "roadCenterLinesLayerID",
              nls: nls,
-             esriCTLogoUrl: null,
              stagedSearch: null,
+             newLeft: 0,
+             logoContainer: null,
 
              /**
              * initialize map object
@@ -75,8 +78,8 @@ define([
                  * set map extent to default extent specified in configuration file
                  * @param {string} dojo.configData.DefaultExtent Default extent of map specified in configuration file
                  */
+                 this.logoContainer = query(".map .logo-sm") && query(".map .logo-sm")[0] || query(".map .logo-med") && query(".map .logo-med")[0];
                  var extentPoints = dojo.configData && dojo.configData.DefaultExtent && dojo.configData.DefaultExtent.split(","),
-                 mapDefaultExtent = new geometryExtent({ "xmin": parseFloat(extentPoints[0]), "ymin": parseFloat(extentPoints[1]), "xmax": parseFloat(extentPoints[2]), "ymax": parseFloat(extentPoints[3]), "spatialReference": { "wkid": parseFloat("102100")} }),
                  graphicsLayer = new GraphicsLayer();
                  graphicsLayer.id = this.tempGraphicsLayerId;
 
@@ -85,8 +88,7 @@ define([
                  * @param {string} dojo.configData.BaseMapLayers Basemap settings specified in configuration file
                  */
                  this._generateLayerURL(dojo.configData.OperationalLayers);
-
-                 if (dojo.configData.WebMapId) {
+                 if (dojo.configData.WebMapId && lang.trim(dojo.configData.WebMapId).length != 0) {
                      var mapDeferred = esriUtils.createMap(dojo.configData.WebMapId, "esriCTParentDivContainer", {
                          mapOptions: {
                              slider: true
@@ -101,15 +103,15 @@ define([
                          domConstruct.place(home.domNode, query(".esriSimpleSliderIncrementButton")[0], "after");
                          home.startup();
                          for (var i in webMapDetails.operationalLayers) {
-                             this._addLegendBox(webMapDetails.operationalLayers);
+                             this._addLegendBox(webMapDetails.operationalLayers[i]);
                          }
                      }));
                  }
 
                  else {
+
                      this.map = esriMap("esriCTParentDivContainer", {
-                         basemap: dojo.configData.BaseMapLayers[0].Key,
-                         extent: mapDefaultExtent
+                         basemap: dojo.configData.BaseMapLayers[0].Key
                      });
                      this.map.addLayer(graphicsLayer);
 
@@ -122,14 +124,78 @@ define([
                      * @param {array} dojo.configData.OperationalLayers List of operational Layers specified in configuration file
                      */
                      this.map.on("load", lang.hitch(this, function () {
+                         var mapDefaultExtent = new geometryExtent({ "xmin": parseFloat(extentPoints[0]), "ymin": parseFloat(extentPoints[1]), "xmax": parseFloat(extentPoints[2]), "ymax": parseFloat(extentPoints[3]), "spatialReference": { "wkid": this.map.spatialReference.wkid} });
+                         this.map.setExtent(mapDefaultExtent);
                          domConstruct.place(home.domNode, query(".esriSimpleSliderIncrementButton")[0], "after");
+                         home.extent = mapDefaultExtent;
                          home.startup();
+                         this.esriCTLegendContainer = domConstruct.create("div", {}, dom.byId("esriCTParentDivContainer"));
+                         this.esriCTLegendContainer.appendChild(this.esriCTdivLegendbox);
+                         var divlegendContainer = domConstruct.create("div", { "class": "divlegendContainer" }, this.divlegendList);
+                         this.divlegendContent = domConstruct.create("div", { "class": "divlegendContent" }, divlegendContainer);
+                         var divLeftArrow = domConstruct.create("div", { "class": "divLeftArrow" }, this.legendbox);
+                         var esriCTLeftArrow = domConstruct.create("img", { "class": "esriCTArrow" }, divLeftArrow);
+                         domAttr.set(esriCTLeftArrow, "src", "themes/images/left.png");
+                         domStyle.set(divLeftArrow, "display", "none");
+                         on(divLeftArrow, "click", lang.hitch(this, function () {
+                             this._slideLeft();
+                         }));
+                         var divRightArrow = domConstruct.create("div", { "class": "divRightArrow" }, this.legendbox);
+                         var esriCTRightArrow = domConstruct.create("img", { "class": "esriCTArrow" }, divRightArrow);
+                         domStyle.set(divRightArrow, "display", "block");
+                         on(esriCTRightArrow, "click", lang.hitch(this, function () {
+                             this._slideRight();
+                         }));
+                         domAttr.set(esriCTRightArrow, "src", "themes/images/right.png");
                          for (var i in dojo.configData.OperationalLayers) {
                              this._addOperationalLayerToMap(i, dojo.configData.OperationalLayers[i]);
                          }
-
-                         var basMapObjectGallery = this._addbasMapGallery();
+                         this._showBasMapGallery();
                      }));
+                 }
+             },
+
+             _slideRight: function () {
+                 var difference = query(".divlegendContainer")[0].offsetWidth - query(".divlegendContent")[0].offsetWidth;
+                 if (this.newLeft > difference) {
+                     domStyle.set(query(".divLeftArrow")[0], "display", "block");
+                     domStyle.set(query(".divLeftArrow")[0], "cursor", "pointer");
+                     this.newLeft = this.newLeft - (200 + 9);
+                     domStyle.set(query(".divlegendContent")[0], "left", (this.newLeft) + "px");
+                     this._resetSlideControls();
+                 }
+             },
+
+             _slideLeft: function () {
+                 if (this.newLeft < 0) {
+                     if (this.newLeft > -(200 + 9)) {
+                         this.newLeft = 0;
+                     } else {
+                         this.newLeft = this.newLeft + (200 + 9);
+                     }
+                     if (this.newLeft >= -10) {
+                         this.newLeft = 0;
+                     }
+                     domStyle.set(query(".divlegendContent")[0], "left", (this.newLeft) + "px");
+                     this._resetSlideControls();
+                 }
+
+             },
+
+             _resetSlideControls: function () {
+                 if (this.newLeft > query(".divlegendContainer")[0].offsetWidth - query(".divlegendContent")[0].offsetWidth) {
+                     domStyle.set(query(".divRightArrow")[0], "display", "block");
+                     domStyle.set(query(".divRightArrow")[0], "cursor", "pointer");
+                 } else {
+                     domStyle.set(query(".divRightArrow")[0], "display", "none");
+                     domStyle.set(query(".divRightArrow")[0], "cursor", "default");
+                 }
+                 if (this.newLeft == 0) {
+                     domStyle.set(query(".divLeftArrow")[0], "display", "none");
+                     domStyle.set(query(".divLeftArrow")[0], "cursor", "default");
+                 } else {
+                     domStyle.set(query(".divLeftArrow")[0], "display", "block");
+                     domStyle.set(query(".divLeftArrow")[0], "cursor", "pointer");
                  }
              },
 
@@ -153,9 +219,9 @@ define([
 
              _addLogoUrl: function () {
                  if (dojo.configData.LogoUrl && lang.trim(dojo.configData.LogoUrl).length != 0) {
-                     domStyle.set(query(".map .logo-med")[0], "display", "none");
-                     this.esriCTLogoUrl = domConstruct.create("img", { "class": "esriCTLogoUrl", "src": dojo.configData.LogoUrl });
-                     domConstruct.place(this.esriCTLogoUrl, query(".esriControlsBR")[0]);
+                     domStyle.set(this.logoContainer, "display", "none");
+                     var esriCTLogoUrl = domConstruct.create("img", { "class": "esriCTLogoUrl", "src": dojo.configData.LogoUrl });
+                     domConstruct.place(esriCTLogoUrl, query(".esriControlsBR")[0]);
                  }
              },
 
@@ -171,7 +237,7 @@ define([
                  return home;
              },
 
-             _addbasMapGallery: function () {
+             _showBasMapGallery: function () {
                  var basMapGallery = new baseMapGallery({
                      map: this.map
                  }, domConstruct.create("div", {}, null));
@@ -186,6 +252,7 @@ define([
              */
              _addOperationalLayerToMap: function (index, layerInfo) {
                  if (layerInfo.LoadAsServiceType.toLowerCase() == "feature") {
+
                      /**
                      * set layerMode of the operational layer if it's type is feature
                      */
@@ -201,6 +268,7 @@ define([
                              layerMode = FeatureLayer.MODE_SNAPSHOT;
                              break;
                      }
+
                      /**
                      * load operational layer if it's type is feature along with its layer mode
                      */
@@ -210,57 +278,54 @@ define([
                          outFields: ["*"],
                          displayOnPan: false
                      });
-
                      this.map.addLayer(featureLayer);
                      featureLayer.on("load", lang.hitch(this, function (featureLayer) {
                          this._addLegendBox(featureLayer);
                      }));
 
                  } else if (layerInfo.LoadAsServiceType.toLowerCase() == "dynamic") {
-                     clearTimeout(this.stagedSearch);
-                     //                 var dojo.configData.OperationalLayers
-                     var str = layerInfo.ServiceURL.split('/');
-                     var lastIndex = str[str.length - 1];
-                     if (isNaN(lastIndex) || lastIndex == "") {
-                         if (lastIndex == "") {
-                             var layerTitle = str[str.length - 3];
-                         } else {
-                             var layerTitle = str[str.length - 2];
-                         }
-                     } else {
-                         var layerTitle = str[str.length - 3];
-                     }
-                     this.stagedSearch = setTimeout(lang.hitch(this, function () {
-                         this._addServiceLayers(layerTitle, layerInfo.ServiceURL);
-                     }), 500);
+                     this._addDynamicLayerService(layerInfo);
                  }
              },
 
+             _addDynamicLayerService: function (layerInfo) {
+                 clearTimeout(this.stagedSearch);
+                 var str = layerInfo.ServiceURL.split('/');
+                 var lastIndex = str[str.length - 1];
+                 if (isNaN(lastIndex) || lastIndex == "") {
+                     if (lastIndex == "") {
+                         var layerTitle = str[str.length - 3];
+                     } else {
+                         var layerTitle = str[str.length - 2];
+                     }
+                 } else {
+                     var layerTitle = str[str.length - 3];
+                 }
+                 this.stagedSearch = setTimeout(lang.hitch(this, function () {
+                     this._addServiceLayers(layerTitle, layerInfo.ServiceURL);
+                 }), 500);
+
+             },
+
              _addServiceLayers: function (layerId, layerURL) {
-                 var imageParams = new esri.layers.ImageParameters();
+                 var dynamicLayer;
+                 var layertype;
+                 var imageParams = new ImageParameters();
                  var lastIndex = layerURL.lastIndexOf('/');
                  var dynamicLayerId = layerURL.substr(lastIndex + 1);
                  if (isNaN(dynamicLayerId) || dynamicLayerId == "") {
                      if (isNaN(dynamicLayerId)) {
-                         var dynamicLayer = layerURL + "/";
+                         dynamicLayer = layerURL + "/";
                      } else if (dynamicLayerId == "") {
-                         var dynamicLayer = layerURL;
+                         dynamicLayer = layerURL;
                      }
-                     var layertype = dynamicLayer.substring(((dynamicLayer.lastIndexOf("/")) + 1), (dynamicLayer.length));
-                     if (layerURL.indexOf("/FeatureServer") >= 0) {
-                         AddHostedServices(dynamicLayer, layerId);
-                     } else {
-                         this._createDynamicServiceLayer(dynamicLayer, imageParams, layerId);
-                     }
+                     layertype = dynamicLayer.substring(((dynamicLayer.lastIndexOf("/")) + 1), (dynamicLayer.length));
+                     this._createDynamicServiceLayer(dynamicLayer, imageParams, layerId);
                  } else {
                      imageParams.layerIds = [dynamicLayerId];
-                     var dynamicLayer = layerURL.substring(0, lastIndex);
-                     var layertype = dynamicLayer.substring(((dynamicLayer.lastIndexOf("/")) + 1), (dynamicLayer.length));
-                     if (layerURL.indexOf("/FeatureServer") >= 0) {
-                         AddHostedServices(dynamicLayer, layerId);
-                     } else {
-                         this._createDynamicServiceLayer(dynamicLayer, imageParams, layerId);
-                     }
+                     dynamicLayer = layerURL.substring(0, lastIndex);
+                     layertype = dynamicLayer.substring(((dynamicLayer.lastIndexOf("/")) + 1), (dynamicLayer.length));
+                     this._createDynamicServiceLayer(dynamicLayer, imageParams, layerId);
                  }
              },
 
@@ -274,16 +339,13 @@ define([
              },
 
              _addLegendBox: function (layer) {
-                 var divLegendContainer = domConstruct.create("div", {}, dom.byId("esriCTParentDivContainer"));
-                 divLegendContainer.appendChild(this.esriCTdivLegendbox);
-                 var divlegendContainer = domConstruct.create("div", {}, this.divlegendList);
                  var legendObject = new legends({
                      map: this.map,
                      addLayersObject: layer,
-                     divlegendContainer: divlegendContainer,
-                     divLegendContainer: divLegendContainer
+                     divlegendContainer: this.divlegendContent
                  }, domConstruct.create("div", {}, null));
                  return legendObject;
+
              },
 
              /**

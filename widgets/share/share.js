@@ -95,11 +95,11 @@ function (declare, domConstruct, domStyle, lang, array, domAttr, on, dom, domCla
             * get current map extent to be shared
             */
             domAttr.set(this.esriCTDivshareCodeContainer, "innerHTML", nls.webpageDispalyText);
-            if (dojo.configData.WebMapId == "") {
+            if (dojo.configData.WebMapId && lang.trim(dojo.configData.ApplicationFavicon).length == 0) {
                 var mapExtent = this._getMapExtent();
             }
-            url = esri.urlToObject(window.location.toString()),
-            urlStr = encodeURI(url.path) + "?extent=" + mapExtent;
+            var url = esri.urlToObject(window.location.toString());
+            var urlStr = encodeURI(url.path) + "?extent=" + mapExtent;
             try {
 
                 /**

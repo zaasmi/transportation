@@ -1,4 +1,5 @@
-﻿/** @license
+﻿/*global define */
+/** @license
 | Version 10.2
 | Copyright 2013 Esri
 |
@@ -16,21 +17,80 @@
 */
 @media only screen and (min-device-width : 768px) and (max-device-width : 1024px) and (-webkit-min-device-pixel-ratio: 2)
 {
+
+    .esriCTTdHeaderSearch
+    {
+        background-image: url("../images/search@2X.png") !important;
+    }
+
+    .esriCTHelpImg
+    {
+        background-image: url("../images/help@2X.png") !important;
+    }
+
+    .esriCTTdHeaderSearch-select
+    {
+        background-image: url("../images/search-select@2X.png") !important;
+    }
+
+    .esriCTTdGeolocation
+    {
+        background-image: url("../images/geo-location@2x.png") !important;
+    }
+
+    .esriCTImgSocialMedia-select
+    {
+        background-image: url("../images/share-select@2X.png") !important;
+    }
+
+    .esriCTImgSocialMedia
+    {
+        background-image: url("../images/share@2X.png") !important;
+    }
+
+    .esriCTRouteImg
+    {
+        background-image: url("../images/get-route@2x.png") !important;
+    }
+
+    .esriCTRouteImg-select
+    {
+        background-image: url("../images/get-route-select@2x.png") !important;
+    }
     .esriCTTdHeaderSearch, .esriCTTdHeaderSearch-select, .esriCTTdGeolocation, .esriCTImgSocialMedia-select, .esriCTImgSocialMedia, .esriCTRouteImg, .esriCTRouteImg-select, .esriCTHelpImg, .esriCTHelpImg
     {
         height: 44px !important;
         width: 44px !important;
         background-size: 44px !important;
-        width: 25% !important;
-        padding: 8px 0 !important;
+        padding: 8px 15px !important;
     }
-    .clearInput
+
+    .facebook
     {
-        background-image: url("../images/close@2x.png") !important;
+        background-image: url("../images/img_facebook@2x.png") !important;
     }
+
+    .twitter
+    {
+        background-image: url("../images/img_twitter@2x.png") !important;
+    }
+
+    .email
+    {
+        background-image: url("../images/img-email@2x.png") !important;
+    }
+    .facebook, .twitter, .email
+    {
+        height: 44px !important;
+        width: 44px !important;
+        padding: 8px 0 !important;
+        background-size: 44px;
+    }
+
+
 }
 
-@media only screen and (min-device-width : 1024px) and (max-device-width : 1280px) /*if device wise @media only screen and (min-device-width : 1024px) and (max-device-width : 1280px)*/
+@media only screen and (min-width : 1024px) and (max-width : 1279px) /*if device wise @media only screen and (min-device-width : 1024px) and (max-device-width : 1280px)*/
 {
     html, body
     {
@@ -41,6 +101,14 @@
         font-size: 14px !important;
     }
     .simpleDirections .esriStopsAdd .esriStopsAddDestination, .simpleDirections .esriStopsGetDirections, .simpleDirections .esriRoutesError li
+    {
+        font-size: 14px !important;
+    }
+    .simpleDirections .esriResultsViewFullRoute
+    {
+        font-size: 14px !important;
+    }
+    .simpleDirections .esriResultsSummary
     {
         font-size: 14px !important;
     }
@@ -100,12 +168,9 @@
     }
     .esriCTHeaderRouteContainer
     {
-        top: 60px;
+        top: 61px;
     }
-    .esriCTInformationLayerListContent
-    {
-        width: 96% !important;
-    }
+
     .esriCTDirectionContainer .esriCTRouteInformationContainer
     {
         font-size: 14px !important;
@@ -127,7 +192,15 @@
     {
         font-size: 14px !important;
     }
+    .simpleDirections .esriResultsViewFullRoute
+    {
+        font-size: 14px !important;
+    }
     .esriCTDirectionContainer .esriCTRouteInformationContainer
+    {
+        font-size: 14px !important;
+    }
+    .simpleDirections .esriResultsSummary
     {
         font-size: 14px !important;
     }
@@ -179,12 +252,9 @@
     }
     .esriCTHeaderRouteContainer
     {
-        top: 60px;
+        top: 61px;
     }
-    .esriCTInformationLayerListContent
-    {
-        width: 96% !important;
-    }
+
     .esriCTDirectionContainer .esriCTRouteInformationContainer
     {
         font-size: 14px !important;
@@ -206,6 +276,14 @@
         font-size: 14px !important;
     }
     .esriCTDirectionContainer .esriCTRouteInformationContainer
+    {
+        font-size: 14px !important;
+    }
+    .simpleDirections .esriResultsViewFullRoute
+    {
+        font-size: 14px !important;
+    }
+    .simpleDirections .esriResultsSummary
     {
         font-size: 14px !important;
     }
@@ -261,12 +339,9 @@
     }
     .esriCTHeaderRouteContainer
     {
-        top: 60px;
+        top: 61px;
     }
-    .esriCTInformationLayerListContent
-    {
-        width: 96% !important;
-    }
+
     .esriCTDirectionContainer .esriCTRouteInformationContainer
     {
         font-size: 14px !important;
@@ -291,21 +366,23 @@
     {
         font-size: 14px !important;
     }
+    .simpleDirections .esriResultsViewFullRoute
+    {
+        font-size: 14px !important;
+    }
+    .simpleDirections .esriResultsSummary
+    {
+        font-size: 14px !important;
+    }
     .esriCTAddressHolder, .esriCTAddressContentHeight
     {
         top: 61px !important;
         width: 100% !important;
     }
-    .esriCTAddressPlaceHolder
-    {
-        height: 44px;
-    }
 
     .esriCTTxtAddress
     {
         font-size: 15px !important;
-        padding: 0px !important;
-        padding: 6px 15px !important;
     }
 
     .esriCTDivAppContainer, .esriCTShowContainerHeight
@@ -315,7 +392,11 @@
     }
     .esriCTDivAppHolder
     {
-        width: 100% !important;
+        width: 99.6% !important;
+    }
+    .esriCTDivshareContainer
+    {
+        width: 99.6% !important;
     }
     .divAppContent
     {
@@ -364,10 +445,7 @@
     {
         display: none;
     }
-    .legendbox
-    {
-        display: none;
-    }
+
     /* Address container */
 
     .esriCTAddressHolder
@@ -386,19 +464,12 @@
         border-left: 1px solid #007ac2;
         border-bottom: 1px solid #007ac2;
     }
-    .esriCTAddressPlaceHolder
-    {
-        height: 44px;
-    }
+
     .esriCTBottomBorder
     {
         height: 40px;
     }
-    .esriCTTxtAddress
-    {
-        padding: 0px !important;
-        padding: 6px 15px !important;
-    }
+
 
     /* End of Address container Styles */
     /* Splash Screen */
@@ -447,19 +518,16 @@
     }
     .esriCTSearchClose
     {
-        right: 65px;
+        right: 70px;
     }
-    .esriCTSearch
-    {
-        top: -45PX;
-    }
+
     .splashScreenscrollBarheight
     {
         height: 120px !important;
     }
     .esriCTHeaderRouteContainer
     {
-        top: 60px;
+        top: 61px;
         width: 100%;
     }
     .esriCTHeaderRouteContainer
@@ -483,6 +551,15 @@
     {
         background-image: url("../images/get-route.png");
     }
+    .legendrightbox
+    {
+        display: none;
+    }
+    .divRightArrow
+    {
+        right: 0px;
+    }
+
 }
 
 /* Portrait */
@@ -504,6 +581,14 @@
     {
         font-size: 14px !important;
     }
+    .simpleDirections .esriResultsViewFullRoute
+    {
+        font-size: 14px !important;
+    }
+    .simpleDirections .esriResultsSummary
+    {
+        font-size: 14px !important;
+    }
     .esriCTAddressHolder, .esriCTAddressContentHeight
     {
         top: 61px !important;
@@ -512,8 +597,6 @@
     .esriCTTxtAddress
     {
         font-size: 15px !important;
-        padding: 0px !important;
-        padding: 6px 25px !important;
     }
     .esriCTDivAppContainer, .esriCTShowContainerHeight
     {
@@ -522,7 +605,11 @@
     }
     .esriCTDivAppHolder
     {
-        width: 100% !important;
+        width: 99.6% !important;
+    }
+    .esriCTDivshareContainer
+    {
+        width: 99.6% !important;
     }
     .esriCTShareCursor, .facebook, .twitter, .email
     {
@@ -551,10 +638,6 @@
     .esriCTRightTab
     {
         width: 100% !important;
-    }
-    .legendbox
-    {
-        display: none;
     }
 
     /* Splash Screen */
@@ -597,7 +680,7 @@
     }
     .esriCTSearchClose
     {
-        right: 65px;
+        right: 70px;
     }
     .simpleDirections .esriStopsGetDirections
     {
@@ -624,9 +707,13 @@
     {
         background-image: url("../images/get-route.png");
     }
+    .esriCTRouteImg-select-i
+    {
+        background-image: url("../images/get-route.png");
+    }
     .esriCTHeaderRouteContainer
     {
-        top: 60px;
+        top: 61px;
         width: 100%;
     }
     .esriCTHeaderRouteContainer
@@ -641,6 +728,14 @@
     .mapLogo
     {
         position: relative;
+        right: 0px;
+    }
+    .legendrightbox
+    {
+        display: none;
+    }
+    .divRightArrow
+    {
         right: 0px;
     }
 }

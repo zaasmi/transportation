@@ -33,6 +33,9 @@ define([
     "dojo/window",
     "esri/tasks/query",
     "../scrollBar/scrollBar",
+    "dojo/Deferred",
+    "dojo/DeferredList",
+    "esri/tasks/QueryTask",
     "dojo/text!./templates/locatorTemplate.html",
     "dijit/_WidgetBase",
     "dijit/_TemplatedMixin",
@@ -40,7 +43,7 @@ define([
     "dojo/i18n!nls/localizedStrings",
     "dojo/topic"
     ],
-     function (declare, domConstruct, domStyle, domAttr, lang, on, domGeom, dom, domClass, html, string, Locator, window, Query, scrollBar, template, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, nls, topic) {
+     function (declare, domConstruct, domStyle, domAttr, lang, on, domGeom, dom, domClass, html, string, Locator, window, Query, scrollBar, Deferred, DeferredList, QueryTask, template, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, nls, topic) {
          //========================================================================================================================//
 
          return declare([_WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin], {
@@ -48,7 +51,7 @@ define([
              nls: nls,
              lastSearchString: null,
              stagedSearch: null,
-             splashScreenScrollbar: null,
+             locatorScrollbar: null,
 
              /**
              * display locator widget
@@ -75,7 +78,8 @@ define([
                  this.domNode = domConstruct.create("div", { "title": this.title, "class": "esriCTTdHeaderSearch" }, null);
                  domConstruct.place(this.divAddressContainer, dom.byId("esriCTParentDivContainer"));
                  this.own(on(this.domNode, "click", lang.hitch(this, function () {
-
+                     domStyle.set(this.imgSearchLoader, "display", "none");
+                     domStyle.set(this.close, "display", "block");
                      /**
                      * minimize other open header panel widgets and show locator widget
                      */
@@ -84,7 +88,7 @@ define([
                  })));
                  domStyle.set(this.divAddressContainer, "display", "block");
                  domAttr.set(this.divAddressContainer, "title", "");
-                 this.imgSearchLoader.src = dojoConfig.baseURL + "/themes/images/blue-loader.gif";
+                 domAttr.set(this.imgSearchLoader, "src", dojoConfig.baseURL + "/themes/images/blue-loader.gif");
                  this._setDefaultTextboxValue();
                  this._attachLocatorEvents();
              },
@@ -110,7 +114,6 @@ define([
              * @memberOf widgets/locator/locator
              */
              _attachLocatorEvents: function () {
-
                  this.own(on(this.esriCTSearch, "click", lang.hitch(this, function (evt) {
                      domStyle.set(this.imgSearchLoader, "display", "block");
                      domStyle.set(this.close, "display", "none");
@@ -127,6 +130,7 @@ define([
                      this._replaceDefaultText(evt);
                  })));
                  this.own(on(this.txtAddress, "focus", lang.hitch(this, function () {
+                     domStyle.set(this.close, "display", "block");
                      domClass.add(this.txtAddress, "esriCTColorChange");
                  })));
                  this.own(on(this.close, "click", lang.hitch(this, function () {
@@ -136,17 +140,17 @@ define([
 
              _hideText: function () {
                  this.txtAddress.value = "";
-                 //                 RemoveChildren(dojo.byId("tblAddressResults"));
                  domStyle.set(this.close, "display", "none");
              },
+
              /**
              * show/hide locator widget and set default search text
              * @memberOf widgets/locator/locator
              */
              _showLocateContainer: function () {
                  this.txtAddress.blur();
-
                  if (domGeom.getMarginBox(this.divAddressHolder).h > 0) {
+
                      /**
                      * when user clicks on locator icon in header panel, close the search panel if it is open
                      */
@@ -155,6 +159,7 @@ define([
                      domClass.replace(this.divAddressHolder, "esriCTZeroHeight", "esriCTAddressContentHeight");
                      this.txtAddress.blur();
                  } else {
+
                      /**
                      * when user clicks on locator icon in header panel, open the search panel if it is closed
                      */
@@ -185,18 +190,19 @@ define([
                              return;
                          }
                      }
-
+                     domStyle.set(this.imgSearchLoader, "display", "block");
+                     domStyle.set(this.close, "display", "none");
                      /**
                      * do not perform auto complete search if alphabets,
                      * numbers,numpad keys,comma,ctl+v,ctrl +x,delete or
                      * backspace is pressed
                      */
                      if ((!((evt.keyCode >= 46 && evt.keyCode < 58) || (evt.keyCode > 64 && evt.keyCode < 91) || (evt.keyCode > 95 && evt.keyCode < 106) || evt.keyCode == 8 || evt.keyCode == 110 || evt.keyCode == 188)) || (evt.keyCode == 86 && evt.ctrlKey) || (evt.keyCode == 88 && evt.ctrlKey)) {
-                         evt = (evt) ? evt : event;
                          evt.cancelBubble = true;
                          evt.stopPropagation && evt.stopPropagation();
                          return;
                      }
+
                      /**
                      * call locator service if search text is not empty
                      */
@@ -205,7 +211,6 @@ define([
                              if (this.lastSearchString != lang.trim(this.txtAddress.value)) {
                                  this.lastSearchString = lang.trim(this.txtAddress.value);
                                  domConstruct.empty(this.divAddressResults);
-                                 var _this = this;
 
                                  /**
                                  * clear any staged search
@@ -280,13 +285,13 @@ define([
                  * @param {object} candidates Contains results from locator service
                  */
                  var defferedArray = [];
-                 for (index = 0; index < dojo.configData.SearchAnd511Settings.length; index++) {
+                 for (var index = 0; index < dojo.configData.SearchAnd511Settings.length; index++) {
                      this._locateLayersearchResult(defferedArray, index);
 
                  }
                  var locatorDef = locator.addressToLocations(options);
                  locator.on("address-to-locations-complete", lang.hitch(this, function (candidates) {
-                     var deferred = new dojo.Deferred();
+                     var deferred = new Deferred();
                      deferred.resolve(candidates);
                      return deferred.promise;
                  }), function () {
@@ -296,7 +301,7 @@ define([
                  });
 
                  defferedArray.push(locatorDef);
-                 var deferredListResult = new dojo.DeferredList(defferedArray);
+                 var deferredListResult = new DeferredList(defferedArray);
                  deferredListResult.then(lang.hitch(this, function (result) {
                      if (result) {
                          if (result.length > 0) {
@@ -317,7 +322,6 @@ define([
                      }
                      this._showLocatedAddress(nameArray);
                  }));
-
              },
 
              _addressResult: function (candidates, nameArray) {
@@ -334,21 +338,20 @@ define([
                  domStyle.set(this.imgSearchLoader, "display", "block");
                  domStyle.set(this.close, "display", "none");
                  if (layerobject.QueryURL) {
-                     var queryTask = new esri.tasks.QueryTask(layerobject.QueryURL);
+                     var queryTask = new QueryTask(layerobject.QueryURL);
                      var query = new Query();
                      query.where = string.substitute(layerobject.SearchExpression, [lang.trim(this.txtAddress.value).toUpperCase()]);
                      query.outSpatialReference = this.map.spatialReference;
                      query.returnGeometry = false;
                      query.outFields = ["*"];
                      var queryTaskResult = queryTask.execute(query, lang.hitch(this, function (featureSet) {
-                         var deferred = new dojo.Deferred();
+                         var deferred = new Deferred();
                          deferred.resolve(featureSet);
                          return deferred.promise;
                      }), function (err) {
                          alert("error");
                      });
                      defferedArray.push(queryTaskResult);
-
                  }
              },
 
@@ -362,25 +365,26 @@ define([
                  if (lang.trim(this.txtAddress.value) === "") {
                      this.txtAddress.focus();
                      domConstruct.empty(this.divAddressResults);
-                     this.splashScreenScrollbar = new scrollBar({ domNode: this.divAddressScrollContent });
-                     this.splashScreenScrollbar.setContent(this.divAddressResults);
-                     this.splashScreenScrollbar.createScrollBar();
+                     this.locatorScrollbar = new scrollBar({ domNode: this.divAddressScrollContent });
+                     this.locatorScrollbar.setContent(this.divAddressResults);
+                     this.locatorScrollbar.createScrollBar();
                      domStyle.set(this.imgSearchLoader, "display", "none");
                      domStyle.set(this.close, "display", "block");
                      return;
                  }
+
                  /**
                  * display all the located address in the address container
                  * 'this.divAddressResults' div dom element contains located addresses, created in widget template
                  */
 
-                 if (this.splashScreenScrollbar) {
-                     domClass.add(this.splashScreenScrollbar._scrollBarContent, "esriCTZeroHeight");
-                     this.splashScreenScrollbar.removeScrollBar();
+                 if (this.locatorScrollbar) {
+                     domClass.add(this.locatorScrollbar._scrollBarContent, "esriCTZeroHeight");
+                     this.locatorScrollbar.removeScrollBar();
                  }
-                 this.splashScreenScrollbar = new scrollBar({ domNode: this.divAddressScrollContent });
-                 this.splashScreenScrollbar.setContent(this.divAddressResults);
-                 this.splashScreenScrollbar.createScrollBar();
+                 this.locatorScrollbar = new scrollBar({ domNode: this.divAddressScrollContent });
+                 this.locatorScrollbar.setContent(this.divAddressResults);
+                 this.locatorScrollbar.createScrollBar();
                  for (var candidateArray in candidates) {
                      if (candidates[candidateArray].length > 0) {
                          var divAddressCounty = domConstruct.create("div", { "class": "esriCTBottomBorder esriCTCursorPointer esriAddressCounty" }, this.divAddressResults);
@@ -432,6 +436,7 @@ define([
              * @memberOf widgets/locator/locator
              */
              _setHeightAddressResults: function () {
+
                  /**
                  * divAddressContent Container for search results
                  * @member {div} divAddressContent
@@ -440,13 +445,14 @@ define([
                  */
                  var height = domGeom.getMarginBox(this.divAddressContent).h;
                  if (height > 0) {
+
                      /**
                      * divAddressScrollContent Scrollbar container for search results
                      * @member {div} divAddressScrollContent
                      * @private
                      * @memberOf widgets/locator/locator
                      */
-                     this.divAddressScrollContent.style.height = (height - 120) + "px";
+                     domStyle.set(this.divAddressScrollContent, "height", (height - 120) + "px");
                  }
              },
 
@@ -455,7 +461,7 @@ define([
              * @memberOf widgets/locator/locator
              */
              _showAddressSearchView: function () {
-                 if (this.imgSearchLoader.style.display == "block") {
+                 if (domStyle.get(this.imgSearchLoader, "display", "block") == "block") {
                      return;
                  }
                  this.txtAddress.value = domAttr.get(this.txtAddress, "defaultAddress");
@@ -496,7 +502,7 @@ define([
              _replaceDefaultText: function (evt) {
                  var target = window.event ? window.event.srcElement : evt ? evt.target : null;
                  if (!target) return;
-                 this._resetTargetValue(target, "defaultAddress", "gray");
+                 this._resetTargetValue(target, "defaultAddress");
              },
 
              /**
@@ -506,7 +512,7 @@ define([
              * @param {string} color Background color of search textbox
              * @memberOf widgets/locator/locator
              */
-             _resetTargetValue: function (target, title, color) {
+             _resetTargetValue: function (target, title) {
                  if (target.value == '' && domAttr.get(target, title)) {
                      target.value = target.title;
                      if (target.title == "") {

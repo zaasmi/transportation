@@ -26,6 +26,7 @@ define({
         informationDispalyText: "511 Information",
         informationPanelTitle: "Information for current map view",
         print: "Print",
+        back: "Back",
         showNullValue: "N/A",
         webpageDispalyText: "Copy/paste HTML into your web page",
         errorMessages: {

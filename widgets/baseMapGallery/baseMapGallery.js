@@ -77,7 +77,6 @@ function (declare, domConstruct, domStyle, lang, array, domAttr, on, dom, domCla
         _createBaseMapLayer: function (layerURL, layerId) {
             var layer = new esri.layers.ArcGISTiledMapServiceLayer(layerURL, { id: layerId, visible: false });
             return layer;
-
         },
 
         _createBaseMapElement: function (baseMapURL, baseMapURLCount) {

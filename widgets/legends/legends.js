@@ -23,6 +23,7 @@ define([
     "dojo/dom-style",
     "dojo/_base/lang",
     "dojo/_base/array",
+    "dojo/query",
     "dojo/dom-attr",
     "dojo/on",
     "dojo/dom",
@@ -42,13 +43,14 @@ define([
     "dijit/_WidgetsInTemplateMixin",
     "dojo/i18n!nls/localizedStrings"
   ],
-function (declare, domConstruct, domStyle, lang, array, domAttr, on, dom, domClass, domGeom, string, html, aspect, template, simpleMarkerSymbol, simpleFillSymbol, SimpleRenderer, Color, topic, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, nls) {
+function (declare, domConstruct, domStyle, lang, array, query, domAttr, on, dom, domClass, domGeom, string, html, aspect, template, simpleMarkerSymbol, simpleFillSymbol, SimpleRenderer, Color, topic, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, nls) {
 
     //========================================================================================================================//
 
     return declare([_WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin], {
         templateString: template,
         nls: nls,
+        divLegendList: null,
 
         /**
         * create legends widget
@@ -57,7 +59,7 @@ function (declare, domConstruct, domStyle, lang, array, domAttr, on, dom, domCla
         * @name widgets/legends/legends
         */
         postCreate: function () {
-            if (dojo.configData.WebMapId) {
+            if (dojo.configData.WebMapId && lang.trim(dojo.configData.WebMapId).length != 0) {
                 for (var i in this.addLayersObject) {
                     this._addLegendOnMap(this.addLayersObject[i]);
                 }
@@ -68,10 +70,11 @@ function (declare, domConstruct, domStyle, lang, array, domAttr, on, dom, domCla
         },
 
         _addLegendOnMap: function (addLayersObject) {
-            if (dojo.configData.WebMapId) {
-                var layerObject = addLayersObject.layerObject;
+            var layerObject;
+            if (addLayersObject) {
+                layerObject = addLayersObject.layerObject;
             } else {
-                var layerObject = this.addLayersObject.layer;
+                layerObject = this.addLayersObject.layer;
             }
             var image;
             var divLegendLabl;
@@ -79,32 +82,28 @@ function (declare, domConstruct, domStyle, lang, array, domAttr, on, dom, domCla
             if (layerObject.geometryType == "esriGeometryPoint") {
                 if (layerObject.renderer.infos) {
                     for (var i = 0; i < layerObject.renderer.infos.length; i++) {
-                        var divLegendImage = domConstruct.create("div", {
-                            "class": "legend"
-                        }, null);
+                        this.divLegendlist = domConstruct.create("div", { "class": "divLegendlist" }, this.divlegendContainer);
+                        var divLegendImage = domConstruct.create("div", { "class": "legend" }, null);
                         if (layerObject.renderer.infos[i].symbol.url) {
                             image = this._createImage(layerObject.renderer.infos[i].symbol.url, "", false, layerObject.renderer.infos[i].symbol.width, layerObject.renderer.infos[i].symbol.height);
                         }
                         domConstruct.place(image, divLegendImage);
-                        this.divlegendContainer.appendChild(divLegendImage);
-                        divLegendLabl = dojo.create("div", {
-                            "class": "legendlbl"
-                        }, null);
+                        this.divLegendlist.appendChild(divLegendImage);
+                        divLegendLabl = dojo.create("div", { "class": "legendlbl" }, null);
                         domAttr.set(divLegendLabl, "innerHTML", layerObject.renderer.infos[i].label);
-                        this.divlegendContainer.appendChild(divLegendLabl);
+                        this.divLegendlist.appendChild(divLegendLabl);
                     }
                 }
                 else {
-                    divLegendImage = dojo.create("div", {}, null);
+                    this.divLegendlist = domConstruct.create("div", { "class": "divLegendlist" }, this.divlegendContainer);
+                    divLegendImage = dojo.create("div", { "class": "legend" }, null);
                     if (layerObject.renderer.symbol.url) {
                         image = this._createImage(layerObject.renderer.symbol.url, "", false, layerObject.renderer.symbol.width, layerObject.renderer.symbol.height);
                     }
                     domConstruct.place(image, divLegendImage);
-                    this.divlegendContainer.appendChild(divLegendImage);
-                    divLegendLabl = dojo.create("div", {
-                        "class": "legendlbl"
-                    }, null);
-                    this.divlegendContainer.appendChild(divLegendLabl);
+                    this.divLegendlist.appendChild(divLegendImage);
+                    divLegendLabl = dojo.create("div", { "class": "legendlbl" }, null);
+                    this.divLegendlist.appendChild(divLegendLabl);
                 }
             }
         },
@@ -114,7 +113,7 @@ function (declare, domConstruct, domStyle, lang, array, domAttr, on, dom, domCla
             var imageHeightWidth = { width: imageWidth + 'px', height: imageHeight + 'px' };
             domAttr.set(imgLocate, "style", imageHeightWidth);
             if (isCursorPointer) {
-                domStyle.set(imgLocate, "cursor", "pointer")
+                domStyle.set(imgLocate, "cursor", "pointer");
             }
             domAttr.set(imgLocate, "src", imageSrc);
             domAttr.set(imgLocate, "title", title);
