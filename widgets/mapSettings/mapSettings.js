@@ -29,6 +29,7 @@ define([
     "dojo/query",
     "dojo/dom-class",
     "dojo/dom-geometry",
+    "dojo/_base/array",
     "dijit/_WidgetBase",
     "dijit/_TemplatedMixin",
     "dijit/_WidgetsInTemplateMixin",
@@ -49,10 +50,13 @@ define([
     "esri/geometry/Extent",
     "esri/dijit/HomeButton",
     "esri/SpatialReference",
+    "widgets/infoWindow/infoWindow",
+    "dojo/topic",
     "esri/layers/ArcGISDynamicMapServiceLayer",
+    "esri/request",
     "dojo/domReady!"
     ],
-     function (declare, domConstruct, domStyle, lang, esriUtils, on, dom, domAttr, query, domClass, domGeom, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, nls, esriMap, ImageParameters, Directions, FeatureLayer, GraphicsLayer, SimpleLineSymbol, SimpleRenderer, basemap, Color, baseMapGallery, route, legends, template, geometryExtent, HomeButton, spatialReference, arcGISDynamicMapServiceLayer) {
+     function (declare, domConstruct, domStyle, lang, esriUtils, on, dom, domAttr, query, domClass, domGeom, array, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, nls, esriMap, ImageParameters, Directions, FeatureLayer, GraphicsLayer, SimpleLineSymbol, SimpleRenderer, basemap, Color, baseMapGallery, route, legends, template, geometryExtent, HomeButton, spatialReference, infoWindow, topic, arcGISDynamicMapServiceLayer, esriRequest) {
 
          //========================================================================================================================//
 
@@ -79,9 +83,10 @@ define([
                  * @param {string} dojo.configData.DefaultExtent Default extent of map specified in configuration file
                  */
                  this.logoContainer = query(".map .logo-sm") && query(".map .logo-sm")[0] || query(".map .logo-med") && query(".map .logo-med")[0];
-                 var extentPoints = dojo.configData && dojo.configData.DefaultExtent && dojo.configData.DefaultExtent.split(","),
-                 graphicsLayer = new GraphicsLayer();
+                 var extentPoints = dojo.configData && dojo.configData.DefaultExtent && dojo.configData.DefaultExtent.split(",");
+                 var graphicsLayer = new GraphicsLayer();
                  graphicsLayer.id = this.tempGraphicsLayerId;
+
 
                  /**
                  * load map
@@ -97,23 +102,22 @@ define([
                      });
                      mapDeferred.then(lang.hitch(this, function (response) {
                          this.map = response.map;
+                         this.map.addLayer(graphicsLayer);
                          var webMapDetails = response.itemInfo.itemData;
                          this._addLogoUrl();
                          var home = this._addHomeButton();
                          domConstruct.place(home.domNode, query(".esriSimpleSliderIncrementButton")[0], "after");
                          home.startup();
-                         for (var i in webMapDetails.operationalLayers) {
-                             this._addLegendBox(webMapDetails.operationalLayers[i]);
-                         }
+                         this._addLayerLegend();
                      }));
                  }
 
                  else {
-
+                     var infoWindowPanel = new infoWindow({ infoWindowWidth: dojo.configData.InfoPopupWidth, infoWindowHeight: dojo.configData.InfoPopupHeight });
                      this.map = esriMap("esriCTParentDivContainer", {
+                         infoWindow: infoWindowPanel,
                          basemap: dojo.configData.BaseMapLayers[0].Key
                      });
-                     this.map.addLayer(graphicsLayer);
 
                      /**
                      * load esri 'Home Button' widget
@@ -151,6 +155,12 @@ define([
                              this._addOperationalLayerToMap(i, dojo.configData.OperationalLayers[i]);
                          }
                          this._showBasMapGallery();
+                         this.map.addLayer(graphicsLayer);
+                         var _self = this;
+                         this.map.on("extent-change", function () {
+                             topic.publish("setMapTipPosition", dojo.selectedMapPoint, _self.map);
+                         });
+                         this._addLayerLegend();
                      }));
                  }
              },
@@ -179,7 +189,6 @@ define([
                      domStyle.set(query(".divlegendContent")[0], "left", (this.newLeft) + "px");
                      this._resetSlideControls();
                  }
-
              },
 
              _resetSlideControls: function () {
@@ -205,11 +214,19 @@ define([
                          var str = operationalLayers[i].ServiceURL.split('/');
                          var layerTitle = str[str.length - 3];
                          var layerId = str[str.length - 1];
+                         var infoWindowSettings = dojo.configData.InfoWindowSettings;
                          var searchSettings = dojo.configData.SearchAnd511Settings;
                          for (var index = 0; index < searchSettings.length; index++) {
                              if (searchSettings[index].Title && searchSettings[index].QueryLayerId) {
                                  if (layerTitle == searchSettings[index].Title && layerId == searchSettings[index].QueryLayerId) {
                                      searchSettings[index].QueryURL = str.join("/");
+                                 }
+                             }
+                         }
+                         for (var infoIndex = 0; infoIndex < infoWindowSettings.length; infoIndex++) {
+                             if (infoWindowSettings[infoIndex].Title && infoWindowSettings[infoIndex].QueryLayerId) {
+                                 if (layerTitle == infoWindowSettings[infoIndex].Title && layerId == infoWindowSettings[infoIndex].QueryLayerId) {
+                                     infoWindowSettings[infoIndex].InfoQueryURL = str.join("/");
                                  }
                              }
                          }
@@ -279,10 +296,6 @@ define([
                          displayOnPan: false
                      });
                      this.map.addLayer(featureLayer);
-                     featureLayer.on("load", lang.hitch(this, function (featureLayer) {
-                         this._addLegendBox(featureLayer);
-                     }));
-
                  } else if (layerInfo.LoadAsServiceType.toLowerCase() == "dynamic") {
                      this._addDynamicLayerService(layerInfo);
                  }
@@ -338,15 +351,27 @@ define([
                  this.map.addLayer(dynamicMapService);
              },
 
-             _addLegendBox: function (layer) {
-                 var legendObject = new legends({
+             _addLegendBox: function () {
+                 this.legendObject = new legends({
                      map: this.map,
-                     addLayersObject: layer,
+                     isExtentBasedLegend: true,
                      divlegendContainer: this.divlegendContent
                  }, domConstruct.create("div", {}, null));
-                 return legendObject;
-
+                 return this.legendObject;
              },
+
+             _addLayerLegend: function () {
+                 var mapServerArray = [];
+                 for (var i in dojo.configData.OperationalLayers) {
+                     if (dojo.configData.OperationalLayers[i].ServiceURL) {
+                         var mapServerURL = dojo.configData.OperationalLayers[i].ServiceURL;
+                         mapServerArray.push(dojo.configData.OperationalLayers[i].ServiceURL);
+                     }
+                 }
+                 var legendObject = this._addLegendBox();
+                 legendObject.startup(mapServerArray);
+             },
+
 
              /**
              * return current map instance

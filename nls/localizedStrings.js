@@ -29,6 +29,7 @@ define({
         back: "Back",
         showNullValue: "N/A",
         webpageDispalyText: "Copy/paste HTML into your web page",
+        reRouteDisplayText: "Traffic Incidents found on this road",
         errorMessages: {
             invalidSearch: "No results found",
             falseConfigParams: "Required configuration key values are either null or not exactly matching with layer attributes, This message may appear multiple times.",

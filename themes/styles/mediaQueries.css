@@ -104,11 +104,20 @@
     {
         font-size: 14px !important;
     }
+    .esriCTDisplayField, .esriCTValueField
+    {
+        font-size: 14px !important;
+    }
+
     .simpleDirections .esriResultsViewFullRoute
     {
         font-size: 14px !important;
     }
     .simpleDirections .esriResultsSummary
+    {
+        font-size: 14px !important;
+    }
+    .esriPopup
     {
         font-size: 14px !important;
     }
@@ -175,7 +184,10 @@
     {
         font-size: 14px !important;
     }
-
+    .customButtonInner
+    {
+        padding-top: 4px;
+    }
 }
 
 @media only screen and (min-width : 768px) and (max-width : 1024px) /*if device wise  @media only screen and (min-device-width : 768px) and (max-device-width : 1024px)*/
@@ -204,6 +216,14 @@
     {
         font-size: 14px !important;
     }
+    .esriPopup
+    {
+        font-size: 14px !important;
+    }
+    .esriCTDisplayField, .esriCTValueField
+    {
+        font-size: 14px !important;
+    }
     .esriCTTdHeaderSearch, .esriCTTdHeaderSearch-select, .esriCTTdGeolocation, .esriCTImgSocialMedia-select, .esriCTImgSocialMedia, .esriCTRouteImg, .esriCTRouteImg-select, .esriCTHelpImg, .esriCTHelpImg
     {
         height: 44px !important;
@@ -259,6 +279,10 @@
     {
         font-size: 14px !important;
     }
+    .customButtonInner
+    {
+        padding-top: 4px;
+    }
 }
 
 @media screen and (min-width: 641px) and (max-width: 767px)
@@ -284,6 +308,14 @@
         font-size: 14px !important;
     }
     .simpleDirections .esriResultsSummary
+    {
+        font-size: 14px !important;
+    }
+    .esriPopup
+    {
+        font-size: 14px !important;
+    }
+    .esriCTDisplayField, .esriCTValueField
     {
         font-size: 14px !important;
     }
@@ -346,6 +378,30 @@
     {
         font-size: 14px !important;
     }
+    .customButtonInner
+    {
+        padding-top: 4px;
+    }
+}
+@media screen and (max-width: 680px)
+{
+
+    .esriCTApplicationHeaderTextTD
+    {
+        display: none;
+    }
+    .esriCTTdHeaderSearch, .esriCTTdHeaderSearch-select, .esriCTTdGeolocation, .esriCTImgSocialMedia-select, .esriCTImgSocialMedia, .esriCTRouteImg, .esriCTRouteImg-select, .esriCTHelpImg, .esriCTHelpImg
+    {
+        height: 44px !important;
+        width: 44px !important;
+        background-size: 44px !important;
+        width: 25% !important;
+        padding: 8px 0 !important;
+    }
+    .esriCTRightTab
+    {
+        width: 100%;
+    }
 }
 
 @media screen and (min-width: 321px) and (max-width: 640px)
@@ -374,17 +430,27 @@
     {
         font-size: 14px !important;
     }
+    .esriPopup
+    {
+        font-size: 14px !important;
+    }
+    .esriCTDisplayField, .esriCTValueField
+    {
+        font-size: 14px !important;
+    }
     .esriCTAddressHolder, .esriCTAddressContentHeight
     {
         top: 61px !important;
         width: 100% !important;
     }
-
+    .esriCTDisplayField, .esriCTValueField
+    {
+        font-size: 14px !important;
+    }
     .esriCTTxtAddress
     {
         font-size: 15px !important;
     }
-
     .esriCTDivAppContainer, .esriCTShowContainerHeight
     {
         top: 61px !important;
@@ -403,7 +469,6 @@
         width: 287px;
         margin: 0 auto;
     }
-
     .esriCTShareCursor, .facebook, .twitter, .email
     {
         height: 44px !important;
@@ -559,8 +624,32 @@
     {
         right: 0px;
     }
-
+    .customButtonInner
+    {
+        padding-top: 4px;
+    }
+    .esriCTinfoWindow
+    {
+        height: 100% !important;
+        width: 100% !important;
+        left: 0px !important;
+        bottom: 0px !important;
+    }
+    .esriCTInfoContent
+    {
+        height: 100% !important;
+        width: 100% !important;
+    }
+    .infopanel
+    {
+        height: 93% !important;
+    }
+    .esriCTdivTriangle
+    {
+        display: none;
+    }
 }
+
 
 /* Portrait */
 @media screen and (max-width: 320px)
@@ -737,6 +826,30 @@
     .divRightArrow
     {
         right: 0px;
+    }
+    .customButtonInner
+    {
+        padding-top: 4px;
+    }
+    .esriCTinfoWindow
+    {
+        height: 100% !important;
+        width: 100% !important;
+        left: 0px !important;
+        bottom: 0px !important;
+    }
+    .esriCTInfoContent
+    {
+        height: 100% !important;
+        width: 100% !important;
+    }
+    .infopanel
+    {
+        height: 93% !important;
+    }
+    .esriCTdivTriangle
+    {
+        display: none;
     }
 }
 
