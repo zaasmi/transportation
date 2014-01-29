@@ -1,0 +1,23 @@
+﻿<div class="esriCTHeaderRouteContainer" data-dojo-attach-point="applicationHeaderRouteContainer">
+    <div class="esriCTDirectionContainer" data-dojo-attach-point="esriCTDirectionContainer">
+        <span class="irectionsDisplayText">${nls.directionsDisplayText}</span>
+    </div>
+    <div class="route" data-dojo-attach-point="route">
+        <div data-dojo-type="dijit.layout.BorderContainer" class="esriCTRouteBorderContainer"
+            data-dojo-attach-point="esriCTRouteBorderContainer" data-dojo-props="design:'headline', gutters:false">
+            <div data-dojo-type="dijit.layout.ContentPane" class="esriCTContentPane" data-dojo-props="region:'right'">
+                <div class="esriCTRouteContainer esriCTHideContainerHeight divRouteHeight" data-dojo-attach-point="esriCTRouteContainer">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="esriCTRouteInformationContainer" data-dojo-attach-point="esriCTRouteInformationContainer">
+        <span class="informationDispalyText">${nls.informationDispalyText}</span>
+    </div>
+    <div class="esriCTRouteInformationTitle" data-dojo-attach-point="esriCTRouteInformationTitle">
+        ${nls.informationPanelTitle}
+        <img data-dojo-attach-point="imgSearchLoader" class="esriCTInfoLoader" />
+    </div>
+    <div class="esriCTRouteInformationContent" data-dojo-attach-point="esriCTRouteInformationContent">
+    </div>
+</div>
