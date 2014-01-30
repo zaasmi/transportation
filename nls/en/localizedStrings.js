@@ -16,19 +16,14 @@
 | limitations under the License.
 */
 define({
-    root: {
         titles: {
             informationDisplayText: "511 Information",
-            reRouteDisplayText: "Traffic incidents found on this road"
+            reRouteDisplayText: "Traffic Incidents found on this road"
         },
         messages: {
             splashScreenContent: "An application that allows the public to find information about road conditions, 511 alerts, traffic incidents, et al."
         },
         notUsed: {
-            incidentInformationDisplayText: "Incident information"
+            incidentInformationDisplayText: "Incident Information"
         }
-    },
-    es: true,
-    fr: true,
-    it: true
 });

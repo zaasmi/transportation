@@ -45,7 +45,7 @@ define([], function () {
         ApplicationIcon: "",
 
         // Set application Favicon path
-        ApplicationFavicon: "/themes/images/favicon.ico",
+        ApplicationFavicon: "/shared/themes/images/favicon.ico",
 
         // Set URL of help page/portal
         HelpURL: "help.htm",
@@ -62,7 +62,6 @@ define([], function () {
         // Header Widget Settings
         //------------------------------------------------------------------------------------------------------------------------
         // Set widgets settings such as widget title, widgetPath, mapInstanceRequired to be displayed in header panel
-        // Title: Name of the widget, will displayed as title of widget in header panel
         // WidgetPath: path of the widget respective to the widgets package.
         // MapInstanceRequired: true if widget is dependent on the map instance.
 
@@ -72,10 +71,16 @@ define([], function () {
                WidgetPath: "widgets/locator/locator",
                MapInstanceRequired: true
            }, {
-               Title: "511 Information",
+/*
+Widget causes three errors:
+   dojo/parser::parse() error Error {stack: (...), message: "Tried to register widget with id==dijit_layout_BorderContainer_0 but that id is already registered"}
+   dojo.io.script error Error {code: 400, message: "Unable to complete operation.", details: Array[0], log: undefined, httpCode: 400…}
+   dojo.io.script error Error {code: 400, message: "Unable to complete operation.", details: Array[0], log: undefined, httpCode: 400…}
+
                WidgetPath: "widgets/route/route",
                MapInstanceRequired: true
            }, {
+*/
                Title: "Locate",
                WidgetPath: "widgets/geoLocation/geoLocation",
                MapInstanceRequired: true
@@ -84,7 +89,6 @@ define([], function () {
                WidgetPath: "widgets/share/share",
                MapInstanceRequired: true
            }, {
-               Title: "Help",
                WidgetPath: "widgets/help/help",
                MapInstanceRequired: false
            }
@@ -98,17 +102,17 @@ define([], function () {
 
         BaseMapLayers: [{
             Key: "topo",
-            ThumbnailSource: "themes/images/Topographic.jpg",
+            ThumbnailSource: "shared/themes/images/Topographic.jpg",
             Name: "Topographic Map",
             MapURL: "http://services.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer"
         }, {
             Key: "streets",
-            ThumbnailSource: "themes/images/streets.png",
+            ThumbnailSource: "shared/themes/images/streets.png",
             Name: "Street Map",
             MapURL: "http://services.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer"
         }, {
             Key: "imagery",
-            ThumbnailSource: "themes/images/imagery.png",
+            ThumbnailSource: "shared/themes/images/imagery.png",
             Name: "Imagery Map",
             MapURL: "http://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer"
         }],
@@ -147,9 +151,14 @@ define([], function () {
             ServiceURL: "http://50.18.115.76:6080/arcgis/rest/services/RoadConditions/MapServer/7",
             LoadAsServiceType: "feature"
         }, {
+/*
+Service causes error:
+    Error: Problem parsing d="Z"
+
             ServiceURL: "http://50.18.115.76:6080/arcgis/rest/services/RoadConditions/MapServer/6",
             LoadAsServiceType: "feature"
         }, {
+*/
             ServiceURL: "http://50.18.115.76:6080/arcgis/rest/services/RoadConditions/MapServer/5",
             LoadAsServiceType: "feature"
         }, {
@@ -522,7 +531,7 @@ define([], function () {
         // AddressMatchScore: Setting the minimum score for filtering the candidate results.
         // MaxResults: Maximum number of locations to display in the results menu.
         LocatorSettings: {
-            DefaultLocatorSymbol: "/themes/images/redpushpin.png",
+            DefaultLocatorSymbol: "/shared/themes/images/redpushpin.png",
             MarkupSymbolSize: {
                 width: 35,
                 height: 35

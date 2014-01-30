@@ -16,12 +16,14 @@
 | limitations under the License.
 */
 define({
-
-    okButtonText: "OK",
-    splashScreenContent: "Nous allons déchirer les professionnels n'ont jamais cessé , ou désirs à Cilla consectetaur l'argent, mais parce que parfois les circonstances se produisent dans laquelle labeur et la douleur peut lui procurer quelque grand . Pour prendre un exemple trivial, qui de nous n'a jamais entreprend l'exercice physique laborieux, sauf pour obtenir quelque avantage. Nous avons actuellement dans le train arrive à trouver à redire à ce produit aucun plaisir qui en résulte est d'être les applications en ligne . Ces cas sont parfaitement compte du système, ils sont en faute atelier quae laisser adoucit vous recommander . Conscient livre pour vous faire face à la réalité et les lois de punition . Nous allons déchirer les professionnels n'ont jamais cessé , ou désirs à Cilla consectetaur l'argent, mais parce que parfois les circonstances se produisent dans laquelle labeur et la douleur peut lui procurer quelque grand . Pour prendre un exemple trivial, qui de nous n'a jamais entreprend l'exercice physique laborieux, sauf pour obtenir quelque avantage. Nous avons actuellement dans le train arrive à trouver à redire à ce produit aucun plaisir qui en résulte est d'être les applications en ligne . Ces cas sont parfaitement compte du système, ils sont en faute atelier quae laisser adoucit vous recommander . Conscient livre pour vous faire face à la réalité et les lois de punition . Nous allons déchirer les professionnels n'ont jamais cessé , ou désirs à Cilla consectetaur l'argent, mais parce que parfois les circonstances se produisent dans laquelle labeur et la douleur peut lui procurer quelque grand . Pour prendre un exemple trivial, qui de nous n'a jamais entreprend l'exercice physique laborieux, sauf pour obtenir quelque avantage. Nous avons actuellement dans le train arrive à trouver à redire à ce produit aucun plaisir qui en résulte est d'être les applications en ligne . Ces cas sont parfaitement compte du système, ils sont en faute atelier quae laisser adoucit vous recommander . Conscient livre pour vous faire face à la réalité et les lois de punition . Nous allons déchirer les professionnels n'ont jamais cessé , ou désirs à Cilla consectetaur l'argent, mais parce que parfois les circonstances se produisent dans laquelle labeur et la douleur peut lui procurer quelque grand . Pour prendre un exemple trivial, qui de nous n'a jamais entreprend l'exercice physique laborieux, sauf pour obtenir quelque avantage. Nous avons actuellement dans le train arrive à trouver à redire à ce produit aucun plaisir qui en résulte est d'être les applications en ligne . Ces cas sont parfaitement compte du système, ils sont en faute atelier quae laisser adoucit vous recommander . Conscient livre pour vous faire face à la réalité et les lois de punition .",
-    addressDisplayText: "adresse",
-    errorMessages: {
-        invalidSearch: "Aucun résultat",
-        falseConfigParams: "Nécessitait des valeurs de clés de configuration sont soit nul ou pas exactement correspondant à des attributs de la couche, Ce message peut apparaître plusieurs fois."
-    }
+        titles: {
+            informationDisplayText: "@@511 Information",
+            reRouteDisplayText: "@@Traffic Incidents found on this road"
+        },
+        messages: {
+            splashScreenContent: "Une application qui permet au public de trouver des informations sur l'état des routes, 511 alertes, les problèmes de circulation, et al."
+        },
+        notUsed: {
+            incidentInformationDisplayText: "@@Incident Information"
+        }
 });
