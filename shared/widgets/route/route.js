@@ -90,7 +90,7 @@ function (declare, domConstruct, on, topic, lang, array, domStyle, domAttr, dom,
 
             // millisecond
             this.logoContainer = query(".map .logo-sm") && query(".map .logo-sm")[0] || query(".map .logo-med") && query(".map .logo-med")[0];
-            domAttr.set(this.imgSearchLoader, "src", dojoConfig.baseURL + "/themes/images/blue-loader.gif");
+            domAttr.set(this.imgSearchLoader, "src", dojoConfig.baseURL + "/shared/themes/images/blue-loader.gif");
             domStyle.set(this.imgSearchLoader, "display", "block");
             topic.subscribe("toggleWidget", lang.hitch(this, function (widgetID) {
                 if (widgetID != "route") {

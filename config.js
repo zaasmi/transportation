@@ -45,7 +45,7 @@ define([], function () {
         ApplicationIcon: "",
 
         // Set application Favicon path
-        ApplicationFavicon: "/themes/images/favicon.ico",
+        ApplicationFavicon: "/shared/themes/images/favicon.ico",
 
         // Set URL of help page/portal
         HelpURL: "help.htm",
@@ -105,17 +105,17 @@ Widget causes three errors:
 
         BaseMapLayers: [{
             Key: "topo",
-            ThumbnailSource: "themes/images/Topographic.jpg",
+            ThumbnailSource: "shared/themes/images/Topographic.jpg",
             Name: "Topographic Map",
             MapURL: "http://services.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer"
         }, {
             Key: "streets",
-            ThumbnailSource: "themes/images/streets.png",
+            ThumbnailSource: "shared/themes/images/streets.png",
             Name: "Street Map",
             MapURL: "http://services.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer"
         }, {
             Key: "imagery",
-            ThumbnailSource: "themes/images/imagery.png",
+            ThumbnailSource: "shared/themes/images/imagery.png",
             Name: "Imagery Map",
             MapURL: "http://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer"
         }],
@@ -534,7 +534,7 @@ Service causes error:
         // AddressMatchScore: Setting the minimum score for filtering the candidate results.
         // MaxResults: Maximum number of locations to display in the results menu.
         LocatorSettings: {
-            DefaultLocatorSymbol: "/themes/images/redpushpin.png",
+            DefaultLocatorSymbol: "/shared/themes/images/redpushpin.png",
             MarkupSymbolSize: {
                 width: 35,
                 height: 35

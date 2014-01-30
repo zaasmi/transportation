@@ -28,8 +28,8 @@ dojoConfig = {
     baseURL: root,
     packages: [
             { name: "application", location: root },
-            { name: "widgets", location: root + '/widgets' },
-            { name: "coreLibrary", location: root + '/coreLibrary' },
-            { name: "nls", location: root + '/nls' }
+            { name: "widgets", location: root + '/shared/widgets' },
+            { name: "coreLibrary", location: root + '/shared/coreLibrary' },
+            { name: "nls", location: root + '/shared/nls' }
         ]
 };

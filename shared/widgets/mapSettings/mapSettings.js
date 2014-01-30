@@ -139,7 +139,7 @@ define([
                          this.divlegendContent = domConstruct.create("div", { "class": "divlegendContent" }, divlegendContainer);
                          var divLeftArrow = domConstruct.create("div", { "class": "divLeftArrow" }, this.legendbox);
                          var esriCTLeftArrow = domConstruct.create("img", { "class": "esriCTArrow" }, divLeftArrow);
-                         domAttr.set(esriCTLeftArrow, "src", "themes/images/left.png");
+                         domAttr.set(esriCTLeftArrow, "src", "shared/themes/images/left.png");
                          domStyle.set(divLeftArrow, "display", "none");
                          on(divLeftArrow, "click", lang.hitch(this, function () {
                              this._slideLeft();
@@ -150,7 +150,7 @@ define([
                          on(esriCTRightArrow, "click", lang.hitch(this, function () {
                              this._slideRight();
                          }));
-                         domAttr.set(esriCTRightArrow, "src", "themes/images/right.png");
+                         domAttr.set(esriCTRightArrow, "src", "shared/themes/images/right.png");
                          for (var i in dojo.configData.OperationalLayers) {
                              this._addOperationalLayerToMap(i, dojo.configData.OperationalLayers[i]);
                          }

@@ -92,7 +92,7 @@ define([
                  })));
                  domStyle.set(this.divAddressContainer, "display", "block");
                  domAttr.set(this.divAddressContainer, "title", "");
-                 domAttr.set(this.imgSearchLoader, "src", dojoConfig.baseURL + "/themes/images/blue-loader.gif");
+                 domAttr.set(this.imgSearchLoader, "src", dojoConfig.baseURL + "/shared/themes/images/blue-loader.gif");
                  this._setDefaultTextboxValue();
                  this._attachLocatorEvents();
              },
