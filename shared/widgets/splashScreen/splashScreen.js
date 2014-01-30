@@ -50,7 +50,7 @@ define([
              postCreate: function () {
 
                  this.inherited(arguments);
-                 var divCustomButtonText = domConstruct.create("div", { "class": "customButtonInner", "innerHTML": sharedNls.okButtonText }, this.customButton);
+                 var divCustomButtonText = domConstruct.create("div", { "class": "customButtonInner", "innerHTML": sharedNls.buttons.okButtonText }, this.customButton);
                  this.own(on(this.customButton, "click", lang.hitch(this, function () {
                      this._hideSplashScreenDialog();
                  })));
@@ -62,7 +62,7 @@ define([
                  domStyle.set(this.domNode, "display", "block");
                  var splashScreenContent = domConstruct.create("div", { "class": "esriGovtSplashContent" }, this.splashScreenScrollBarContainer);
                  this.splashScreenScrollBarContainer.style.height = (this.splashScreenDialogContainer.offsetHeight - 70) + "px";
-                 domAttr.set(splashScreenContent, "innerHTML", appNls.splashScreenContent);
+                 domAttr.set(splashScreenContent, "innerHTML", appNls.messages.splashScreenContent);
                  this.splashScreenScrollbar = new scrollBar({ domNode: this.splashScreenScrollBarContainer });
                  this.splashScreenScrollbar.setContent(splashScreenContent);
                  this.splashScreenScrollbar.createScrollBar();

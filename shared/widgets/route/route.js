@@ -105,7 +105,7 @@ function (declare, domConstruct, on, topic, lang, array, domStyle, domAttr, dom,
                     }
                 }
             }));
-            this.domNode = domConstruct.create("div", { "title": this.title, "class": "esriCTRouteImg esriCTRouteImg-select-i" }, null);
+            this.domNode = domConstruct.create("div", { "title": sharedNls.tooltips.route, "class": "esriCTRouteImg esriCTRouteImg-select-i" }, null);
             this._showHideInfoRouteContainer();
 
             /**
@@ -210,7 +210,7 @@ function (declare, domConstruct, on, topic, lang, array, domStyle, domAttr, dom,
                         var esriRoutesHeight = window.innerHeight - query(".esriCTApplicationHeader")[0].offsetHeight - html.coords(query(".simpleDirections .esriStopsContainer")[0]).h - 117;
                         var esriRoutesStyle = { height: esriRoutesHeight + 'px' };
                         domAttr.set(query(".esriRoutes")[0], "style", esriRoutesStyle);
-                        domAttr.set(query(".esriResultsPrint")[0], "innerHTML", sharedNls.print);
+                        domAttr.set(query(".esriResultsPrint")[0], "innerHTML", sharedNls.buttons.print);
                         if (!this.esriCTrouteDirectionScrollbar) {
                             this.esriCTrouteDirectionScrollbar = new scrollBar({ domNode: this.esriCTRouteContainer });
                             this.esriCTrouteDirectionScrollbar.setContent(query(".simpleDirections")[0]);
@@ -304,7 +304,7 @@ function (declare, domConstruct, on, topic, lang, array, domStyle, domAttr, dom,
             this.divShowReRouteContainer = domConstruct.create("div", { "class": "esriCTdivShowReRouteContainer" });
             domConstruct.place(this.divShowReRouteContainer, query(".esriRoutesContainer")[0], "first");
             var showRouteInfoContent = domConstruct.create("div", { "class": "esriCTshowRouteInfoContent" }, this.divShowReRouteContainer);
-            domAttr.set(showRouteInfoContent, "innerHTML", sharedNls.reRouteDisplayText);
+            domAttr.set(showRouteInfoContent, "innerHTML", appNls.reRouteDisplayText);
             var showRouteImgContent = domConstruct.create("div", { "class": "showRouteImgContent esriCTCursorPointer" }, this.divShowReRouteContainer);
             domConstruct.empty(this.esriCTInfoLayerTitle, this.esriCTRouteInformationContent, "first");
             domClass.add(this.esriCTInfoLayerTitle, "esriCTInfoLayerTitleHeight");
@@ -445,7 +445,7 @@ function (declare, domConstruct, on, topic, lang, array, domStyle, domAttr, dom,
             var backPanel = domConstruct.create("div", { "class": "" }, backPanelInfoHeader);
             var infoBackTiteArrow = domConstruct.create("span", { "class": "infoBackTiteArrow esriCTCursorPointer" }, backPanel);
             var infoBackTite = domConstruct.create("span", { "class": "infoBackTite esriCTCursorPointer" }, backPanel);
-            domAttr.set(infoBackTite, "innerHTML", sharedNls.back);
+            domAttr.set(infoBackTite, "innerHTML", sharedNls.buttons.back);
             var resultTitle = domConstruct.create("span", {}, backPanelInfoHeader);
             var resultPanelContainer = domConstruct.create("div", { "class": "resultPanelContainer" }, this.esriCTInfoLayerFeatureList);
             this.resultPanelContents = domConstruct.create("div", { "class": "resultPanelContents" }, resultPanelContainer);

@@ -16,18 +16,24 @@
 | limitations under the License.
 */
 define({
-        okButtonText: "OK",
-        splashScreenContent: "Un'applicazione che permette al pubblico di trovare informazioni sulle condizioni stradali, 511 avvisi, incidenti stradali, et al.",
-        addressDisplayText: "indirizzo",
-        incidentInformationDisplayText: "@@Incident Information",
-        directionsDisplayText: "@@Directions",
-        informationDisplayText: "@@511 Information",
-        informationPanelTitle: "@@Information for current map view",
-        print: "@@Print",
-        back: "@@Back",
         showNullValue: "@@N/A",
-        webpageDisplayText: "@@Copy/paste HTML into your web page",
-        reRouteDisplayText: "@@Traffic Incidents found on this road",
+        buttons: {
+            okButtonText: "@@OK",
+            print: "@@Print",
+            back: "@@Back"
+        },
+        tooltips: {
+            search: "Cerca",
+            route: "@@Route",
+            locate: "Posizione corrente",
+            share: "Condividi",
+            help: "Guida"
+        },
+        titles: {
+            directionsDisplayText: "@@Directions",
+            informationPanelTitle: "@@Information for current map view",
+            webpageDisplayText: "@@Copy/paste HTML into your web page"
+        },
         errorMessages: {
             invalidSearch: "Nessun risultato trovato.",
             falseConfigParams: "Valori chiave di configurazione obbligatori sono null o non esattamente corrispondenti con gli attributi di livello. Questo messaggio può apparire più volte.",
@@ -36,5 +42,8 @@ define({
             widgetNotLoaded: "@@Fail to load widgets.",
             shareLoadingFailed: "@@Unable to load share options.",
             shareFailed: "@@Unable to share."
+        },
+        notUsed: {
+            addressDisplayText: "@@Address"
         }
 });

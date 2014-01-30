@@ -62,7 +62,6 @@ define([], function () {
         // Header Widget Settings
         //------------------------------------------------------------------------------------------------------------------------
         // Set widgets settings such as widget title, widgetPath, mapInstanceRequired to be displayed in header panel
-        // Title: Name of the widget, will displayed as title of widget in header panel
         // WidgetPath: path of the widget respective to the widgets package.
         // MapInstanceRequired: true if widget is dependent on the map instance.
 
@@ -78,7 +77,6 @@ Widget causes three errors:
    dojo.io.script error Error {code: 400, message: "Unable to complete operation.", details: Array[0], log: undefined, httpCode: 400…}
    dojo.io.script error Error {code: 400, message: "Unable to complete operation.", details: Array[0], log: undefined, httpCode: 400…}
 
-               Title: "511 Information",
                WidgetPath: "widgets/route/route",
                MapInstanceRequired: true
            }, {
@@ -91,7 +89,6 @@ Widget causes three errors:
                WidgetPath: "widgets/share/share",
                MapInstanceRequired: true
            }, {
-               Title: "Help",
                WidgetPath: "widgets/help/help",
                MapInstanceRequired: false
            }

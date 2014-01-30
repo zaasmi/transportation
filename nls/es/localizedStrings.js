@@ -16,25 +16,14 @@
 | limitations under the License.
 */
 define({
-        okButtonText: "OK",
-        splashScreenContent: "Estaremos desgarrando los profesionales nunca se han detenido, ni desea Cilla consectetaur dinero, sino porque se producen de vez en cuando las circunstancias en las que trabajo y el dolor pueden procurarle algún gran . Para tomar un ejemplo trivial , lo que de nosotros se compromete ejercicio físico laborioso , excepto para obtener alguna ventaja de ello. Actualmente tenemos en el tren llega a encontrar defectos en que no produce placer resultante es que las aplicaciones en línea . Estos casos son perfectamente cuenta del sistema, que tienen la culpa taller quae dejar suaviza recomendamos . Libro Conscient para usted para hacer frente a los hechos y las leyes de castigo. Estaremos desgarrando los profesionales nunca se han detenido, ni desea Cilla consectetaur dinero, sino porque se producen de vez en cuando las circunstancias en las que trabajo y el dolor pueden procurarle algún gran . Para tomar un ejemplo trivial , lo que de nosotros se compromete ejercicio físico laborioso , excepto para obtener alguna ventaja de ello. Actualmente tenemos en el tren llega a encontrar defectos en que no produce placer resultante es que las aplicaciones en línea . Estos casos son perfectamente cuenta del sistema, que tienen la culpa taller quae dejar suaviza recomendamos . Libro Conscient para usted para hacer frente a los hechos y las leyes de castigo. Estaremos desgarrando los profesionales nunca se han detenido, ni desea Cilla consectetaur dinero, sino porque se producen de vez en cuando las circunstancias en las que trabajo y el dolor pueden procurarle algún gran . Para tomar un ejemplo trivial , lo que de nosotros se compromete ejercicio físico laborioso , excepto para obtener alguna ventaja de ello. Actualmente tenemos en el tren llega a encontrar defectos en que no produce placer resultante es que las aplicaciones en línea . Estos casos son perfectamente cuenta del sistema, que tienen la culpa taller quae dejar suaviza recomendamos . Libro Conscient para usted para hacer frente a los hechos y las leyes de castigo. Estaremos desgarrando los profesionales nunca se han detenido, ni desea Cilla consectetaur dinero, sino porque se producen de vez en cuando las circunstancias en las que trabajo y el dolor pueden procurarle algún gran . Para tomar un ejemplo trivial , lo que de nosotros se compromete ejercicio físico laborioso , excepto para obtener alguna ventaja de ello. Actualmente tenemos en el tren llega a encontrar defectos en que no produce placer resultante es que las aplicaciones en línea . Estos casos son perfectamente cuenta del sistema, que tienen la culpa taller quae dejar suaviza recomendamos . Libro Conscient para usted para hacer frente a los hechos y las leyes de castigo.",
-        addressDisplayText: "dirección",
-        incidentInformationDisplayText: "@@Incident Information",
-        directionsDisplayText: "@@Directions",
-        informationDisplayText: "@@511 Information",
-        informationPanelTitle: "@@Information for current map view",
-        print: "@@Print",
-        back: "@@Back",
-        showNullValue: "@@N/A",
-        webpageDisplayText: "@@Copy/paste HTML into your web page",
-        reRouteDisplayText: "@@Traffic Incidents found on this road",
-        errorMessages: {
-            invalidSearch: "No hay resultados",
-            falseConfigParams: "Valores clave de configuración requeridos son null o no coincida exactamente con los atributos de capa, este mensaje puede aparecer varias veces."
-            invalidLocation: "@@Current Location not found.",
-            invalidProjection: "@@Unable to plot current location on the map.",
-            widgetNotLoaded: "@@Fail to load widgets.",
-            shareLoadingFailed: "@@Unable to load share options.",
-            shareFailed: "@@Unable to share."
+        titles: {
+            informationDisplayText: "@@511 Information",
+            reRouteDisplayText: "@@Traffic Incidents found on this road"
+        },
+        messages: {
+            splashScreenContent: "Estaremos desgarrando los profesionales nunca se han detenido, ni desea Cilla consectetaur dinero, sino porque se producen de vez en cuando las circunstancias en las que trabajo y el dolor pueden procurarle algún gran . Para tomar un ejemplo trivial , lo que de nosotros se compromete ejercicio físico laborioso , excepto para obtener alguna ventaja de ello. Actualmente tenemos en el tren llega a encontrar defectos en que no produce placer resultante es que las aplicaciones en línea . Estos casos son perfectamente cuenta del sistema, que tienen la culpa taller quae dejar suaviza recomendamos . Libro Conscient para usted para hacer frente a los hechos y las leyes de castigo. Estaremos desgarrando los profesionales nunca se han detenido, ni desea Cilla consectetaur dinero, sino porque se producen de vez en cuando las circunstancias en las que trabajo y el dolor pueden procurarle algún gran . Para tomar un ejemplo trivial , lo que de nosotros se compromete ejercicio físico laborioso , excepto para obtener alguna ventaja de ello. Actualmente tenemos en el tren llega a encontrar defectos en que no produce placer resultante es que las aplicaciones en línea . Estos casos son perfectamente cuenta del sistema, que tienen la culpa taller quae dejar suaviza recomendamos . Libro Conscient para usted para hacer frente a los hechos y las leyes de castigo. Estaremos desgarrando los profesionales nunca se han detenido, ni desea Cilla consectetaur dinero, sino porque se producen de vez en cuando las circunstancias en las que trabajo y el dolor pueden procurarle algún gran . Para tomar un ejemplo trivial , lo que de nosotros se compromete ejercicio físico laborioso , excepto para obtener alguna ventaja de ello. Actualmente tenemos en el tren llega a encontrar defectos en que no produce placer resultante es que las aplicaciones en línea . Estos casos son perfectamente cuenta del sistema, que tienen la culpa taller quae dejar suaviza recomendamos . Libro Conscient para usted para hacer frente a los hechos y las leyes de castigo. Estaremos desgarrando los profesionales nunca se han detenido, ni desea Cilla consectetaur dinero, sino porque se producen de vez en cuando las circunstancias en las que trabajo y el dolor pueden procurarle algún gran . Para tomar un ejemplo trivial , lo que de nosotros se compromete ejercicio físico laborioso , excepto para obtener alguna ventaja de ello. Actualmente tenemos en el tren llega a encontrar defectos en que no produce placer resultante es que las aplicaciones en línea . Estos casos son perfectamente cuenta del sistema, que tienen la culpa taller quae dejar suaviza recomendamos . Libro Conscient para usted para hacer frente a los hechos y las leyes de castigo."
+        },
+        notUsed: {
+            incidentInformationDisplayText: "@@Incident Information"
         }
 });

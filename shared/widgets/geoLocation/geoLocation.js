@@ -51,7 +51,7 @@ function (declare, lang, domConstruct, on, topic, _WidgetBase, GeometryService, 
             * if browser is not supported, geolocation widget is not created
             */
             if (Modernizr.geolocation) {
-                this.domNode = domConstruct.create("div", { "title": this.title, "class": "esriCTTdGeolocation" }, null);
+                this.domNode = domConstruct.create("div", { "title": sharedNls.tooltips.locate, "class": "esriCTTdGeolocation" }, null);
                 this.own(on(this.domNode, "click", lang.hitch(this, function () {
                     /**
                     * minimize other open header panel widgets and call geolocation service

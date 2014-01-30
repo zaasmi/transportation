@@ -16,25 +16,14 @@
 | limitations under the License.
 */
 define({
-        okButtonText: "OK",
-        splashScreenContent: "An application that allows the public to find information about road conditions, 511 alerts, traffic incidents, et al.",
-        addressDisplayText: "Address",
-        incidentInformationDisplayText: "Incident Information",
-        directionsDisplayText: "Directions",
-        informationDisplayText: "511 Information",
-        informationPanelTitle: "Information for current map view",
-        print: "Print",
-        back: "Back",
-        showNullValue: "N/A",
-        webpageDisplayText: "Copy/paste HTML into your web page",
-        reRouteDisplayText: "Traffic Incidents found on this road",
-        errorMessages: {
-            invalidSearch: "No results found",
-            falseConfigParams: "Required configuration key values are either null or not exactly matching with layer attributes. This message may appear multiple times.",
-            invalidLocation: "Current Location not found.",
-            invalidProjection: "Unable to plot current location on the map.",
-            widgetNotLoaded: "Fail to load widgets.",
-            shareLoadingFailed: "Unable to load share options.",
-            shareFailed: "Unable to share."
+        titles: {
+            informationDisplayText: "511 Information",
+            reRouteDisplayText: "Traffic Incidents found on this road"
+        },
+        messages: {
+            splashScreenContent: "An application that allows the public to find information about road conditions, 511 alerts, traffic incidents, et al."
+        },
+        notUsed: {
+            incidentInformationDisplayText: "Incident Information"
         }
 });

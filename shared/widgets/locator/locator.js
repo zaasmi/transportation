@@ -79,7 +79,7 @@ define([
                      }
                  }));
                  topic.subscribe("setMapTipPosition", this._onSetMapTipPosition);
-                 this.domNode = domConstruct.create("div", { "title": this.title, "class": "esriCTTdHeaderSearch" }, null);
+                 this.domNode = domConstruct.create("div", { "title": sharedNls.tooltips.search, "class": "esriCTTdHeaderSearch" }, null);
                  domConstruct.place(this.divAddressContainer, dom.byId("esriCTParentDivContainer"));
                  this.own(on(this.domNode, "click", lang.hitch(this, function () {
                      domStyle.set(this.imgSearchLoader, "display", "none");
