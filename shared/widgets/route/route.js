@@ -56,17 +56,17 @@ define([
     "dijit/_WidgetBase",
     "dijit/_TemplatedMixin",
     "dijit/_WidgetsInTemplateMixin",
-    "dojo/i18n!nls/localizedStrings",
+    "dojo/i18n!application/shared/nls/localizedStrings",
+    "dojo/i18n!application/nls/localizedStrings",
     "esri/geometry/Polyline",
     "dojo/domReady!"
   ],
-function (declare, domConstruct, on, topic, lang, array, domStyle, domAttr, dom, query, domClass, RouteParameters, FeatureSet, domGeom, GeometryService, string, html, template, urlUtils, Query, Directions, QueryTask, Deferred, DeferredList, Union, _BorderContainer, SimpleLineSymbol, _ContentPane, scrollBar, graphic, color, SimpleFillSymbol, aspect, DataFile, BufferParameters, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, nls, Polyline) {
+function (declare, domConstruct, on, topic, lang, array, domStyle, domAttr, dom, query, domClass, RouteParameters, FeatureSet, domGeom, GeometryService, string, html, template, urlUtils, Query, Directions, QueryTask, Deferred, DeferredList, Union, _BorderContainer, SimpleLineSymbol, _ContentPane, scrollBar, graphic, color, SimpleFillSymbol, aspect, DataFile, BufferParameters, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, sharedNls, appNls, Polyline) {
 
     //========================================================================================================================//
 
     return declare([_BorderContainer, _ContentPane, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin], {
         templateString: template,
-        nls: nls,
         _esriDirectionsWidger: null,
         esriCTrouteScrollbar: null,
         esriCTInfoLayerFeatureList: null,
@@ -210,7 +210,7 @@ function (declare, domConstruct, on, topic, lang, array, domStyle, domAttr, dom,
                         var esriRoutesHeight = window.innerHeight - query(".esriCTApplicationHeader")[0].offsetHeight - html.coords(query(".simpleDirections .esriStopsContainer")[0]).h - 117;
                         var esriRoutesStyle = { height: esriRoutesHeight + 'px' };
                         domAttr.set(query(".esriRoutes")[0], "style", esriRoutesStyle);
-                        domAttr.set(query(".esriResultsPrint")[0], "innerHTML", nls.print);
+                        domAttr.set(query(".esriResultsPrint")[0], "innerHTML", sharedNls.print);
                         if (!this.esriCTrouteDirectionScrollbar) {
                             this.esriCTrouteDirectionScrollbar = new scrollBar({ domNode: this.esriCTRouteContainer });
                             this.esriCTrouteDirectionScrollbar.setContent(query(".simpleDirections")[0]);
@@ -304,7 +304,7 @@ function (declare, domConstruct, on, topic, lang, array, domStyle, domAttr, dom,
             this.divShowReRouteContainer = domConstruct.create("div", { "class": "esriCTdivShowReRouteContainer" });
             domConstruct.place(this.divShowReRouteContainer, query(".esriRoutesContainer")[0], "first");
             var showRouteInfoContent = domConstruct.create("div", { "class": "esriCTshowRouteInfoContent" }, this.divShowReRouteContainer);
-            domAttr.set(showRouteInfoContent, "innerHTML", nls.reRouteDisplayText);
+            domAttr.set(showRouteInfoContent, "innerHTML", sharedNls.reRouteDisplayText);
             var showRouteImgContent = domConstruct.create("div", { "class": "showRouteImgContent esriCTCursorPointer" }, this.divShowReRouteContainer);
             domConstruct.empty(this.esriCTInfoLayerTitle, this.esriCTRouteInformationContent, "first");
             domClass.add(this.esriCTInfoLayerTitle, "esriCTInfoLayerTitleHeight");
@@ -445,7 +445,7 @@ function (declare, domConstruct, on, topic, lang, array, domStyle, domAttr, dom,
             var backPanel = domConstruct.create("div", { "class": "" }, backPanelInfoHeader);
             var infoBackTiteArrow = domConstruct.create("span", { "class": "infoBackTiteArrow esriCTCursorPointer" }, backPanel);
             var infoBackTite = domConstruct.create("span", { "class": "infoBackTite esriCTCursorPointer" }, backPanel);
-            domAttr.set(infoBackTite, "innerHTML", nls.back);
+            domAttr.set(infoBackTite, "innerHTML", sharedNls.back);
             var resultTitle = domConstruct.create("span", {}, backPanelInfoHeader);
             var resultPanelContainer = domConstruct.create("div", { "class": "resultPanelContainer" }, this.esriCTInfoLayerFeatureList);
             this.resultPanelContents = domConstruct.create("div", { "class": "resultPanelContents" }, resultPanelContainer);
@@ -496,7 +496,7 @@ function (declare, domConstruct, on, topic, lang, array, domStyle, domAttr, dom,
                                             for (var x in arrInfoResult[index].resultFeatures[j].attributes) {
                                                 if (arrInfoResult[index].resultFeatures[j].attributes.hasOwnProperty(x)) {
                                                     if (!arrInfoResult[index].resultFeatures[j].attributes[x]) {
-                                                        arrInfoResult[index].resultFeatures[j].attributes[x] = nls.showNullValue;
+                                                        arrInfoResult[index].resultFeatures[j].attributes[x] = sharedNls.showNullValue;
                                                     }
                                                 }
                                             }

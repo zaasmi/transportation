@@ -42,15 +42,15 @@ define([
     "dijit/_WidgetBase",
     "dijit/_TemplatedMixin",
     "dijit/_WidgetsInTemplateMixin",
-    "dojo/i18n!nls/localizedStrings",
+    "dojo/i18n!application/shared/nls/localizedStrings",
+    "dojo/i18n!application/nls/localizedStrings",
     "dojo/topic"
     ],
-     function (declare, domConstruct, domStyle, domAttr, lang, on, domGeom, dom, domClass, html, string, Locator, Query, scrollBar, Deferred, array, DeferredList, QueryTask, InfoWindow, Geometry, template, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, nls, topic) {
+     function (declare, domConstruct, domStyle, domAttr, lang, on, domGeom, dom, domClass, html, string, Locator, Query, scrollBar, Deferred, array, DeferredList, QueryTask, InfoWindow, Geometry, template, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, sharedNls, appNls, topic) {
          //========================================================================================================================//
 
          return declare([_WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin], {
              templateString: template,
-             nls: nls,
              lastSearchString: null,
              stagedSearch: null,
              locatorScrollbar: null,
@@ -474,7 +474,7 @@ define([
                          domAttr.set(candidateDate, "address", string.substitute(dojo.configData.LocatorSettings.DisplayField, candidate.attributes.attributes));
                      }
                  } catch (err) {
-                     alert(nls.errorMessages.falseConfigParams);
+                     alert(sharedNls.errorMessages.falseConfigParams);
                  }
                  var _this = this;
                  candidateDate.onclick = function (evt) {
@@ -658,7 +658,7 @@ define([
                  domStyle.set(this.close, "display", "block");
                  domClass.remove(this.divAddressContent, "esriCTAddressContainerHeight");
                  var errorAddressCounty = domConstruct.create("div", { "class": "esriCTBottomBorder esriCTCursorPointer esriAddressCounty" }, this.divAddressResults);
-                 domAttr.set(errorAddressCounty, "innerHTML", nls.errorMessages.invalidSearch);
+                 domAttr.set(errorAddressCounty, "innerHTML", sharedNls.errorMessages.invalidSearch);
              },
 
              /**

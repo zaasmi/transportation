@@ -33,7 +33,8 @@ define([
     "dijit/_WidgetBase",
     "dijit/_TemplatedMixin",
     "dijit/_WidgetsInTemplateMixin",
-    "dojo/i18n!nls/localizedStrings",
+    "dojo/i18n!application/shared/nls/localizedStrings",
+    "dojo/i18n!application/nls/localizedStrings",
     "esri/map",
     "esri/layers/ImageParameters",
     "esri/dijit/Directions",
@@ -56,7 +57,7 @@ define([
     "esri/request",
     "dojo/domReady!"
     ],
-     function (declare, domConstruct, domStyle, lang, esriUtils, on, dom, domAttr, query, domClass, domGeom, array, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, nls, esriMap, ImageParameters, Directions, FeatureLayer, GraphicsLayer, SimpleLineSymbol, SimpleRenderer, basemap, Color, baseMapGallery, route, legends, template, geometryExtent, HomeButton, spatialReference, infoWindow, topic, arcGISDynamicMapServiceLayer, esriRequest) {
+     function (declare, domConstruct, domStyle, lang, esriUtils, on, dom, domAttr, query, domClass, domGeom, array, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, sharedNls, appNls, esriMap, ImageParameters, Directions, FeatureLayer, GraphicsLayer, SimpleLineSymbol, SimpleRenderer, basemap, Color, baseMapGallery, route, legends, template, geometryExtent, HomeButton, spatialReference, infoWindow, topic, arcGISDynamicMapServiceLayer, esriRequest) {
 
          //========================================================================================================================//
 
@@ -65,7 +66,6 @@ define([
              map: null,
              templateString: template,
              tempGraphicsLayerId: "esriGraphicsLayerMapSettings",
-             nls: nls,
              stagedSearch: null,
              newLeft: 0,
              logoContainer: null,

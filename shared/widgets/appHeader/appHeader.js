@@ -28,15 +28,15 @@ define([
     "dijit/_WidgetBase",
     "dijit/_TemplatedMixin",
     "dijit/_WidgetsInTemplateMixin",
-    "dojo/i18n!nls/localizedStrings"
+    "dojo/i18n!application/shared/nls/localizedStrings",
+    "dojo/i18n!application/nls/localizedStrings"
     ],
-     function (declare, domConstruct, lang, array, domAttr, dom, template, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, nls) {
+     function (declare, domConstruct, lang, array, domAttr, dom, template, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, sharedNls, appNls) {
 
          //========================================================================================================================//
 
          return declare([_WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin], {
              templateString: template,
-             nls: nls,
 
              /**
              * create header panel

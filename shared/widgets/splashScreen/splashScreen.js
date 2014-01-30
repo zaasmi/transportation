@@ -31,13 +31,13 @@ define([
     "dijit/_WidgetBase",
     "dijit/_TemplatedMixin",
     "dijit/_WidgetsInTemplateMixin",
-    "dojo/i18n!nls/localizedStrings",
+    "dojo/i18n!application/shared/nls/localizedStrings",
+    "dojo/i18n!application/nls/localizedStrings",
     "../scrollBar/scrollBar"
     ],
-     function (declare, domConstruct, domStyle, lang, domClass, domAttr, on, domGeom, window, template, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, nls, scrollBar) {
+     function (declare, domConstruct, domStyle, lang, domClass, domAttr, on, domGeom, window, template, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, sharedNls, appNls, scrollBar) {
          return declare([_WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin], {
              templateString: template,
-             nls: nls,
              splashScreenScrollbar: null,
 
 
@@ -50,7 +50,7 @@ define([
              postCreate: function () {
 
                  this.inherited(arguments);
-                 var divCustomButtonText = domConstruct.create("div", { "class": "customButtonInner", "innerHTML": nls.okButtonText }, this.customButton);
+                 var divCustomButtonText = domConstruct.create("div", { "class": "customButtonInner", "innerHTML": sharedNls.okButtonText }, this.customButton);
                  this.own(on(this.customButton, "click", lang.hitch(this, function () {
                      this._hideSplashScreenDialog();
                  })));
@@ -62,7 +62,7 @@ define([
                  domStyle.set(this.domNode, "display", "block");
                  var splashScreenContent = domConstruct.create("div", { "class": "esriGovtSplashContent" }, this.splashScreenScrollBarContainer);
                  this.splashScreenScrollBarContainer.style.height = (this.splashScreenDialogContainer.offsetHeight - 70) + "px";
-                 domAttr.set(splashScreenContent, "innerHTML", nls.splashScreenContent);
+                 domAttr.set(splashScreenContent, "innerHTML", appNls.splashScreenContent);
                  this.splashScreenScrollbar = new scrollBar({ domNode: this.splashScreenScrollBarContainer });
                  this.splashScreenScrollbar.setContent(splashScreenContent);
                  this.splashScreenScrollbar.createScrollBar();

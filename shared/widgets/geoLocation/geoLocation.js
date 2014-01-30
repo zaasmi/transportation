@@ -29,14 +29,14 @@ define([
     "esri/symbols/PictureMarkerSymbol",
     "esri/SpatialReference",
     "esri/graphic",
-    "dojo/i18n!nls/localizedStrings"
+    "dojo/i18n!application/shared/nls/localizedStrings",
+    "dojo/i18n!application/nls/localizedStrings"
   ],
-function (declare, lang, domConstruct, on, topic, _WidgetBase, GeometryService, Point, PictureMarkerSymbol, SpatialReference, Graphic, nls) {
+function (declare, lang, domConstruct, on, topic, _WidgetBase, GeometryService, Point, PictureMarkerSymbol, SpatialReference, Graphic, sharedNls, appNls) {
 
     //========================================================================================================================//
 
     return declare([_WidgetBase], {
-        nls: nls,
 
         /**
         * create geolocation widget
@@ -92,7 +92,7 @@ function (declare, lang, domConstruct, on, topic, _WidgetBase, GeometryService, 
                     currentBaseMap = self.map.getLayer(self.map.basemapLayerIds[0]);
                     if (currentBaseMap.visible) {
                         if (!currentBaseMap.fullExtent.contains(newPoint[0])) {
-                            alert(nls.errorMessages.invalidLocation);
+                            alert(sharedNls.errorMessages.invalidLocation);
                             return;
                         }
                     }
@@ -100,10 +100,10 @@ function (declare, lang, domConstruct, on, topic, _WidgetBase, GeometryService, 
                     self.map.centerAndZoom(mapPoint, dojo.configData.ZoomLevel);
                     self._addGraphic(mapPoint);
                 }, function (error) {
-                    alert(nls.errorMessages.invalidProjection);
+                    alert(sharedNls.errorMessages.invalidProjection);
                 });
             }, function (error) {
-                alert(nls.errorMessages.invalidLocation);
+                alert(sharedNls.errorMessages.invalidLocation);
             });
         },
 

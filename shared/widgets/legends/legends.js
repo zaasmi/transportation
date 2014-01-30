@@ -42,19 +42,19 @@ define([
     "dijit/_WidgetBase",
     "dijit/_TemplatedMixin",
     "dijit/_WidgetsInTemplateMixin",
-    "dojo/i18n!nls/localizedStrings",
+    "dojo/i18n!application/shared/nls/localizedStrings",
+    "dojo/i18n!application/nls/localizedStrings",
     "esri/request",
-     "esri/map",
-     "esri/tasks/query",
-     "esri/tasks/QueryTask"
+    "esri/map",
+    "esri/tasks/query",
+    "esri/tasks/QueryTask"
   ],
-function (declare, domConstruct, domStyle, lang, array, query, domAttr, on, dom, domClass, domGeom, string, html, aspect, template, simpleMarkerSymbol, simpleFillSymbol, SimpleRenderer, Color, topic, Deferred, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, nls, esriRequest, esriMap, Query, QueryTask) {
+function (declare, domConstruct, domStyle, lang, array, query, domAttr, on, dom, domClass, domGeom, string, html, aspect, template, simpleMarkerSymbol, simpleFillSymbol, SimpleRenderer, Color, topic, Deferred, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, sharedNls, appNls, esriRequest, esriMap, Query, QueryTask) {
 
     //========================================================================================================================//
 
     return declare([_WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin], {
         templateString: template,
-        nls: nls,
         divLegendList: null,
         layerObject: null,
         _layerCollection: {},
