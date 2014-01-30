@@ -17,8 +17,8 @@
 */
 define({
         okButtonText: "OK",
-        splashScreenContent: "Nous allons déchirer les professionnels n'ont jamais cessé , ou désirs à Cilla consectetaur l'argent, mais parce que parfois les circonstances se produisent dans laquelle labeur et la douleur peut lui procurer quelque grand . Pour prendre un exemple trivial, qui de nous n'a jamais entreprend l'exercice physique laborieux, sauf pour obtenir quelque avantage. Nous avons actuellement dans le train arrive à trouver à redire à ce produit aucun plaisir qui en résulte est d'être les applications en ligne . Ces cas sont parfaitement compte du système, ils sont en faute atelier quae laisser adoucit vous recommander . Conscient livre pour vous faire face à la réalité et les lois de punition . Nous allons déchirer les professionnels n'ont jamais cessé , ou désirs à Cilla consectetaur l'argent, mais parce que parfois les circonstances se produisent dans laquelle labeur et la douleur peut lui procurer quelque grand . Pour prendre un exemple trivial, qui de nous n'a jamais entreprend l'exercice physique laborieux, sauf pour obtenir quelque avantage. Nous avons actuellement dans le train arrive à trouver à redire à ce produit aucun plaisir qui en résulte est d'être les applications en ligne . Ces cas sont parfaitement compte du système, ils sont en faute atelier quae laisser adoucit vous recommander . Conscient livre pour vous faire face à la réalité et les lois de punition . Nous allons déchirer les professionnels n'ont jamais cessé , ou désirs à Cilla consectetaur l'argent, mais parce que parfois les circonstances se produisent dans laquelle labeur et la douleur peut lui procurer quelque grand . Pour prendre un exemple trivial, qui de nous n'a jamais entreprend l'exercice physique laborieux, sauf pour obtenir quelque avantage. Nous avons actuellement dans le train arrive à trouver à redire à ce produit aucun plaisir qui en résulte est d'être les applications en ligne . Ces cas sont parfaitement compte du système, ils sont en faute atelier quae laisser adoucit vous recommander . Conscient livre pour vous faire face à la réalité et les lois de punition . Nous allons déchirer les professionnels n'ont jamais cessé , ou désirs à Cilla consectetaur l'argent, mais parce que parfois les circonstances se produisent dans laquelle labeur et la douleur peut lui procurer quelque grand . Pour prendre un exemple trivial, qui de nous n'a jamais entreprend l'exercice physique laborieux, sauf pour obtenir quelque avantage. Nous avons actuellement dans le train arrive à trouver à redire à ce produit aucun plaisir qui en résulte est d'être les applications en ligne . Ces cas sont parfaitement compte du système, ils sont en faute atelier quae laisser adoucit vous recommander . Conscient livre pour vous faire face à la réalité et les lois de punition .",
-        addressDisplayText: "adresse",
+        splashScreenContent: "Un'applicazione che permette al pubblico di trovare informazioni sulle condizioni stradali, 511 avvisi, incidenti stradali, et al.",
+        addressDisplayText: "indirizzo",
         incidentInformationDisplayText: "@@Incident Information",
         directionsDisplayText: "@@Directions",
         informationDisplayText: "@@511 Information",
@@ -29,8 +29,8 @@ define({
         webpageDisplayText: "@@Copy/paste HTML into your web page",
         reRouteDisplayText: "@@Traffic Incidents found on this road",
         errorMessages: {
-            invalidSearch: "Aucun résultat",
-            falseConfigParams: "Nécessitait des valeurs de clés de configuration sont soit nul ou pas exactement correspondant à des attributs de la couche, Ce message peut apparaître plusieurs fois."
+            invalidSearch: "Nessun risultato trovato.",
+            falseConfigParams: "Valori chiave di configurazione obbligatori sono null o non esattamente corrispondenti con gli attributi di livello. Questo messaggio può apparire più volte.",
             invalidLocation: "@@Current Location not found.",
             invalidProjection: "@@Unable to plot current location on the map.",
             widgetNotLoaded: "@@Fail to load widgets.",
