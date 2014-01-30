@@ -72,10 +72,17 @@ define([], function () {
                WidgetPath: "widgets/locator/locator",
                MapInstanceRequired: true
            }, {
+/*
+Widget causes three errors:
+   dojo/parser::parse() error Error {stack: (...), message: "Tried to register widget with id==dijit_layout_BorderContainer_0 but that id is already registered"}
+   dojo.io.script error Error {code: 400, message: "Unable to complete operation.", details: Array[0], log: undefined, httpCode: 400…}
+   dojo.io.script error Error {code: 400, message: "Unable to complete operation.", details: Array[0], log: undefined, httpCode: 400…}
+
                Title: "511 Information",
                WidgetPath: "widgets/route/route",
                MapInstanceRequired: true
            }, {
+*/
                Title: "Locate",
                WidgetPath: "widgets/geoLocation/geoLocation",
                MapInstanceRequired: true
@@ -147,9 +154,14 @@ define([], function () {
             ServiceURL: "http://50.18.115.76:6080/arcgis/rest/services/RoadConditions/MapServer/7",
             LoadAsServiceType: "feature"
         }, {
+/*
+Service causes error:
+    Error: Problem parsing d="Z"
+
             ServiceURL: "http://50.18.115.76:6080/arcgis/rest/services/RoadConditions/MapServer/6",
             LoadAsServiceType: "feature"
         }, {
+*/
             ServiceURL: "http://50.18.115.76:6080/arcgis/rest/services/RoadConditions/MapServer/5",
             LoadAsServiceType: "feature"
         }, {
