@@ -94,7 +94,7 @@ function (declare, domConstruct, domStyle, lang, array, domAttr, on, dom, domCla
             /**
             * get current map extent to be shared
             */
-            domAttr.set(this.esriCTDivshareCodeContainer, "innerHTML", nls.webpageDispalyText);
+            domAttr.set(this.esriCTDivshareCodeContainer, "innerHTML", nls.webpageDisplayText);
             if (dojo.configData.WebMapId && lang.trim(dojo.configData.ApplicationFavicon).length == 0) {
                 var mapExtent = this._getMapExtent();
             }
