@@ -3,7 +3,7 @@
 The Transportation 511 application is a configuration of ArcGIS for Server and a JavaScript application
 that allows the public to find information about road conditions, 511 alerts, traffic incidents, et al.
 
-![Image of Transportation 511 application](https://raw.github.com/Esri/transportation-511/master/transportation-511.png "Transportation 511 application")
+![Image of Transportation 511 application](transportation-511.png "Transportation 511 application")
 
 ## Features
 
