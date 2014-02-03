@@ -582,8 +582,7 @@ Service causes error:
         // ------------------------------------------------------------------------------------------------------------------------
 
         // Set routing service URL
-        // To use ArcGIS Online Routing Service, change it to http://route.arcgis.com/arcgis/rest/services/World/Route/NAServer/Route_World
-        RouteTaskService: "http://tasks.arcgisonline.com/ArcGIS/rest/services/NetworkAnalysis/ESRI_Route_NA/NAServer/Route",
+        RouteTaskService: "http://route.arcgis.com/arcgis/rest/services/World/Route/NAServer/Route_World",
         // Enable/Disable driving directions facility in the application.
         RoutingEnabled: "true",
 
