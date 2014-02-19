@@ -99,7 +99,6 @@ function (declare, WidgetBase) {
             if (this._scrollBarTrack) {
                 this._currentTop = dojo.coords(this._scrollBarHandle).t;
                 dojo.destroy(this._scrollBarTrack);
-                dojo.destroy(this._scrollBarContainer);
             }
         },
 

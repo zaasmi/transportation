@@ -28,15 +28,17 @@ define([
     "dijit/_WidgetBase",
     "dijit/_TemplatedMixin",
     "dijit/_WidgetsInTemplateMixin",
-    "dojo/i18n!application/shared/nls/localizedStrings",
-    "dojo/i18n!application/nls/localizedStrings"
+    "dojo/i18n!nls/localizedStrings",
+    "dojo/dom-class",
+    "dojo/topic"
     ],
-     function (declare, domConstruct, lang, array, domAttr, dom, template, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, sharedNls, appNls) {
+     function (declare, domConstruct, lang, array, domAttr, dom, template, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, nls, domClass, topic) {
 
          //========================================================================================================================//
 
          return declare([_WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin], {
              templateString: template,
+             nls: nls,
 
              /**
              * create header panel
@@ -56,6 +58,10 @@ define([
                  * @private
                  * @memberOf widgets/appHeader/appHeader
                  */
+
+                 topic.subscribe("showProgressIndicator", lang.hitch(this, this.showProgressIndicator));
+                 topic.subscribe("hideProgressIndicator", lang.hitch(this, this.hideProgressIndicator));
+
                  var applicationHeaderDiv = domConstruct.create("div", {}, dom.byId("esriCTParentDivContainer"));
                  domConstruct.place(this.applicationHeaderParentContainer, applicationHeaderDiv);
                  this._loadApplicationHeaderIcon();
@@ -103,7 +109,7 @@ define([
                  if (dojo.configData.ApplicationIcon && lang.trim(dojo.configData.ApplicationIcon).length != 0) {
                      this._loadIcons("apple-touch-icon-precomposed", dojo.configData.ApplicationIcon);
                      this._loadIcons("apple-touch-icon", dojo.configData.ApplicationIcon);
-                     domConstruct.create("img", { "class": "esriCTApplicationHeaderIcon", "src": dojoConfig.baseURL + dojo.configData.ApplicationIcon }, this.applicationHeaderParentContainer);
+                     domConstruct.create("img", { "class": "", "src": dojoConfig.baseURL + dojo.configData.ApplicationIcon }, this.divImgApplicationHeaderIcon);
                  }
              },
 
@@ -113,6 +119,14 @@ define([
                  icon.type = "image/x-icon";
                  icon.href = dojoConfig.baseURL + iconPath;
                  document.getElementsByTagName('head')[0].appendChild(icon);
+             },
+
+             showProgressIndicator: function () {
+                 domClass.replace(this.divLoadingIndicator, "displayBlockAll", "displayNoneAll");
+             },
+
+             hideProgressIndicator: function () {
+                 domClass.replace(this.divLoadingIndicator, "displayNoneAll", "displayBlockAll");
              }
          });
      });

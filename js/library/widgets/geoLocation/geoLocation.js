@@ -29,14 +29,14 @@ define([
     "esri/symbols/PictureMarkerSymbol",
     "esri/SpatialReference",
     "esri/graphic",
-    "dojo/i18n!application/shared/nls/localizedStrings",
-    "dojo/i18n!application/nls/localizedStrings"
+    "dojo/i18n!nls/localizedStrings"
   ],
-function (declare, lang, domConstruct, on, topic, _WidgetBase, GeometryService, Point, PictureMarkerSymbol, SpatialReference, Graphic, sharedNls, appNls) {
+function (declare, lang, domConstruct, on, topic, _WidgetBase, GeometryService, Point, PictureMarkerSymbol, SpatialReference, Graphic, nls) {
 
     //========================================================================================================================//
 
     return declare([_WidgetBase], {
+        nls: nls,
 
         /**
         * create geolocation widget
@@ -51,12 +51,13 @@ function (declare, lang, domConstruct, on, topic, _WidgetBase, GeometryService, 
             * if browser is not supported, geolocation widget is not created
             */
             if (Modernizr.geolocation) {
-                this.domNode = domConstruct.create("div", { "title": sharedNls.tooltips.locate, "class": "esriCTTdGeolocation" }, null);
+                this.domNode = domConstruct.create("div", { "title": this.title, "class": "esriCTTdGeolocation" }, null);
                 this.own(on(this.domNode, "click", lang.hitch(this, function () {
                     /**
                     * minimize other open header panel widgets and call geolocation service
                     */
                     topic.publish("toggleWidget", "geolocation");
+                    topic.publish("setMaxLegendLength");
                     this._showCurrentLocation();
                 })));
             }
@@ -70,8 +71,8 @@ function (declare, lang, domConstruct, on, topic, _WidgetBase, GeometryService, 
 
         _showCurrentLocation: function () {
             var mapPoint, self = this, currentBaseMap,
-            geometryServiceURL = dojo.configData.GeometryService,
-            geometryService = new GeometryService(geometryServiceURL);
+            geometryServiceUrl = dojo.configData.GeometryService,
+            geometryService = new GeometryService(geometryServiceUrl);
 
             /**
             * get device location using geolocation service
@@ -92,7 +93,7 @@ function (declare, lang, domConstruct, on, topic, _WidgetBase, GeometryService, 
                     currentBaseMap = self.map.getLayer(self.map.basemapLayerIds[0]);
                     if (currentBaseMap.visible) {
                         if (!currentBaseMap.fullExtent.contains(newPoint[0])) {
-                            alert(sharedNls.errorMessages.invalidLocation);
+                            alert(nls.errorMessages.invalidLocation);
                             return;
                         }
                     }
@@ -100,10 +101,10 @@ function (declare, lang, domConstruct, on, topic, _WidgetBase, GeometryService, 
                     self.map.centerAndZoom(mapPoint, dojo.configData.ZoomLevel);
                     self._addGraphic(mapPoint);
                 }, function (error) {
-                    alert(sharedNls.errorMessages.invalidProjection);
+                    alert(nls.errorMessages.invalidProjection);
                 });
             }, function (error) {
-                alert(sharedNls.errorMessages.invalidLocation);
+                alert(nls.errorMessages.invalidLocation);
             });
         },
 

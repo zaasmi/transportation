@@ -27,15 +27,16 @@ define([
     "dojo/_base/lang",
     "dojo/Deferred",
     "dojo/promise/all",
-    "dojo/i18n!application/shared/nls/localizedStrings",
-    "dojo/i18n!application/nls/localizedStrings",
+    "dojo/i18n!nls/localizedStrings",
+     "dojo/topic",
     "dojo/domReady!"
     ],
-function (declare, _WidgetBase, Map, appHeader, SplashScreen, array, lang, Deferred, all, sharedNls, appNls) {
+function (declare, _WidgetBase, Map, appHeader, SplashScreen, array, lang, Deferred, all, nls, topic) {
 
     //========================================================================================================================//
 
     return declare([_WidgetBase], {
+        nls: nls,
 
         /**
         * load widgets specified in Header Widget Settings of configuration file
@@ -56,6 +57,52 @@ function (declare, _WidgetBase, Map, appHeader, SplashScreen, array, lang, Defer
             * create an object with widgets specified in Header Widget Settings of configuration file
             * @param {array} dojo.configData.AppHeaderWidgets Widgets specified in configuration file
             */
+            topic.subscribe("setMap", lang.hitch(this, function (mapInstance) {
+                this._initializeWebMap(mapInstance);
+            }));
+
+            if (!dojo.configData.WebMapId && lang.trim(dojo.configData.WebMapId).length == 0) {
+                array.forEach(dojo.configData.AppHeaderWidgets, function (widgetConfig, index) {
+                    var deferred = new Deferred();
+                    widgets[widgetConfig.WidgetPath] = null;
+                    require([widgetConfig.WidgetPath], function (widget) {
+
+                        widgets[widgetConfig.WidgetPath] = new widget({ map: widgetConfig.MapInstanceRequired ? mapInstance : undefined, title: widgetConfig.Title });
+
+                        deferred.resolve(widgetConfig.WidgetPath);
+                    });
+                    deferredArray.push(deferred.promise);
+                });
+
+                all(deferredArray).then(lang.hitch(this, function () {
+                    try {
+                        /**
+                        * create application header
+                        */
+                        this._createApplicationHeader(widgets);
+                    } catch (ex) {
+                        alert(nls.errorMessages.widgetNotLoaded);
+                    }
+
+                }));
+            }
+        },
+
+        /**
+        * create map object
+        * @return {object} Current map instance
+        * @memberOf coreLibrary/widgetLoader
+        */
+        _initializeMap: function () {
+            var map = new Map(),
+                mapInstance = map.getMapInstance();
+            return mapInstance;
+
+        },
+
+        _initializeWebMap: function (mapInstance) {
+            var widgets = {},
+                deferredArray = [];
             array.forEach(dojo.configData.AppHeaderWidgets, function (widgetConfig, index) {
                 var deferred = new Deferred();
                 widgets[widgetConfig.WidgetPath] = null;
@@ -75,22 +122,10 @@ function (declare, _WidgetBase, Map, appHeader, SplashScreen, array, lang, Defer
                     */
                     this._createApplicationHeader(widgets);
                 } catch (ex) {
-                    alert(sharedNls.errorMessages.widgetNotLoaded);
+                    alert(nls.errorMessages.widgetNotLoaded);
                 }
 
             }));
-        },
-
-        /**
-        * create map object
-        * @return {object} Current map instance
-        * @memberOf coreLibrary/widgetLoader
-        */
-        _initializeMap: function () {
-            var map = new Map(),
-               mapInstance = map.getMapInstance();
-            return mapInstance;
-
         },
 
         /**
