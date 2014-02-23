@@ -16,34 +16,60 @@
 | limitations under the License.
 */
 define({
-        showNullValue: "@@N/A",
+        showNullValue: "@it@ N/A",
         buttons: {
-            okButtonText: "@@OK",
-            print: "@@Print",
-            back: "@@Back"
+            okButtonText: "@it@ OK",
+            print: "@it@ Print",
+            back: "@it@ Back",
+            more: "@it@ More",
+            less: "@it@ Less",
+            link: "@it@ Link",
+            email: "e-mail",  // Shown next to icon for sharing the current map extents via email; works with shareViaEmail tooltip
+            Facebook: "Facebook",  // Shown next to icon for sharing the current map extents via a Facebook post; works with shareViaFacebook tooltip
+            Twitter: "Twitter",  // Shown next to icon for sharing the current map extents via a Twitter tweet; works with shareViaTwitter tooltip
         },
         tooltips: {
             search: "Cerca",
-            route: "@@Route",
+            route: "@it@ Route",
             locate: "Posizione corrente",
             share: "Condividi",
             help: "Guida"
         },
         titles: {
-            directionsDisplayText: "@@Directions",
-            informationPanelTitle: "@@Information for current map view",
-            webpageDisplayText: "@@Copy/paste HTML into your web page"
+            directionsDisplayText: "@it@ Directions",
+            informationPanelTitle: "@it@ Information for current map view",
+            frequentRoute: "@it@ Frequently travelled route",
+            webpageDisplayText: "@it@ Copy/paste HTML into your web page"
+        },
+        sentenceFragment: {
+            to: "@it@ to"
         },
         errorMessages: {
             invalidSearch: "Nessun risultato trovato.",
             falseConfigParams: "Valori chiave di configurazione obbligatori sono null o non esattamente corrispondenti con gli attributi di livello. Questo messaggio può apparire più volte.",
-            invalidLocation: "@@Current Location not found.",
-            invalidProjection: "@@Unable to plot current location on the map.",
-            widgetNotLoaded: "@@Fail to load widgets.",
-            shareLoadingFailed: "@@Unable to load share options.",
-            shareFailed: "@@Unable to share."
+            invalidLocation: "@it@ Current location not found.",
+            invalidProjection: "@it@ Unable to plot current location on the map.",
+            widgetNotLoaded: "@it@ Unable to load widgets.",
+            shareLoadingFailed: "@it@ Unable to load share options.",
+            shareFailed: "@it@ Unable to share.",
+            noDirection: "@it@ No direction found"
         },
         notUsed: {
-            addressDisplayText: "@@Address"
+            addressDisplayText: "@it@ Address",
+            backToMap: "@it@ Back to map"
+        },
+
+
+        appSpecific: {
+            titles: {
+                informationDisplayText: "@it@ 511 Information",
+                reRouteDisplayText: "@it@ Traffic Incidents found on this road"
+            },
+            messages: {
+                splashScreenContent: "Un'applicazione che permette al pubblico di trovare informazioni sulle condizioni stradali, 511 avvisi, incidenti stradali, et al."
+            },
+            notUsed: {
+                incidentInformationDisplayText: "@it@ Incident Information"
+            }
         }
 });

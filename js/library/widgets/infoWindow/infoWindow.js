@@ -57,7 +57,7 @@ define([
              this.infoWindowContainer.appendChild(this.domNode);
              this._anchor = domConstruct.create("div", { "class": "esriCTdivTriangle" }, this.domNode);
              domUtils.hide(this.domNode);
-             domAttr.set(this.backToMap, "innerHTML", nls.backToMap);
+             domAttr.set(this.backToMap, "innerHTML", nls.buttons.backToMap);
 
              this.own(on(this.backToMap, "click", lang.hitch(this, function (evt) {
                  this._closeInfowindow();

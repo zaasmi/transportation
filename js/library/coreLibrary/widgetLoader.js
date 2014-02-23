@@ -67,7 +67,7 @@ function (declare, _WidgetBase, Map, appHeader, SplashScreen, array, lang, Defer
                     widgets[widgetConfig.WidgetPath] = null;
                     require([widgetConfig.WidgetPath], function (widget) {
 
-                        widgets[widgetConfig.WidgetPath] = new widget({ map: widgetConfig.MapInstanceRequired ? mapInstance : undefined, title: widgetConfig.Title });
+                        widgets[widgetConfig.WidgetPath] = new widget({ map: widgetConfig.MapInstanceRequired ? mapInstance : undefined });
 
                         deferred.resolve(widgetConfig.WidgetPath);
                     });
@@ -108,7 +108,7 @@ function (declare, _WidgetBase, Map, appHeader, SplashScreen, array, lang, Defer
                 widgets[widgetConfig.WidgetPath] = null;
                 require([widgetConfig.WidgetPath], function (widget) {
 
-                    widgets[widgetConfig.WidgetPath] = new widget({ map: widgetConfig.MapInstanceRequired ? mapInstance : undefined, title: widgetConfig.Title });
+                    widgets[widgetConfig.WidgetPath] = new widget({ map: widgetConfig.MapInstanceRequired ? mapInstance : undefined });
 
                     deferred.resolve(widgetConfig.WidgetPath);
                 });

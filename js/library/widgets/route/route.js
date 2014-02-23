@@ -123,7 +123,7 @@ function (declare, domConstruct, on, topic, lang, array, domStyle, domAttr, dom,
 
             }));
             dojo.showInfo = false;
-            this.domNode = domConstruct.create("div", { "title": this.title, "class": "esriCTRouteImg esriCTRouteImg-select-i" }, null);
+            this.domNode = domConstruct.create("div", { "title": nls.tooltips.route, "class": "esriCTRouteImg esriCTRouteImg-select-i" }, null);
             this._showHideInfoRouteContainer();
             var getGeometry;
 
@@ -471,7 +471,7 @@ function (declare, domConstruct, on, topic, lang, array, domStyle, domAttr, dom,
                 this._esriDirectionsWidget.options.routeSymbol.color = new color([parseInt(dojo.configData.RouteSymbology.ColorRGB.split(",")[0]), parseInt(dojo.configData.RouteSymbology.ColorRGB.split(",")[1]), parseInt(dojo.configData.RouteSymbology.ColorRGB.split(",")[2]), parseFloat(dojo.configData.RouteSymbology.Transparency.split(",")[0])]);
                 this._esriDirectionsWidget.options.routeSymbol.width = parseInt(dojo.configData.RouteSymbology.Width);
                 var divFrequentRoute = domConstruct.create("div", { "class": "esriCTdivFrequentRoute" });
-                domAttr.set(divFrequentRoute, "innerHTML", nls.frequentlRoute);
+                domAttr.set(divFrequentRoute, "innerHTML", nls.titles.frequentRoute);
                 domConstruct.place(divFrequentRoute, query(".esriRoutesContainer")[0], "first");
                 this.routeLoader = domConstruct.create("img", { "class": "esriCTInfoLoader" }, divFrequentRoute);
                 domAttr.set(this.routeLoader, "src", dojoConfig.baseURL + "/js/library/themes/images/blue-loader.gif");
@@ -505,14 +505,14 @@ function (declare, domConstruct, on, topic, lang, array, domStyle, domAttr, dom,
                 var esriRoutesHeight = window.innerHeight - query(".esriCTApplicationHeader")[0].offsetHeight - html.coords(query(".simpleDirections .esriStopsContainer")[0]).h - 117;
                 var esriRoutesStyle = { height: esriRoutesHeight + 'px' };
                 domAttr.set(query(".esriRoutes")[0], "style", esriRoutesStyle);
-                domAttr.set(query(".esriResultsPrint")[0], "innerHTML", nls.print);
+                domAttr.set(query(".esriResultsPrint")[0], "innerHTML", nls.buttons.print);
                 if (!this.esriCTrouteDirectionScrollbar) {
                     this.esriCTrouteDirectionScrollbar = new scrollBar({ domNode: this.esriCTRouteContainer });
                     this.esriCTrouteDirectionScrollbar.setContent(query(".simpleDirections")[0]);
                     this.esriCTrouteDirectionScrollbar.createScrollBar();
                 }
             } else {
-                alert(nls.noDirection);
+                alert(nls.errorMessages.noDirection);
                 topic.publish("hideProgressIndicator");
             }
         },
@@ -807,7 +807,7 @@ function (declare, domConstruct, on, topic, lang, array, domStyle, domAttr, dom,
             this.divShowReRouteContainer = domConstruct.create("div", { "class": "esriCTdivShowReRouteContainer" });
             domConstruct.place(this.divShowReRouteContainer, query(".esriRoutesContainer")[0], "first");
             var showRouteInfoContent = domConstruct.create("div", { "class": "esriCTshowRouteInfoContent" }, this.divShowReRouteContainer);
-            domAttr.set(showRouteInfoContent, "innerHTML", countOfFeatures + " " + nls.reRouteDisplayText);
+            domAttr.set(showRouteInfoContent, "innerHTML", countOfFeatures + " " + nls.appSpecific.titles.reRouteDisplayText);
             var showRouteImgContent = domConstruct.create("div", { "class": "showRouteImgContent esriCTCursorPointer" }, this.divShowReRouteContainer);
             this.own(on(showRouteImgContent, "click", lang.hitch(this, function (evt) {
                 topic.publish("showProgressIndicator");
@@ -956,7 +956,7 @@ function (declare, domConstruct, on, topic, lang, array, domStyle, domAttr, dom,
             var backPanel = domConstruct.create("div", { "class": "" }, backPanelInfoHeader);
             var infoBackTiteArrow = domConstruct.create("span", { "class": "infoBackTiteArrow esriCTCursorPointer" }, backPanel);
             var infoBackTite = domConstruct.create("span", { "class": "infoBackTite esriCTCursorPointer" }, backPanel);
-            domAttr.set(infoBackTite, "innerHTML", nls.back);
+            domAttr.set(infoBackTite, "innerHTML", nls.buttons.back);
             var resultTitle = domConstruct.create("span", {}, backPanelInfoHeader);
             var resultPanelContainer = domConstruct.create("div", { "class": "resultPanelContainer" }, this.esriCTInfoLayerFeatureList);
             this.resultPanelContents = domConstruct.create("div", { "class": "resultPanelContents" }, resultPanelContainer);

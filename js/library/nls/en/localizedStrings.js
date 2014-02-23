@@ -20,7 +20,13 @@ define({
         buttons: {
             okButtonText: "OK",
             print: "Print",
-            back: "Back"
+            back: "Back",
+            more: "More",
+            less: "Less",
+            link: "Link",
+            email: "email",  // Shown next to icon for sharing the current map extents via email; works with shareViaEmail tooltip
+            Facebook: "Facebook",  // Shown next to icon for sharing the current map extents via a Facebook post; works with shareViaFacebook tooltip
+            Twitter: "Twitter"  // Shown next to icon for sharing the current map extents via a Twitter tweet; works with shareViaTwitter tooltip
         },
         tooltips: {
             search: "Search",
@@ -32,18 +38,38 @@ define({
         titles: {
             directionsDisplayText: "Directions",
             informationPanelTitle: "Information for current map view",
+            frequentRoute: "Frequently travelled route",
             webpageDisplayText: "Copy/paste HTML into your web page"
-        }
+        },
+        sentenceFragment: {
+            to: "to"
+        },
         errorMessages: {
             invalidSearch: "No results found",
             falseConfigParams: "Required configuration key values are either null or not exactly matching with layer attributes. This message may appear multiple times.",
-            invalidLocation: "Current Location not found.",
+            invalidLocation: "Current location not found.",
             invalidProjection: "Unable to plot current location on the map.",
-            widgetNotLoaded: "Fail to load widgets.",
+            widgetNotLoaded: "Unable to load widgets.",
             shareLoadingFailed: "Unable to load share options.",
-            shareFailed: "Unable to share."
+            shareFailed: "Unable to share.",
+            noDirection: "No direction found"
         },
         notUsed: {
-            addressDisplayText: "Address"
+            addressDisplayText: "Address",
+            backToMap: "Back to map"
+        },
+
+
+        appSpecific: {
+            titles: {
+                informationDisplayText: "511 Information",
+                reRouteDisplayText: "Traffic incidents found on this road"
+            },
+            messages: {
+                splashScreenContent: "An application that allows the public to find information about road conditions, 511 alerts, traffic incidents, et al."
+            },
+            notUsed: {
+                incidentInformationDisplayText: "Incident information"
+            }
         }
 });

@@ -68,23 +68,18 @@ define([], function () {
 
         AppHeaderWidgets: [
            {
-               Title: "Search",
                WidgetPath: "widgets/locator/locator",
                MapInstanceRequired: true
            }, {
-               Title: "511 Information",
                WidgetPath: "widgets/route/route",
                MapInstanceRequired: true
            }, {
-               Title: "Locate",
                WidgetPath: "widgets/geoLocation/geoLocation",
                MapInstanceRequired: true
            }, {
-               Title: "Share",
                WidgetPath: "widgets/share/share",
                MapInstanceRequired: true
            }, {
-               Title: "Help",
                WidgetPath: "widgets/help/help",
                MapInstanceRequired: false
            }

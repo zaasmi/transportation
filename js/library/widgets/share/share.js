@@ -73,7 +73,7 @@ function (declare, domConstruct, domStyle, lang, array, domAttr, on, dom, domCla
                     }
                 }
             }));
-            this.domNode = domConstruct.create("div", { "title": this.title, "class": "esriCTImgSocialMedia" }, null);
+            this.domNode = domConstruct.create("div", { "title": nls.tooltips.share, "class": "esriCTImgSocialMedia" }, null);
             this.own(on(this.domNode, "click", lang.hitch(this, function () {
 
                 /**
@@ -95,7 +95,7 @@ function (declare, domConstruct, domStyle, lang, array, domAttr, on, dom, domCla
             /**
             * get current map extent to be shared
             */
-            domAttr.set(this.esriCTDivshareCodeContainer, "innerHTML", nls.webpageDispalyText);
+            domAttr.set(this.esriCTDivshareCodeContainer, "innerHTML", nls.titles.webpageDisplayText);
             if (dojo.configData.WebMapId && lang.trim(dojo.configData.ApplicationFavicon).length == 0) {
                 var mapExtent = this._getMapExtent();
             }

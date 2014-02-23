@@ -16,34 +16,60 @@
 | limitations under the License.
 */
 define({
-        showNullValue: "@@N/A",
+        showNullValue: "@es@ N/A",
         buttons: {
-            okButtonText: "@@OK",
-            print: "@@Print",
-            back: "@@Back"
+            okButtonText: "@es@ OK",
+            print: "@es@ Print",
+            back: "@es@ Back",
+            more: "@es@ More",
+            less: "@es@ Less",
+            link: "@es@ Link",
+            email: "correo electrónico",  // Shown next to icon for sharing the current map extents via email; works with shareViaEmail tooltip
+            Facebook: "Facebook",  // Shown next to icon for sharing the current map extents via a Facebook post; works with shareViaFacebook tooltip
+            Twitter: "Twitter"  // Shown next to icon for sharing the current map extents via a Twitter tweet; works with shareViaTwitter tooltip
         },
         tooltips: {
             search: "Buscar",
-            route: "@@Route",
+            route: "@es@ Route",
             locate: "Ubicación actual",
             share: "Compartir",
             help: "Ayuda"
         },
         titles: {
-            directionsDisplayText: "@@Directions",
-            informationPanelTitle: "@@Information for current map view",
-            webpageDisplayText: "@@Copy/paste HTML into your web page"
+            directionsDisplayText: "@es@ Directions",
+            informationPanelTitle: "@es@ Information for current map view",
+            frequentRoute: "@es@ Frequently travelled route",
+            webpageDisplayText: "@es@ Copy/paste HTML into your web page"
+        },
+        sentenceFragment: {
+            to: "@es@ to"
         },
         errorMessages: {
             invalidSearch: "No hay resultados",
             falseConfigParams: "Valores clave de configuración requeridos son null o no coincida exactamente con los atributos de capa, este mensaje puede aparecer varias veces."
-            invalidLocation: "@@Current Location not found.",
-            invalidProjection: "@@Unable to plot current location on the map.",
-            widgetNotLoaded: "@@Fail to load widgets.",
-            shareLoadingFailed: "@@Unable to load share options.",
-            shareFailed: "@@Unable to share."
+            invalidLocation: "@es@ Current location not found.",
+            invalidProjection: "@es@ Unable to plot current location on the map.",
+            widgetNotLoaded: "@es@ Unable to load widgets.",
+            shareLoadingFailed: "@es@ Unable to load share options.",
+            shareFailed: "@es@ Unable to share.",
+            noDirection: "@es@ No direction found"
         },
         notUsed: {
-            addressDisplayText: "@@Address"
+            addressDisplayText: "@es@ Address",
+            backToMap: "@es@ Back to map"
+        },
+
+
+        appSpecific: {
+            titles: {
+                informationDisplayText: "@es@ 511 Information",
+                reRouteDisplayText: "@es@ Traffic Incidents found on this road"
+            },
+            messages: {
+                splashScreenContent: "Estaremos desgarrando los profesionales nunca se han detenido, ni desea Cilla consectetaur dinero, sino porque se producen de vez en cuando las circunstancias en las que trabajo y el dolor pueden procurarle algún gran . Para tomar un ejemplo trivial , lo que de nosotros se compromete ejercicio físico laborioso , excepto para obtener alguna ventaja de ello. Actualmente tenemos en el tren llega a encontrar defectos en que no produce placer resultante es que las aplicaciones en línea . Estos casos son perfectamente cuenta del sistema, que tienen la culpa taller quae dejar suaviza recomendamos . Libro Conscient para usted para hacer frente a los hechos y las leyes de castigo. Estaremos desgarrando los profesionales nunca se han detenido, ni desea Cilla consectetaur dinero, sino porque se producen de vez en cuando las circunstancias en las que trabajo y el dolor pueden procurarle algún gran . Para tomar un ejemplo trivial , lo que de nosotros se compromete ejercicio físico laborioso , excepto para obtener alguna ventaja de ello. Actualmente tenemos en el tren llega a encontrar defectos en que no produce placer resultante es que las aplicaciones en línea . Estos casos son perfectamente cuenta del sistema, que tienen la culpa taller quae dejar suaviza recomendamos . Libro Conscient para usted para hacer frente a los hechos y las leyes de castigo. Estaremos desgarrando los profesionales nunca se han detenido, ni desea Cilla consectetaur dinero, sino porque se producen de vez en cuando las circunstancias en las que trabajo y el dolor pueden procurarle algún gran . Para tomar un ejemplo trivial , lo que de nosotros se compromete ejercicio físico laborioso , excepto para obtener alguna ventaja de ello. Actualmente tenemos en el tren llega a encontrar defectos en que no produce placer resultante es que las aplicaciones en línea . Estos casos son perfectamente cuenta del sistema, que tienen la culpa taller quae dejar suaviza recomendamos . Libro Conscient para usted para hacer frente a los hechos y las leyes de castigo. Estaremos desgarrando los profesionales nunca se han detenido, ni desea Cilla consectetaur dinero, sino porque se producen de vez en cuando las circunstancias en las que trabajo y el dolor pueden procurarle algún gran . Para tomar un ejemplo trivial , lo que de nosotros se compromete ejercicio físico laborioso , excepto para obtener alguna ventaja de ello. Actualmente tenemos en el tren llega a encontrar defectos en que no produce placer resultante es que las aplicaciones en línea . Estos casos son perfectamente cuenta del sistema, que tienen la culpa taller quae dejar suaviza recomendamos . Libro Conscient para usted para hacer frente a los hechos y las leyes de castigo."
+            },
+            notUsed: {
+                incidentInformationDisplayText: "@es@ Incident Information"
+            }
         }
 });
