@@ -45,13 +45,13 @@ define([], function () {
         ApplicationIcon: "",
 
         // Set application Favicon path
-        ApplicationFavicon: "/shared/themes/images/favicon.ico",
+        ApplicationFavicon: "/js/library/themes/images/favicon.ico",
 
         // Set URL of help page/portal
         HelpURL: "help.htm",
 
         // Set application logo url
-        LogoUrl: "",
+        CustomLogoUrl: "",
 
         // Set splash window content - Message that appears when the application starts
         SplashScreen: {
@@ -62,6 +62,7 @@ define([], function () {
         // Header Widget Settings
         //------------------------------------------------------------------------------------------------------------------------
         // Set widgets settings such as widget title, widgetPath, mapInstanceRequired to be displayed in header panel
+        // Title: Name of the widget, will displayed as title of widget in header panel
         // WidgetPath: path of the widget respective to the widgets package.
         // MapInstanceRequired: true if widget is dependent on the map instance.
 
@@ -71,16 +72,10 @@ define([], function () {
                WidgetPath: "widgets/locator/locator",
                MapInstanceRequired: true
            }, {
-/*
-Widget causes three errors:
-   dojo/parser::parse() error Error {stack: (...), message: "Tried to register widget with id==dijit_layout_BorderContainer_0 but that id is already registered"}
-   dojo.io.script error Error {code: 400, message: "Unable to complete operation.", details: Array[0], log: undefined, httpCode: 400…}
-   dojo.io.script error Error {code: 400, message: "Unable to complete operation.", details: Array[0], log: undefined, httpCode: 400…}
-
+               Title: "511 Information",
                WidgetPath: "widgets/route/route",
                MapInstanceRequired: true
            }, {
-*/
                Title: "Locate",
                WidgetPath: "widgets/geoLocation/geoLocation",
                MapInstanceRequired: true
@@ -89,6 +84,7 @@ Widget causes three errors:
                WidgetPath: "widgets/share/share",
                MapInstanceRequired: true
            }, {
+               Title: "Help",
                WidgetPath: "widgets/help/help",
                MapInstanceRequired: false
            }
@@ -102,17 +98,17 @@ Widget causes three errors:
 
         BaseMapLayers: [{
             Key: "topo",
-            ThumbnailSource: "shared/themes/images/Topographic.jpg",
+            ThumbnailSource: "js/library/themes/images/Topographic.jpg",
             Name: "Topographic Map",
             MapURL: "http://services.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer"
         }, {
             Key: "streets",
-            ThumbnailSource: "shared/themes/images/streets.png",
+            ThumbnailSource: "js/library/themes/images/streets.png",
             Name: "Street Map",
             MapURL: "http://services.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer"
         }, {
             Key: "imagery",
-            ThumbnailSource: "shared/themes/images/imagery.png",
+            ThumbnailSource: "js/library/themes/images/imagery.png",
             Name: "Imagery Map",
             MapURL: "http://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer"
         }],
@@ -125,7 +121,6 @@ Widget causes three errors:
         // Choose if you want to use WebMap or Map Services for operational layers. If using WebMap, specify WebMapId within quotes, otherwise leave this empty and configure operational layers
         WebMapId: "",
 
-        // ------------------------------------------------------------------------------------------------------------------------
         // OPERATIONAL DATA SETTINGS
         // ------------------------------------------------------------------------------------------------------------------------
 
@@ -137,45 +132,40 @@ Widget causes three errors:
         //                    Supported service types are 'dynamic' or 'feature'.
         OperationalLayers: [{
             ServiceURL: "http://50.18.115.76:6080/arcgis/rest/services/RoadConditions/MapServer/11",
-            LoadAsServiceType: "feature"
+            LoadAsServiceType: "dynamic"
         }, {
             ServiceURL: "http://50.18.115.76:6080/arcgis/rest/services/RoadConditions/MapServer/10",
-            LoadAsServiceType: "feature"
+            LoadAsServiceType: "dynamic"
         }, {
             ServiceURL: "http://50.18.115.76:6080/arcgis/rest/services/RoadConditions/MapServer/9",
-            LoadAsServiceType: "feature"
+            LoadAsServiceType: "dynamic"
         }, {
             ServiceURL: "http://50.18.115.76:6080/arcgis/rest/services/RoadConditions/MapServer/8",
-            LoadAsServiceType: "feature"
+            LoadAsServiceType: "dynamic"
         }, {
             ServiceURL: "http://50.18.115.76:6080/arcgis/rest/services/RoadConditions/MapServer/7",
-            LoadAsServiceType: "feature"
+            LoadAsServiceType: "dynamic"
         }, {
-/*
-Service causes error:
-    Error: Problem parsing d="Z"
-
             ServiceURL: "http://50.18.115.76:6080/arcgis/rest/services/RoadConditions/MapServer/6",
-            LoadAsServiceType: "feature"
+            LoadAsServiceType: "dynamic"
         }, {
-*/
             ServiceURL: "http://50.18.115.76:6080/arcgis/rest/services/RoadConditions/MapServer/5",
-            LoadAsServiceType: "feature"
+            LoadAsServiceType: "dynamic"
         }, {
             ServiceURL: "http://50.18.115.76:6080/arcgis/rest/services/RoadConditions/MapServer/4",
-            LoadAsServiceType: "feature"
+            LoadAsServiceType: "dynamic"
         }, {
             ServiceURL: "http://50.18.115.76:6080/arcgis/rest/services/RoadConditions/MapServer/3",
-            LoadAsServiceType: "feature"
+            LoadAsServiceType: "dynamic"
         }, {
             ServiceURL: "http://50.18.115.76:6080/arcgis/rest/services/RoadConditions/MapServer/2",
-            LoadAsServiceType: "feature"
+            LoadAsServiceType: "dynamic"
         }, {
             ServiceURL: "http://50.18.115.76:6080/arcgis/rest/services/RoadConditions/MapServer/1",
-            LoadAsServiceType: "feature"
+            LoadAsServiceType: "dynamic"
         }, {
             ServiceURL: "http://50.18.115.76:6080/arcgis/rest/services/RoadConditions/MapServer/0",
-            LoadAsServiceType: "feature"
+            LoadAsServiceType: "dynamic"
         }
         ],
 
@@ -267,6 +257,18 @@ Service causes error:
 		}, {
 		    Title: "RoadConditions",
 		    QueryLayerId: "5",
+		    SearchDisplayTitle: "WindSpeed",
+		    SearchDisplayFields: "${place_name} / ${wind}",
+		    SearchExpression: "UPPER(place_name) LIKE UPPER('${0}%')",
+		    BarrierLayer: "true",
+		    BarrierSearchExpression: "wind_speed > 20",
+		    InfoLayer: "true",
+		    InfoSearchExpression: "wind_speed > 20",
+		    InfoListText: "",
+		    InfoDetailFields: "${place_name} / Windspeed:${wind}"
+		}, {
+		    Title: "RoadConditions",
+		    QueryLayerId: "6",
 		    SearchDisplayTitle: "WorkZones-Point",
 		    SearchDisplayFields: "${HwyName} / ${DelayDesc}",
 		    SearchExpression: "UPPER(HwyName) LIKE UPPER('${0}%') OR UPPER(HwyDesc) LIKE UPPER('${0}%')",
@@ -278,7 +280,7 @@ Service causes error:
 		    InfoDetailFields: "Hwy:${HwyName}"
 		}, {
 		    Title: "RoadConditions",
-		    QueryLayerId: "6",
+		    QueryLayerId: "7",
 		    SearchDisplayTitle: "WorkZones-Line",
 		    SearchDisplayFields: "${HwyName} / ${DelayDesc}",
 		    SearchExpression: "UPPER(HwyName) LIKE UPPER('${0}%') OR UPPER(HwyDesc) LIKE UPPER('${0}%')",
@@ -290,7 +292,7 @@ Service causes error:
 		    InfoDetailFields: "Delay:${DelayDesc}"
 		}, {
 		    Title: "RoadConditions",
-		    QueryLayerId: "7",
+		    QueryLayerId: "8",
 		    SearchDisplayTitle: "RoadConditions",
 		    SearchDisplayFields: "${HwyName} / ${ConditionDesc}",
 		    SearchExpression: "UPPER(HwyName) LIKE UPPER('${0}%') OR UPPER(HwyDesc) LIKE UPPER('${0}%')",
@@ -300,18 +302,6 @@ Service causes error:
 		    InfoSearchExpression: "",
 		    InfoListText: "",
 		    InfoDetailFields: "Condition:${ConditionDesc}"
-		}, {
-		    Title: "RoadConditions",
-		    QueryLayerId: "8",
-		    SearchDisplayTitle: "WindSpeed",
-		    SearchDisplayFields: "${place_name} / ${wind}",
-		    SearchExpression: "UPPER(place_name) LIKE UPPER('${0}%')",
-		    BarrierLayer: "true",
-		    BarrierSearchExpression: "wind_speed > 20",
-		    InfoLayer: "true",
-		    InfoSearchExpression: "wind_speed > 20",
-		    InfoListText: "",
-		    InfoDetailFields: "${place_name} / Windspeed:${wind}"
 		}, {
 		    Title: "RoadConditions",
 		    QueryLayerId: "9",
@@ -345,6 +335,14 @@ Service causes error:
         // Time interval to refresh all layers on map
         LayersRefreshInterval: 5, // in minutes
 
+        //minimum height should be 310 for the info-popup in pixels
+        InfoPopupHeight: 250,
+
+        // Minimum width should be 330 for the info-popup in pixels
+        InfoPopupWidth: 300,
+
+        // Set string value to be shown for null or blank values
+        ShowNullValueAs: "N/A",
         // ------------------------------------------------------------------------------------------------------------------------
         // INFO-WINDOW SETTINGS
         // ------------------------------------------------------------------------------------------------------------------------
@@ -450,16 +448,29 @@ Service causes error:
 		        DisplayText: "Link:",
 		        FieldName: "${Link}"
 		    }]
+		}, {
+		    Title: "RoadConditions",
+		    QueryLayerId: "5",
+		    InfoWindowHeaderField: "${place_name}", //5
+		    MobileCalloutField: "${state}",
+		    ShowAllFields: "false",
+		    InfoWindowData: [{
+		        DisplayText: "Wind:",
+		        FieldName: "${wind}"
+		    }, {
+		        DisplayText: "Temperature:",
+		        FieldName: "${temperature}"
+		    }]
 		},
 		{
 		    Title: "RoadConditions",
-		    QueryLayerId: "5",
+		    QueryLayerId: "6",
 		    InfoWindowHeaderField: "${HwyName}",
 		    MobileCalloutField: "${HwyDesc}",
 		    ShowAllFields: "false",
 		    InfoWindowData: [{
-		        DisplayText: "Comment:",
-		        FieldName: "${Comment}"
+		        DisplayText: "Comments:",
+		        FieldName: "${Comments}"
 		    }, {
 		        DisplayText: "Delay Desc:",
 		        FieldName: "${DelayDesc}"
@@ -467,7 +478,7 @@ Service causes error:
 		},
 		{
 		    Title: "RoadConditions",
-		    QueryLayerId: "6",
+		    QueryLayerId: "7",
 		    InfoWindowHeaderField: "${HwyName}",
 		    MobileCalloutField: "${HwyDesc}",
 		    ShowAllFields: "false",
@@ -481,7 +492,7 @@ Service causes error:
 		},
 		{
 		    Title: "RoadConditions",
-		    QueryLayerId: "7",
+		    QueryLayerId: "8",
 		    InfoWindowHeaderField: "${SegmentName}",
 		    MobileCalloutField: "${HwyDesc}",
 		    ShowAllFields: "false",
@@ -491,20 +502,6 @@ Service causes error:
 		    }, {
 		        DisplayText: "Condition Desc:",
 		        FieldName: "${ConditionDesc}"
-		    }]
-		},
-		{
-		    Title: "RoadConditions",
-		    QueryLayerId: "8",
-		    InfoWindowHeaderField: "${place_name}",
-		    MobileCalloutField: "${state}",
-		    ShowAllFields: "false",
-		    InfoWindowData: [{
-		        DisplayText: "Wind:",
-		        FieldName: "${wind}"
-		    }, {
-		        DisplayText: "Temperature:",
-		        FieldName: "${temperature}"
 		    }]
 		},
 		{
@@ -531,7 +528,7 @@ Service causes error:
         // AddressMatchScore: Setting the minimum score for filtering the candidate results.
         // MaxResults: Maximum number of locations to display in the results menu.
         LocatorSettings: {
-            DefaultLocatorSymbol: "/shared/themes/images/redpushpin.png",
+            DefaultLocatorSymbol: "/js/library/themes/images/redpushpin.png",
             MarkupSymbolSize: {
                 width: 35,
                 height: 35
@@ -550,7 +547,7 @@ Service causes error:
                 Value: 80
             },
             FilterFieldName: 'Addr_Type',
-            FilterFieldValues: ["StreetAddress", "StreetName", "PointAddress"],
+            FilterFieldValues: ["StreetAddress", "StreetName", "PointAddress", "POI"],
             MaxResults: 200
 
         },
@@ -564,7 +561,7 @@ Service causes error:
         // DisplayField: Attributes to be displayed in list of frequently travelled routes
 
         FrequentRoutesLayer: {
-            LayerURL: "",
+            LayerURL: "http://50.18.115.76:6080/arcgis/rest/services/RoadConditions/MapServer/10",
             UniqueRouteField: "${ROUTE_ID}",
             DisplayField: "${ROUTE_ID} / ${HWY_NUM} - ${DIRECTION}"
         },
@@ -582,9 +579,38 @@ Service causes error:
         // ------------------------------------------------------------------------------------------------------------------------
 
         // Set routing service URL
+        // To use ArcGIS Online Routing Service, change it to http://route.arcgis.com/arcgis/rest/services/World/Route/NAServer/Route_World
         RouteTaskService: "http://route.arcgis.com/arcgis/rest/services/World/Route/NAServer/Route_World",
+
         // Enable/Disable driving directions facility in the application.
         RoutingEnabled: "true",
+
+        // Specify the buffer distance (in miles) to find 511 information along a route. This should typically be set between 1 to 10 miles.
+        BufferMilesForProximityAnalysis: "5",
+
+        // Barriers may lie very close to the route but not exactly on the route. Specify a distance (in meters) to find barriers that are to be
+        // considered as occuring on the route. This should typically be set between 1 to 3 meters.
+        BufferMetersForFindingBarriers: "2",
+
+        BufferSymbology: {
+            FillSymbolColor: "0,0,255",
+            FillSymbolTransparency: "0.10",
+            LineSymbolColor: "0,0,255",
+            LineSymbolTransparency: "0.30",
+
+        },
+
+        // Set symbology for route
+        // ColorRGB: Specify the color as comma separated R,G,B values
+        // Transparency: Specify the transparency value between 0:Fully Transparent and 1:Fully Opaque
+        // Width: Specify the display width of route in pixels
+        RouteSymbology: {
+            ColorRGB: "0,0,225",
+            Transparency: "0.5",
+            Width: "4",
+            DirectionUnits: "MILES"
+        },
+
 
         // ------------------------------------------------------------------------------------------------------------------------
         // SETTINGS FOR MAP SHARING

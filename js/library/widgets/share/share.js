@@ -34,16 +34,16 @@ define([
     "dijit/_WidgetBase",
     "dijit/_TemplatedMixin",
     "dijit/_WidgetsInTemplateMixin",
-    "dojo/i18n!application/shared/nls/localizedStrings",
-    "dojo/i18n!application/nls/localizedStrings",
+    "dojo/i18n!nls/localizedStrings",
     "dojo/topic"
   ],
-function (declare, domConstruct, domStyle, lang, array, domAttr, on, dom, domClass, domGeom, string, html, template, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, sharedNls, appNls, topic) {
+function (declare, domConstruct, domStyle, lang, array, domAttr, on, dom, domClass, domGeom, string, html, template, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, nls, topic) {
 
     //========================================================================================================================//
 
     return declare([_WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin], {
         templateString: template,
+        nls: nls,
 
         /**
         * create share widget
@@ -73,13 +73,14 @@ function (declare, domConstruct, domStyle, lang, array, domAttr, on, dom, domCla
                     }
                 }
             }));
-            this.domNode = domConstruct.create("div", { "title": sharedNls.tooltips.share, "class": "esriCTImgSocialMedia" }, null);
+            this.domNode = domConstruct.create("div", { "title": this.title, "class": "esriCTImgSocialMedia" }, null);
             this.own(on(this.domNode, "click", lang.hitch(this, function () {
 
                 /**
                 * minimize other open header panel widgets and show share panel
                 */
                 topic.publish("toggleWidget", "share");
+                topic.publish("setMaxLegendLength");
                 this._shreLink();
             })));
         },
@@ -94,7 +95,7 @@ function (declare, domConstruct, domStyle, lang, array, domAttr, on, dom, domCla
             /**
             * get current map extent to be shared
             */
-            domAttr.set(this.esriCTDivshareCodeContainer, "innerHTML", sharedNls.titles.webpageDisplayText);
+            domAttr.set(this.esriCTDivshareCodeContainer, "innerHTML", nls.webpageDispalyText);
             if (dojo.configData.WebMapId && lang.trim(dojo.configData.ApplicationFavicon).length == 0) {
                 var mapExtent = this._getMapExtent();
             }
@@ -154,12 +155,12 @@ function (declare, domConstruct, domStyle, lang, array, domAttr, on, dom, domCla
                     }),
                     error: function (error) {
                         domClass.replace(this.domNode, "esriCTImgSocialMedia-select", "esriCTImgSocialMedia");
-                        alert(sharedNls.errorMessages.shareLoadingFailed);
+                        alert(nls.errorMessages.shareLoadingFailed);
                     }
                 });
             }
             catch (err) {
-                alert(sharedNls.errorMessages.shareLoadingFailed);
+                alert(nls.errorMessages.shareLoadingFailed);
             }
         },
 
@@ -197,7 +198,7 @@ function (declare, domConstruct, domStyle, lang, array, domAttr, on, dom, domCla
                     this._shareOptions(site, urlStr);
                 }
             } catch (err) {
-                alert(sharedNls.errorMessages.shareFailed);
+                alert(nls.errorMessages.shareFailed);
             }
         },
 

@@ -17,24 +17,26 @@
 */
 define({
     root: {
+
+        okButtonText: "OK",
+        splashScreenContent: "Lorem ipsum dolor sit er elit lamet, consectetaur cillium adipisicing pecu, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Nam liber te conscient to factor tum poen legum odioque civiuda.",
+        addressDisplayText: "Address",
+        incidentInformationDisplayText: "Incident Information",
+        directionsDisplayText: "Directions",
+        informationDispalyText: "511 Information",
+        informationPanelTitle: "Information for current map view",
+        print: "Print",
+        back: "Back",
         showNullValue: "N/A",
-        buttons: {
-            okButtonText: "OK",
-            print: "Print",
-            back: "Back"
-        },
-        tooltips: {
-            search: "Search",
-            route: "Route",
-            locate: "Locate",
-            share: "Share",
-            help: "Help"
-        },
-        titles: {
-            directionsDisplayText: "Directions",
-            informationPanelTitle: "Information for current map view",
-            webpageDisplayText: "Copy/paste HTML into your web page"
-        },
+        more: "More",
+        less: "Less",
+        link: "Link",
+        to: "to",
+        noDirection: "No Direction Found",
+        frequentlRoute: "Frequently Travelled Route",
+        webpageDispalyText: "Copy/paste HTML into your web page",
+        reRouteDisplayText: "Traffic Incidents found on this route",
+        backToMap:"Back To Map",
         errorMessages: {
             invalidSearch: "No results found",
             falseConfigParams: "Required configuration key values are either null or not exactly matching with layer attributes. This message may appear multiple times.",
@@ -43,12 +45,9 @@ define({
             widgetNotLoaded: "Fail to load widgets.",
             shareLoadingFailed: "Unable to load share options.",
             shareFailed: "Unable to share."
-        },
-        notUsed: {
-            addressDisplayText: "Address"
+
         }
     },
-    es: true,
-    fr: true,
-    it: true
+
+    en: true, es: true, fr: true, it: true
 });

@@ -1,18 +1,43 @@
 ﻿<div data-dojo-attach-point="esriCTinfoWindow" class="esriCTinfoWindow">
-    <div id="divInfoContainer" align="center" class="esriCTInfoContainer esriCTopacityHideAnimation">
+    <div data-dojo-attach-point="divInfoContainer" align="center" class="esriCTInfoContainer esriCTopacityHideAnimation">
         <div align="left" id="divInfoContent" class="esriCTInfoContent">
             <div id="esriCTFullHeightWidth" class="esriCTFullHeightWidth">
-                <div id="headderPanel">
+                <div data-dojo-attach-point="headderPanel" class="headderPanel">
                     <div data-dojo-attach-point="esriCTheadderPanel" class="esriCTheadderPanel">
                     </div>
                     <div class="esriCTclosediv" data-dojo-attach-point="esriCTclosediv">
                     </div>
+                    <div class="esriCTdivInfoWindowCrasual">
+                        <div class="esriCTdivInfoRightArrow" data-dojo-attach-point="esriCTdivInfoRightArrow">
+                        </div>
+                        <div class="esriCTCrasualcount">
+                            <div class="esriCTdivInfoFeatureCount" data-dojo-attach-point="divInfoFeatureCount">
+                            </div>
+                            <div class="esriCTdivInfoTotalFeatureCount" data-dojo-attach-point="divInfoTotalFeatureCount">
+                            </div>
+                        </div>
+                        <div class="esriCTdivInfoLeftArrow" data-dojo-attach-point="esriCTdivInfoLeftArrow">
+                        </div>
+                    </div>
                 </div>
                 <div data-dojo-attach-point="divInfoDetails" class="infopanel">
-                    <div data-dojo-attach-point="divInfoDetailsScroll" class="esriCTInfoDetailsScroll">
+                    <div data-dojo-attach-point="divInfoScrollContainer" class="divInfoScrollContainer"
+                        align="left">
+                        <div data-dojo-attach-point="divInfoScrollContent" class="esriCTInfoScrollContent">
+                            <div data-dojo-attach-point="divInfoDetailsScroll" class="esriCTFullWidth">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="cloasedivmobile" data-dojo-attach-point="backToMap">
                     </div>
                 </div>
             </div>
+        </div>
+        <div data-dojo-attach-point="divInfoMobileContent" class="divInfoMobileContent calloutpanel">
+            <div data-dojo-attach-point="spanDirection" class="calloutText">
+            </div>
+            <div class="calloutarrow">
+                <img src="js/library/themes/images/right-arrow-blue.png" /></div>
         </div>
     </div>
 </div>

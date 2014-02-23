@@ -23,10 +23,9 @@ define([
     "dojo/on",
     "dojo/topic",
     "dojo/_base/lang",
-    "dijit/_WidgetBase",
-    "dojo/i18n!application/shared/nls/localizedStrings",
+    "dijit/_WidgetBase"
   ],
-function (declare, domConstruct, on, topic, lang, _WidgetBase, sharedNls) {
+function (declare, domConstruct, on, topic, lang, _WidgetBase) {
 
     //========================================================================================================================//
 
@@ -39,13 +38,14 @@ function (declare, domConstruct, on, topic, lang, _WidgetBase, sharedNls) {
         * @name widgets/help/help
         */
         postCreate: function () {
-            this.domNode = domConstruct.create("div", { "title": sharedNls.tooltips.help, "class": "esriCTHelpImg" }, null);
+            this.domNode = domConstruct.create("div", { "title": this.title, "class": "esriCTHelpImg" }, null);
             this.own(on(this.domNode, "click", lang.hitch(this, function () {
 
                 /**
                 * minimize other open header panel widgets and show help
                 */
                 topic.publish("toggleWidget", "help");
+                topic.publish("setMaxLegendLength");
                 this._showHelpPage();
             })));
         },
