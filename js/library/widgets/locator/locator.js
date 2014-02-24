@@ -45,15 +45,17 @@ define([
     "dijit/_WidgetBase",
     "dijit/_TemplatedMixin",
     "dijit/_WidgetsInTemplateMixin",
-    "dojo/i18n!nls/localizedStrings",
+    "dojo/i18n!application/js/library/nls/localizedStrings",
+    "dojo/i18n!application/nls/localizedStrings",
     "dojo/topic"
     ],
-     function (declare, domConstruct, domStyle, domAttr, lang, on, domGeom, dom, domClass, query, html, string, Locator, Query, scrollBar, Deferred, array, DeferredList, QueryTask, InfoWindow, Geometry, cookie, point, template, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, nls, topic) {
+     function (declare, domConstruct, domStyle, domAttr, lang, on, domGeom, dom, domClass, query, html, string, Locator, Query, scrollBar, Deferred, array, DeferredList, QueryTask, InfoWindow, Geometry, cookie, point, template, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, sharedNls, appNls, topic) {
          //========================================================================================================================//
 
          return declare([_WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin], {
              templateString: template,
-             nls: nls,
+             sharedNls: sharedNls,
+             appNls: appNls,
              lastSearchString: null,
              stagedSearch: null,
              locatorScrollbar: null,
@@ -85,7 +87,7 @@ define([
                      this._createInfoWindowContent(mapPoint, attributes, fields, infoIndex, featureArray, count, map);
                  }));
                  topic.subscribe("setMapTipPosition", this._onSetMapTipPosition);
-                 this.domNode = domConstruct.create("div", { "title": this.title, "class": "esriCTTdHeaderSearch" }, null);
+                 this.domNode = domConstruct.create("div", { "title": sharedNls.tooltips.search, "class": "esriCTTdHeaderSearch" }, null);
                  domConstruct.place(this.divAddressContainer, dom.byId("esriCTParentDivContainer"));
                  this.own(on(this.domNode, "click", lang.hitch(this, function () {
                      domStyle.set(this.imgSearchLoader, "display", "none");
@@ -368,7 +370,7 @@ define([
                                          for (var i in result[num][1].features[order].attributes) {
                                              if (result[num][1].features[order].attributes.hasOwnProperty(i)) {
                                                  if (!result[num][1].features[order].attributes[i]) {
-                                                     result[num][1].features[order].attributes[i] = nls.showNullValue;
+                                                     result[num][1].features[order].attributes[i] = sharedNls.showNullValue;
                                                  }
                                              }
                                          }
@@ -537,7 +539,7 @@ define([
                          domAttr.set(candidateDate, "address", string.substitute(dojo.configData.LocatorSettings.DisplayField, candidate.attributes.attributes));
                      }
                  } catch (err) {
-                     alert(nls.errorMessages.falseConfigParams);
+                     alert(sharedNls.errorMessages.falseConfigParams);
                  }
                  var _this = this;
                  candidateDate.onclick = function (evt) {
@@ -635,14 +637,14 @@ define([
                      for (var i in attributes) {
                          if (attributes.hasOwnProperty(i)) {
                              if (!attributes[i]) {
-                                 attributes[i] = nls.showNullValue;
+                                 attributes[i] = sharedNls.showNullValue;
                              }
                          }
                      }
                      var fieldNames = string.substitute(infoPopupFieldsCollection[key].FieldName, attributes);
                      if (infoPopupFieldsCollection[key].FieldName == "${Link}" || infoPopupFieldsCollection[key].FieldName == "Link") {
                          var link = fieldNames;
-                         var divLink = domConstruct.create("div", { class: "esriCTLink", innerHTML: nls.link }, this.divInfoFieldValue);
+                         var divLink = domConstruct.create("div", { class: "esriCTLink", innerHTML: sharedNls.link }, this.divInfoFieldValue);
                          on(divLink, "click", lang.hitch(this, function () {
                              window.open(link);
                          }));
@@ -655,7 +657,7 @@ define([
                  for (var j in attributes) {
                      if (attributes.hasOwnProperty(j)) {
                          if (!attributes[j]) {
-                             attributes[j] = nls.showNullValue;
+                             attributes[j] = sharedNls.showNullValue;
                          }
                      }
                  }
@@ -771,7 +773,7 @@ define([
                  domClass.remove(this.divAddressContent, "esriCTAddressContainerHeight");
                  domClass.add(this.divAddressContent, "esriCTAddressResultHeight");
                  var errorAddressCounty = domConstruct.create("div", { "class": "esriCTBottomBorder esriCTCursorPointer esriAddressCounty" }, this.divAddressResults);
-                 domAttr.set(errorAddressCounty, "innerHTML", nls.errorMessages.invalidSearch);
+                 domAttr.set(errorAddressCounty, "innerHTML", sharedNls.errorMessages.invalidSearch);
              },
 
              /**

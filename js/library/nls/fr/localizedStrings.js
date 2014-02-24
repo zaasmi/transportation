@@ -16,34 +16,47 @@
 | limitations under the License.
 */
 define({
-        showNullValue: "@@N/A",
+        showNullValue: "@fr@ N/A",
         buttons: {
-            okButtonText: "@@OK",
-            print: "@@Print",
-            back: "@@Back"
+            okButtonText: "@fr@ OK",
+            print: "@fr@ Print",
+            back: "@fr@ Back",
+            more: "@fr@ More",
+            less: "@fr@ Less",
+            link: "@fr@ Link",
+            email: "Email",  // Shown next to icon for sharing the current map extents via email; works with shareViaEmail tooltip
+            Facebook: "Facebook",  // Shown next to icon for sharing the current map extents via a Facebook post; works with shareViaFacebook tooltip
+            Twitter: "Twitter"  // Shown next to icon for sharing the current map extents via a Twitter tweet; works with shareViaTwitter tooltip
         },
         tooltips: {
             search: "Rechercher",
-            route: "@@Route",
+            route: "@fr@ Route",
             locate: "Emplacement actuel",
             share: "Partager",
-            help: "Aide"
+            help: "Aide",
+            clearEntry: "@fr@ Clear"
         },
         titles: {
-            directionsDisplayText: "@@Directions",
-            informationPanelTitle: "@@Information for current map view",
-            webpageDisplayText: "@@Copy/paste HTML into your web page"
+            directionsDisplayText: "@fr@ Directions",
+            informationPanelTitle: "@fr@ Information for current map view",
+            frequentRoute: "@fr@ Frequently travelled route",
+            webpageDisplayText: "@fr@ Copy/paste HTML into your web page"
+        },
+        sentenceFragment: {
+            to: "@fr@ to"
         },
         errorMessages: {
             invalidSearch: "Aucun résultat",
             falseConfigParams: "Valeurs clés de configuration requis sont null ou pas exactement correspondant à des attributs de la couche. Ce message peut apparaître plusieurs fois.",
-            invalidLocation: "@@Current Location not found.",
-            invalidProjection: "@@Unable to plot current location on the map.",
-            widgetNotLoaded: "@@Fail to load widgets.",
-            shareLoadingFailed: "@@Unable to load share options.",
-            shareFailed: "@@Unable to share."
+            invalidLocation: "@fr@ Current location not found.",
+            invalidProjection: "@fr@ Unable to plot current location on the map.",
+            widgetNotLoaded: "@fr@ Unable to load widgets.",
+            shareLoadingFailed: "@fr@ Unable to load share options.",
+            shareFailed: "@fr@ Unable to share.",
+            noDirection: "@fr@ No direction found"
         },
         notUsed: {
-            addressDisplayText: "@@Address"
+            addressDisplayText: "@fr@ Address",
+            backToMap: "@fr@ Back to map"
         }
 });

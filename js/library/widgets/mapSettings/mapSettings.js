@@ -33,7 +33,8 @@ define([
     "dijit/_WidgetBase",
     "dijit/_TemplatedMixin",
     "dijit/_WidgetsInTemplateMixin",
-    "dojo/i18n!nls/localizedStrings",
+    "dojo/i18n!application/js/library/nls/localizedStrings",
+    "dojo/i18n!application/nls/localizedStrings",
     "esri/map",
     "esri/layers/ImageParameters",
     "esri/dijit/Directions",
@@ -60,7 +61,7 @@ define([
     "dojo/_base/unload",
     "dojo/domReady!"
     ],
-     function (declare, domConstruct, domStyle, lang, esriUtils, on, dom, domAttr, query, domClass, domGeom, array, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, nls, esriMap, ImageParameters, Directions, FeatureLayer, GraphicsLayer, SimpleLineSymbol, SimpleRenderer, basemap, Color, baseMapGallery, route, legends, geometryExtent, HomeButton, Deferred, DeferredList, spatialReference, infoWindow, template, topic, arcGISDynamicMapServiceLayer, esriRequest, cookie, baseUnload) {
+     function (declare, domConstruct, domStyle, lang, esriUtils, on, dom, domAttr, query, domClass, domGeom, array, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, sharedNls, appNls, esriMap, ImageParameters, Directions, FeatureLayer, GraphicsLayer, SimpleLineSymbol, SimpleRenderer, basemap, Color, baseMapGallery, route, legends, geometryExtent, HomeButton, Deferred, DeferredList, spatialReference, infoWindow, template, topic, arcGISDynamicMapServiceLayer, esriRequest, cookie, baseUnload) {
 
          //========================================================================================================================//
 
@@ -69,7 +70,8 @@ define([
              map: null,
              templateString: template,
              tempGraphicsLayerId: "esriGraphicsLayerMapSettings",
-             nls: nls,
+             sharedNls: sharedNls,
+             appNls: appNls,
              stagedSearch: null,
              newLeft: 0,
              infoWindowPanel: null,
@@ -310,7 +312,7 @@ define([
                          };
                      }
                  } else {
-                     alert(nls.errorMessages.invalidSearch);
+                     alert(sharedNls.errorMessages.invalidSearch);
                      topic.publish("hideProgressIndicator");
                  }
              },
