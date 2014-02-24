@@ -1,5 +1,5 @@
-﻿/*global define, document, Modernizr */
-/*jslint sloppy:true */
+﻿/*global define,dojo,require,alert */
+/*jslint sloppy:true,nomen:true */
 /** @license
 | Version 10.2
 | Copyright 2013 Esri
@@ -31,8 +31,7 @@ define([
     "dojo/i18n!application/nls/localizedStrings",
     "dojo/topic",
     "dojo/domReady!"
-    ],
-function (declare, _WidgetBase, Map, appHeader, SplashScreen, array, lang, Deferred, all, sharedNls, appNls, topic) {
+], function (declare, _WidgetBase, Map, AppHeader, SplashScreen, array, lang, Deferred, all, sharedNls, appNls, topic) {
 
     //========================================================================================================================//
 
@@ -47,13 +46,15 @@ function (declare, _WidgetBase, Map, appHeader, SplashScreen, array, lang, Defer
         * @name coreLibrary/widgetLoader
         */
         startup: function () {
-            var widgets = {},
-            deferredArray = [];
+            var splashScreen, mapInstance,
+                widgets = {},
+                deferredArray = [];
+
             if (dojo.configData.SplashScreen && dojo.configData.SplashScreen.IsVisible) {
-                var splashScreen = new SplashScreen();
+                splashScreen = new SplashScreen();
                 splashScreen.showSplashScreenDialog();
             }
-            var mapInstance = this._initializeMap();
+            mapInstance = this._initializeMap();
 
             /**
             * create an object with widgets specified in Header Widget Settings of configuration file
@@ -63,13 +64,13 @@ function (declare, _WidgetBase, Map, appHeader, SplashScreen, array, lang, Defer
                 this._initializeWebMap(mapInstance);
             }));
 
-            if (!dojo.configData.WebMapId && lang.trim(dojo.configData.WebMapId).length == 0) {
-                array.forEach(dojo.configData.AppHeaderWidgets, function (widgetConfig, index) {
+            if (!dojo.configData.WebMapId && lang.trim(dojo.configData.WebMapId).length === 0) {
+                array.forEach(dojo.configData.AppHeaderWidgets, function (widgetConfig) {
                     var deferred = new Deferred();
                     widgets[widgetConfig.WidgetPath] = null;
-                    require([widgetConfig.WidgetPath], function (widget) {
+                    require([widgetConfig.WidgetPath], function (Widget) {
 
-                        widgets[widgetConfig.WidgetPath] = new widget({ map: widgetConfig.MapInstanceRequired ? mapInstance : undefined });
+                        widgets[widgetConfig.WidgetPath] = new Widget({ map: widgetConfig.MapInstanceRequired ? mapInstance : undefined });
 
                         deferred.resolve(widgetConfig.WidgetPath);
                     });
@@ -105,12 +106,12 @@ function (declare, _WidgetBase, Map, appHeader, SplashScreen, array, lang, Defer
         _initializeWebMap: function (mapInstance) {
             var widgets = {},
                 deferredArray = [];
-            array.forEach(dojo.configData.AppHeaderWidgets, function (widgetConfig, index) {
+            array.forEach(dojo.configData.AppHeaderWidgets, function (widgetConfig) {
                 var deferred = new Deferred();
                 widgets[widgetConfig.WidgetPath] = null;
-                require([widgetConfig.WidgetPath], function (widget) {
+                require([widgetConfig.WidgetPath], function (Widget) {
 
-                    widgets[widgetConfig.WidgetPath] = new widget({ map: widgetConfig.MapInstanceRequired ? mapInstance : undefined });
+                    widgets[widgetConfig.WidgetPath] = new Widget({ map: widgetConfig.MapInstanceRequired ? mapInstance : undefined });
 
                     deferred.resolve(widgetConfig.WidgetPath);
                 });
@@ -136,7 +137,7 @@ function (declare, _WidgetBase, Map, appHeader, SplashScreen, array, lang, Defer
         * @memberOf coreLibrary/widgetLoader
         */
         _createApplicationHeader: function (widgets) {
-            var applicationHeader = new appHeader();
+            var applicationHeader = new AppHeader();
             applicationHeader.loadHeaderWidgets(widgets);
         }
 

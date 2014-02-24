@@ -1,5 +1,5 @@
-﻿/*global dojo,define,document */
-/*jslint sloppy:true */
+﻿/*global define,dojo,window */
+/*jslint sloppy:true,nomen:true */
 /** @license
 | Version 10.2
 | Copyright 2013 Esri
@@ -24,10 +24,8 @@ define([
     "dojo/topic",
     "dojo/_base/lang",
     "dijit/_WidgetBase",
-    "dojo/i18n!application/js/library/nls/localizedStrings",
-    "dojo/i18n!application/nls/localizedStrings"
-  ],
-function (declare, domConstruct, on, topic, lang, _WidgetBase, sharedNls, appNls) {
+    "dojo/i18n!application/js/library/nls/localizedStrings"
+], function (declare, domConstruct, on, topic, lang, _WidgetBase, sharedNls) {
 
     //========================================================================================================================//
 

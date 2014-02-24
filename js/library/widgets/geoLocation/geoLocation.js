@@ -1,5 +1,5 @@
-﻿/*global define, document, Modernizr */
-/*jslint sloppy:true */
+﻿/*global define,dojo,dojoConfig,Modernizr,navigator,alert */
+/*jslint sloppy:true,nomen:true */
 /** @license
 | Version 10.2
 | Copyright 2013 Esri
@@ -31,8 +31,7 @@ define([
     "esri/graphic",
     "dojo/i18n!application/js/library/nls/localizedStrings",
     "dojo/i18n!application/nls/localizedStrings"
-  ],
-function (declare, lang, domConstruct, on, topic, _WidgetBase, GeometryService, Point, PictureMarkerSymbol, SpatialReference, Graphic, sharedNls, appNls) {
+], function (declare, lang, domConstruct, on, topic, _WidgetBase, GeometryService, Point, PictureMarkerSymbol, SpatialReference, Graphic, sharedNls, appNls) {
 
     //========================================================================================================================//
 
@@ -73,8 +72,8 @@ function (declare, lang, domConstruct, on, topic, _WidgetBase, GeometryService, 
 
         _showCurrentLocation: function () {
             var mapPoint, self = this, currentBaseMap,
-            geometryServiceUrl = dojo.configData.GeometryService,
-            geometryService = new GeometryService(geometryServiceUrl);
+                geometryServiceUrl = dojo.configData.GeometryService,
+                geometryService = new GeometryService(geometryServiceUrl);
 
             /**
             * get device location using geolocation service
@@ -102,10 +101,10 @@ function (declare, lang, domConstruct, on, topic, _WidgetBase, GeometryService, 
                     mapPoint = newPoint[0];
                     self.map.centerAndZoom(mapPoint, dojo.configData.ZoomLevel);
                     self._addGraphic(mapPoint);
-                }, function (error) {
+                }, function () {
                     alert(sharedNls.errorMessages.invalidProjection);
                 });
-            }, function (error) {
+            }, function () {
                 alert(sharedNls.errorMessages.invalidLocation);
             });
         },
@@ -117,8 +116,8 @@ function (declare, lang, domConstruct, on, topic, _WidgetBase, GeometryService, 
         */
         _addGraphic: function (mapPoint) {
             var geoLocationPushpin = dojoConfig.baseURL + dojo.configData.LocatorSettings.DefaultLocatorSymbol,
-            locatorMarkupSymbol = new PictureMarkerSymbol(geoLocationPushpin, "35", "35"),
-            graphic = new Graphic(mapPoint, locatorMarkupSymbol, null, null);
+                locatorMarkupSymbol = new PictureMarkerSymbol(geoLocationPushpin, "35", "35"),
+                graphic = new Graphic(mapPoint, locatorMarkupSymbol, null, null);
             this.map.getLayer("esriGraphicsLayerMapSettings").clear();
             this.map.getLayer("esriGraphicsLayerMapSettings").add(graphic);
         }
