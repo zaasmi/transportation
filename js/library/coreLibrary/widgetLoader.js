@@ -27,16 +27,18 @@ define([
     "dojo/_base/lang",
     "dojo/Deferred",
     "dojo/promise/all",
-    "dojo/i18n!nls/localizedStrings",
-     "dojo/topic",
+    "dojo/i18n!application/js/library/nls/localizedStrings",
+    "dojo/i18n!application/nls/localizedStrings",
+    "dojo/topic",
     "dojo/domReady!"
     ],
-function (declare, _WidgetBase, Map, appHeader, SplashScreen, array, lang, Deferred, all, nls, topic) {
+function (declare, _WidgetBase, Map, appHeader, SplashScreen, array, lang, Deferred, all, sharedNls, appNls, topic) {
 
     //========================================================================================================================//
 
     return declare([_WidgetBase], {
-        nls: nls,
+        sharedNls: sharedNls,
+        appNls: appNls,
 
         /**
         * load widgets specified in Header Widget Settings of configuration file
@@ -81,7 +83,7 @@ function (declare, _WidgetBase, Map, appHeader, SplashScreen, array, lang, Defer
                         */
                         this._createApplicationHeader(widgets);
                     } catch (ex) {
-                        alert(nls.errorMessages.widgetNotLoaded);
+                        alert(sharedNls.errorMessages.widgetNotLoaded);
                     }
 
                 }));
@@ -122,7 +124,7 @@ function (declare, _WidgetBase, Map, appHeader, SplashScreen, array, lang, Defer
                     */
                     this._createApplicationHeader(widgets);
                 } catch (ex) {
-                    alert(nls.errorMessages.widgetNotLoaded);
+                    alert(sharedNls.errorMessages.widgetNotLoaded);
                 }
 
             }));

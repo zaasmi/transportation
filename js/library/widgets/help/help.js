@@ -24,9 +24,10 @@ define([
     "dojo/topic",
     "dojo/_base/lang",
     "dijit/_WidgetBase",
-    "dojo/i18n!nls/localizedStrings",
+    "dojo/i18n!application/js/library/nls/localizedStrings",
+    "dojo/i18n!application/nls/localizedStrings"
   ],
-function (declare, domConstruct, on, topic, lang, _WidgetBase, nls) {
+function (declare, domConstruct, on, topic, lang, _WidgetBase, sharedNls, appNls) {
 
     //========================================================================================================================//
 
@@ -39,7 +40,7 @@ function (declare, domConstruct, on, topic, lang, _WidgetBase, nls) {
         * @name widgets/help/help
         */
         postCreate: function () {
-            this.domNode = domConstruct.create("div", { "title": nls.tooltips.help, "class": "esriCTHelpImg" }, null);
+            this.domNode = domConstruct.create("div", { "title": sharedNls.tooltips.help, "class": "esriCTHelpImg" }, null);
             this.own(on(this.domNode, "click", lang.hitch(this, function () {
 
                 /**

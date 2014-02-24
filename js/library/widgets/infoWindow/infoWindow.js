@@ -19,31 +19,33 @@
 //============================================================================================================================//
 define([
  "dojo/_base/declare",
-        "dojo/dom-construct",
-        "dojo/dom-style",
-        "dojo/dom-attr",
-        "dojo/_base/lang",
-        "dojo/on",
-        "dojo/dom-geometry",
-        "../scrollBar/scrollBar",
-        "dojo/dom",
-        "dojo/dom-class",
-        "dojo/string",
-        "dojo/topic",
-        "esri/domUtils",
-        "esri/InfoWindowBase",
-        "dojo/text!./templates/infoWindow.html",
-        "dijit/_WidgetBase",
-        "dijit/_TemplatedMixin",
-        "esri/tasks/query",
-         "dojo/query",
-        "dojo/i18n!nls/localizedStrings",
-        "dijit/_WidgetsInTemplateMixin"
+    "dojo/dom-construct",
+    "dojo/dom-style",
+    "dojo/dom-attr",
+    "dojo/_base/lang",
+    "dojo/on",
+    "dojo/dom-geometry",
+    "../scrollBar/scrollBar",
+    "dojo/dom",
+    "dojo/dom-class",
+    "dojo/string",
+    "dojo/topic",
+    "esri/domUtils",
+    "esri/InfoWindowBase",
+    "dojo/text!./templates/infoWindow.html",
+    "dijit/_WidgetBase",
+    "dijit/_TemplatedMixin",
+    "esri/tasks/query",
+    "dojo/query",
+    "dojo/i18n!application/js/library/nls/localizedStrings",
+    "dojo/i18n!application/nls/localizedStrings",
+    "dijit/_WidgetsInTemplateMixin"
 ],
- function (declare, domConstruct, domStyle, domAttr, lang, on, domGeom, scrollBar, dom, domClass, string, topic, domUtils, InfoWindowBase, template, _WidgetBase, _TemplatedMixin, Query, query, nls, _WidgetsInTemplateMixin) {
+ function (declare, domConstruct, domStyle, domAttr, lang, on, domGeom, scrollBar, dom, domClass, string, topic, domUtils, InfoWindowBase, template, _WidgetBase, _TemplatedMixin, Query, query, sharedNls, appNls, _WidgetsInTemplateMixin) {
      return declare([InfoWindowBase, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin], {
          templateString: template,
-         nls: nls,
+         sharedNls: sharedNls,
+         appNls: appNls,
          InfoShow: null,
 
          postCreate: function () {
@@ -57,7 +59,7 @@ define([
              this.infoWindowContainer.appendChild(this.domNode);
              this._anchor = domConstruct.create("div", { "class": "esriCTdivTriangle" }, this.domNode);
              domUtils.hide(this.domNode);
-             domAttr.set(this.backToMap, "innerHTML", nls.buttons.backToMap);
+             domAttr.set(this.backToMap, "innerHTML", sharedNls.buttons.backToMap);
 
              this.own(on(this.backToMap, "click", lang.hitch(this, function (evt) {
                  this._closeInfowindow();

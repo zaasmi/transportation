@@ -26,14 +26,15 @@ define({
             link: "@fr@ Link",
             email: "Email",  // Shown next to icon for sharing the current map extents via email; works with shareViaEmail tooltip
             Facebook: "Facebook",  // Shown next to icon for sharing the current map extents via a Facebook post; works with shareViaFacebook tooltip
-            Twitter: "Twitter",  // Shown next to icon for sharing the current map extents via a Twitter tweet; works with shareViaTwitter tooltip
+            Twitter: "Twitter"  // Shown next to icon for sharing the current map extents via a Twitter tweet; works with shareViaTwitter tooltip
         },
         tooltips: {
             search: "Rechercher",
             route: "@fr@ Route",
             locate: "Emplacement actuel",
             share: "Partager",
-            help: "Aide"
+            help: "Aide",
+            clearEntry: "@fr@ Clear"
         },
         titles: {
             directionsDisplayText: "@fr@ Directions",
@@ -57,19 +58,5 @@ define({
         notUsed: {
             addressDisplayText: "@fr@ Address",
             backToMap: "@fr@ Back to map"
-        },
-
-
-        appSpecific: {
-            titles: {
-                informationDisplayText: "@fr@ 511 Information",
-                reRouteDisplayText: "@fr@ Traffic Incidents found on this road"
-            },
-            messages: {
-                splashScreenContent: "Une application qui permet au public de trouver des informations sur l'état des routes, 511 alertes, les problèmes de circulation, et al."
-            },
-            notUsed: {
-                incidentInformationDisplayText: "@fr@ Incident Information"
-            }
         }
 });

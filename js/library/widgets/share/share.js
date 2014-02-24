@@ -34,16 +34,18 @@ define([
     "dijit/_WidgetBase",
     "dijit/_TemplatedMixin",
     "dijit/_WidgetsInTemplateMixin",
-    "dojo/i18n!nls/localizedStrings",
+    "dojo/i18n!application/js/library/nls/localizedStrings",
+    "dojo/i18n!application/nls/localizedStrings",
     "dojo/topic"
   ],
-function (declare, domConstruct, domStyle, lang, array, domAttr, on, dom, domClass, domGeom, string, html, template, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, nls, topic) {
+function (declare, domConstruct, domStyle, lang, array, domAttr, on, dom, domClass, domGeom, string, html, template, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, sharedNls, appNls, topic) {
 
     //========================================================================================================================//
 
     return declare([_WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin], {
         templateString: template,
-        nls: nls,
+        sharedNls: sharedNls,
+        appNls: appNls,
 
         /**
         * create share widget
@@ -73,7 +75,7 @@ function (declare, domConstruct, domStyle, lang, array, domAttr, on, dom, domCla
                     }
                 }
             }));
-            this.domNode = domConstruct.create("div", { "title": nls.tooltips.share, "class": "esriCTImgSocialMedia" }, null);
+            this.domNode = domConstruct.create("div", { "title": sharedNls.tooltips.share, "class": "esriCTImgSocialMedia" }, null);
             this.own(on(this.domNode, "click", lang.hitch(this, function () {
 
                 /**
@@ -95,7 +97,7 @@ function (declare, domConstruct, domStyle, lang, array, domAttr, on, dom, domCla
             /**
             * get current map extent to be shared
             */
-            domAttr.set(this.esriCTDivshareCodeContainer, "innerHTML", nls.titles.webpageDisplayText);
+            domAttr.set(this.esriCTDivshareCodeContainer, "innerHTML", sharedNls.titles.webpageDisplayText);
             if (dojo.configData.WebMapId && lang.trim(dojo.configData.ApplicationFavicon).length == 0) {
                 var mapExtent = this._getMapExtent();
             }
@@ -155,12 +157,12 @@ function (declare, domConstruct, domStyle, lang, array, domAttr, on, dom, domCla
                     }),
                     error: function (error) {
                         domClass.replace(this.domNode, "esriCTImgSocialMedia-select", "esriCTImgSocialMedia");
-                        alert(nls.errorMessages.shareLoadingFailed);
+                        alert(sharedNls.errorMessages.shareLoadingFailed);
                     }
                 });
             }
             catch (err) {
-                alert(nls.errorMessages.shareLoadingFailed);
+                alert(sharedNls.errorMessages.shareLoadingFailed);
             }
         },
 
@@ -198,7 +200,7 @@ function (declare, domConstruct, domStyle, lang, array, domAttr, on, dom, domCla
                     this._shareOptions(site, urlStr);
                 }
             } catch (err) {
-                alert(nls.errorMessages.shareFailed);
+                alert(sharedNls.errorMessages.shareFailed);
             }
         },
 

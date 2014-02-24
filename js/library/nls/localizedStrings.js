@@ -34,7 +34,8 @@ define({
             route: "Route",
             locate: "Locate",
             share: "Share",
-            help: "Help"
+            help: "Help",
+            clearEntry: "Clear"
         },
         titles: {
             directionsDisplayText: "Directions",
@@ -58,20 +59,6 @@ define({
         notUsed: {
             addressDisplayText: "Address",
             backToMap: "Back to map"
-        },
-
-
-        appSpecific: {
-            titles: {
-                informationDisplayText: "511 Information",
-                reRouteDisplayText: "Traffic incidents found on this road"
-            },
-            messages: {
-                splashScreenContent: "An application that allows the public to find information about road conditions, 511 alerts, traffic incidents, et al."
-            },
-            notUsed: {
-                incidentInformationDisplayText: "Incident information"
-            }
         }
     },
     es: true,

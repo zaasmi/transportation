@@ -54,25 +54,27 @@ define([
     "esri/symbols/SimpleMarkerSymbol",
     "dojo/aspect",
     "esri/tasks/DataFile",
-     "dojo/cookie",
+    "dojo/cookie",
     "esri/graphic",
     "esri/tasks/BufferParameters",
     "dijit/_WidgetBase",
     "dijit/_TemplatedMixin",
     "dijit/_WidgetsInTemplateMixin",
-    "dojo/i18n!nls/localizedStrings",
+    "dojo/i18n!application/js/library/nls/localizedStrings",
+    "dojo/i18n!application/nls/localizedStrings",
     "esri/geometry/Polyline",
     "esri/SnappingManager",
     "esri/symbols/CartographicLineSymbol",
     "esri/layers/GraphicsLayer"
   ],
-function (declare, domConstruct, on, topic, lang, array, domStyle, domAttr, dom, query, domClass, RouteParameters, FeatureSet, domGeom, GeometryService, string, html, template, urlUtils, Query, Directions, QueryTask, Deferred, DeferredList, Union, _BorderContainer, SimpleLineSymbol, _ContentPane, scrollBar, graphic, color, Color, SimpleFillSymbol, SimpleMarkerSymbol, aspect, DataFile, cookie, Graphic, BufferParameters, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, nls, Polyline, SnappingManager, CartographicLineSymbol, GraphicsLayer) {
+function (declare, domConstruct, on, topic, lang, array, domStyle, domAttr, dom, query, domClass, RouteParameters, FeatureSet, domGeom, GeometryService, string, html, template, urlUtils, Query, Directions, QueryTask, Deferred, DeferredList, Union, _BorderContainer, SimpleLineSymbol, _ContentPane, scrollBar, graphic, color, Color, SimpleFillSymbol, SimpleMarkerSymbol, aspect, DataFile, cookie, Graphic, BufferParameters, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, sharedNls, appNls, Polyline, SnappingManager, CartographicLineSymbol, GraphicsLayer) {
 
     //========================================================================================================================//
 
     return declare([_BorderContainer, _ContentPane, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin], {
         templateString: template,
-        nls: nls,
+        sharedNls: sharedNls,
+        appNls: appNls,
         _esriDirectionsWidget: null,
         esriCTrouteScrollbar: null,
         esriCTInfoLayerFeatureList: null,
@@ -123,7 +125,7 @@ function (declare, domConstruct, on, topic, lang, array, domStyle, domAttr, dom,
 
             }));
             dojo.showInfo = false;
-            this.domNode = domConstruct.create("div", { "title": nls.tooltips.route, "class": "esriCTRouteImg esriCTRouteImg-select-i" }, null);
+            this.domNode = domConstruct.create("div", { "title": sharedNls.tooltips.route, "class": "esriCTRouteImg esriCTRouteImg-select-i" }, null);
             this._showHideInfoRouteContainer();
             var getGeometry;
 
@@ -237,26 +239,26 @@ function (declare, domConstruct, on, topic, lang, array, domStyle, domAttr, dom,
             this.applicationRouteContainer.appendChild(this.divFrequentRouteContainerButton);
             var divapplicationFrequentRoutes = domConstruct.create("span", { "class": "esriCTcontainerButtonHtml esriCTCursorPointer" }, this.divFrequentRouteContainerButton);
             var containerButtonHtml = domConstruct.create("span", { "class": "esriCTcontainerButtonHtml esriCTCursorPointer" }, divapplicationFrequentRoutes);
-            domAttr.set(containerButtonHtml, "innerHTML", nls.more);
-            if (containerButtonHtml.innerHTML == nls.more) {
+            domAttr.set(containerButtonHtml, "innerHTML", sharedNls.more);
+            if (containerButtonHtml.innerHTML == sharedNls.more) {
                 this.infoPanelHeight = true;
             } else {
                 this.infoPanelHeight = false;
             }
             var routeTopTiteArrow = domConstruct.create("span", { "class": "esriCTrouteUpTitleArrow esriCTCursorPointer" }, divapplicationFrequentRoutes);
             this.own(on(divapplicationFrequentRoutes, "click", lang.hitch(this, function () {
-                if (containerButtonHtml.innerHTML == nls.more) {
+                if (containerButtonHtml.innerHTML == sharedNls.more) {
                     this.infoPanelHeight = false;
                     domClass.remove(query(".esriCTHeaderRouteContainer")[0], "esriCTHeaderFrequentRouteContainer");
                     domClass.replace(this.divFrequentRouteContainerButton, "esriCTFrequentRouteContainerTopButton", "esriCTFrequentRouteContainerButton");
                     domClass.replace(routeTopTiteArrow, "esriCTrouteDownTitleArrow", "esriCTrouteUpTitleArrow");
-                    domAttr.set(containerButtonHtml, "innerHTML", nls.less);
+                    domAttr.set(containerButtonHtml, "innerHTML", sharedNls.less);
                 }
-                else if (containerButtonHtml.innerHTML == nls.less) {
+                else if (containerButtonHtml.innerHTML == sharedNls.less) {
                     domClass.add(query(".esriCTHeaderRouteContainer")[0], "esriCTHeaderFrequentRouteContainer");
                     domClass.replace(this.divFrequentRouteContainerButton, "esriCTFrequentRouteContainerButton", "esriCTFrequentRouteContainerTopButton");
                     domClass.replace(routeTopTiteArrow, "esriCTrouteUpTitleArrow", "esriCTrouteDownTitleArrow");
-                    domAttr.set(containerButtonHtml, "innerHTML", nls.more);
+                    domAttr.set(containerButtonHtml, "innerHTML", sharedNls.more);
                 }
             })));
         },
@@ -295,7 +297,7 @@ function (declare, domConstruct, on, topic, lang, array, domStyle, domAttr, dom,
                 if (domStyle.get(this.esriCTRouteInformationContent, "display", "none") == "none") {
                     if (this.divFrequentRouteContainerButton && !query(".esriRoutes")[0]) {
                         domStyle.set(this.divFrequentRouteContainerButton, "display", "block");
-                        if (this.divFrequentRouteContainerButton.innerText == nls.less) {
+                        if (this.divFrequentRouteContainerButton.innerText == sharedNls.less) {
                             domClass.remove(query(".esriCTHeaderRouteContainer")[0], "esriCTHeaderFrequentRouteContainer");
                         } else {
                             domClass.add(query(".esriCTHeaderRouteContainer")[0], "esriCTHeaderFrequentRouteContainer");
@@ -316,7 +318,7 @@ function (declare, domConstruct, on, topic, lang, array, domStyle, domAttr, dom,
                     domStyle.set(this.divFrequentRouteContainerButton, "display", "none");
                 } else if (this.divFrequentRouteContainerButton && !query(".esriRoutes")[0]) {
                     domStyle.set(this.divFrequentRouteContainerButton, "display", "block");
-                    if (this.divFrequentRouteContainerButton.innerText == nls.less) {
+                    if (this.divFrequentRouteContainerButton.innerText == sharedNls.less) {
                         domClass.remove(query(".esriCTHeaderRouteContainer")[0], "esriCTHeaderFrequentRouteContainer");
                     } else {
                         domClass.add(query(".esriCTHeaderRouteContainer")[0], "esriCTHeaderFrequentRouteContainer");
@@ -372,7 +374,7 @@ function (declare, domConstruct, on, topic, lang, array, domStyle, domAttr, dom,
                             for (var i in result[0][1].features[arrayResult].attributes) {
                                 if (result[0][1].features[arrayResult].attributes.hasOwnProperty(i)) {
                                     if (!result[0][1].features[arrayResult].attributes[i]) {
-                                        result[0][1].features[arrayResult].attributes[i] = nls.showNullValue;
+                                        result[0][1].features[arrayResult].attributes[i] = sharedNls.showNullValue;
                                     }
                                 }
                             }
@@ -471,7 +473,7 @@ function (declare, domConstruct, on, topic, lang, array, domStyle, domAttr, dom,
                 this._esriDirectionsWidget.options.routeSymbol.color = new color([parseInt(dojo.configData.RouteSymbology.ColorRGB.split(",")[0]), parseInt(dojo.configData.RouteSymbology.ColorRGB.split(",")[1]), parseInt(dojo.configData.RouteSymbology.ColorRGB.split(",")[2]), parseFloat(dojo.configData.RouteSymbology.Transparency.split(",")[0])]);
                 this._esriDirectionsWidget.options.routeSymbol.width = parseInt(dojo.configData.RouteSymbology.Width);
                 var divFrequentRoute = domConstruct.create("div", { "class": "esriCTdivFrequentRoute" });
-                domAttr.set(divFrequentRoute, "innerHTML", nls.titles.frequentRoute);
+                domAttr.set(divFrequentRoute, "innerHTML", sharedNls.titles.frequentRoute);
                 domConstruct.place(divFrequentRoute, query(".esriRoutesContainer")[0], "first");
                 this.routeLoader = domConstruct.create("img", { "class": "esriCTInfoLoader" }, divFrequentRoute);
                 domAttr.set(this.routeLoader, "src", dojoConfig.baseURL + "/js/library/themes/images/blue-loader.gif");
@@ -505,14 +507,14 @@ function (declare, domConstruct, on, topic, lang, array, domStyle, domAttr, dom,
                 var esriRoutesHeight = window.innerHeight - query(".esriCTApplicationHeader")[0].offsetHeight - html.coords(query(".simpleDirections .esriStopsContainer")[0]).h - 117;
                 var esriRoutesStyle = { height: esriRoutesHeight + 'px' };
                 domAttr.set(query(".esriRoutes")[0], "style", esriRoutesStyle);
-                domAttr.set(query(".esriResultsPrint")[0], "innerHTML", nls.buttons.print);
+                domAttr.set(query(".esriResultsPrint")[0], "innerHTML", sharedNls.buttons.print);
                 if (!this.esriCTrouteDirectionScrollbar) {
                     this.esriCTrouteDirectionScrollbar = new scrollBar({ domNode: this.esriCTRouteContainer });
                     this.esriCTrouteDirectionScrollbar.setContent(query(".simpleDirections")[0]);
                     this.esriCTrouteDirectionScrollbar.createScrollBar();
                 }
             } else {
-                alert(nls.errorMessages.noDirection);
+                alert(sharedNls.errorMessages.noDirection);
                 topic.publish("hideProgressIndicator");
             }
         },
@@ -734,7 +736,7 @@ function (declare, domConstruct, on, topic, lang, array, domStyle, domAttr, dom,
             var routeLength = this._esriDirectionsWidget.stops.length;
             var routeFirstName = this._esriDirectionsWidget.stops[0].name.toUpperCase();
             var routeLastName = this._esriDirectionsWidget.stops[routeLength - 1].name.toUpperCase();
-            var routeName = routeFirstName + " " + nls.to + " " + routeLastName;
+            var routeName = routeFirstName + " " + sharedNls.to + " " + routeLastName;
             geometryService.union(geometry).then(lang.hitch(this, function (geometries) {
                 var params = new BufferParameters();
                 params.distances = [parseInt(dojo.configData.BufferMilesForProximityAnalysis)];
@@ -807,7 +809,7 @@ function (declare, domConstruct, on, topic, lang, array, domStyle, domAttr, dom,
             this.divShowReRouteContainer = domConstruct.create("div", { "class": "esriCTdivShowReRouteContainer" });
             domConstruct.place(this.divShowReRouteContainer, query(".esriRoutesContainer")[0], "first");
             var showRouteInfoContent = domConstruct.create("div", { "class": "esriCTshowRouteInfoContent" }, this.divShowReRouteContainer);
-            domAttr.set(showRouteInfoContent, "innerHTML", countOfFeatures + " " + nls.appSpecific.titles.reRouteDisplayText);
+            domAttr.set(showRouteInfoContent, "innerHTML", countOfFeatures + " " + appNls.titles.reRouteDisplayText);
             var showRouteImgContent = domConstruct.create("div", { "class": "showRouteImgContent esriCTCursorPointer" }, this.divShowReRouteContainer);
             this.own(on(showRouteImgContent, "click", lang.hitch(this, function (evt) {
                 topic.publish("showProgressIndicator");
@@ -956,7 +958,7 @@ function (declare, domConstruct, on, topic, lang, array, domStyle, domAttr, dom,
             var backPanel = domConstruct.create("div", { "class": "" }, backPanelInfoHeader);
             var infoBackTiteArrow = domConstruct.create("span", { "class": "infoBackTiteArrow esriCTCursorPointer" }, backPanel);
             var infoBackTite = domConstruct.create("span", { "class": "infoBackTite esriCTCursorPointer" }, backPanel);
-            domAttr.set(infoBackTite, "innerHTML", nls.buttons.back);
+            domAttr.set(infoBackTite, "innerHTML", sharedNls.buttons.back);
             var resultTitle = domConstruct.create("span", {}, backPanelInfoHeader);
             var resultPanelContainer = domConstruct.create("div", { "class": "resultPanelContainer" }, this.esriCTInfoLayerFeatureList);
             this.resultPanelContents = domConstruct.create("div", { "class": "resultPanelContents" }, resultPanelContainer);
@@ -1024,7 +1026,7 @@ function (declare, domConstruct, on, topic, lang, array, domStyle, domAttr, dom,
                                                 for (var x in arrInfoResult[index].resultFeatures[j].attributes) {
                                                     if (arrInfoResult[index].resultFeatures[j].attributes.hasOwnProperty(x)) {
                                                         if (!arrInfoResult[index].resultFeatures[j].attributes[x]) {
-                                                            arrInfoResult[index].resultFeatures[j].attributes[x] = nls.showNullValue;
+                                                            arrInfoResult[index].resultFeatures[j].attributes[x] = sharedNls.showNullValue;
                                                         }
                                                     }
                                                 }

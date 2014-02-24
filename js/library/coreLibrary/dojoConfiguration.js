@@ -29,7 +29,6 @@ dojoConfig = {
     packages: [
             { name: "application", location: root },
             { name: "widgets", location: root + '/js/library/widgets' },
-            { name: "coreLibrary", location: root + '/js/library/coreLibrary' },
-            { name: "nls", location: root + '/js/library/nls' }
+            { name: "coreLibrary", location: root + '/js/library/coreLibrary' }
         ]
 };
