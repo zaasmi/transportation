@@ -1,13 +1,8 @@
 <%@ WebHandler Language="C#" Class="proxy" %>
 
-/* Version 2.0
- *
- * What's new:
- * - supports OAuth 2.0 AppLogin-based authentication
- * - rate limiting (resource + referrer based)
- * - optional logging
- * - .NET 4.0 or higher
-*/
+/*
+ * See https://github.com/Esri/resource-proxy for more information
+ */
 
 #define TRACE
 using System;
@@ -53,7 +48,7 @@ public class proxy : IHttpHandler {
         }
     }
 
-    private static string PROXY_REFERER = "http://localhost/auth_proxy.ashx";
+    private static string PROXY_REFERER = "http://localhost/proxy/proxy.ashx";
     private static string DEFAULT_OAUTH = "https://www.arcgis.com/sharing/oauth2/";
     private static int CLEAN_RATEMAP_AFTER = 10000; //clean the rateMap every xxxx requests
 
@@ -77,11 +72,14 @@ public class proxy : IHttpHandler {
             serverUrl = getConfig().GetConfigServerUrl(uri);
             passThrough = serverUrl == null;
         } catch (InvalidOperationException ex) {
-            string errorMsg = ex.Message + " " + uri;            
+            string errorMsg = ex.Message + " " + uri;
             log(TraceLevel.Error, errorMsg);
             sendErrorResponse(context.Response, null, errorMsg, System.Net.HttpStatusCode.Forbidden);
             return;
         }
+        //use actual request header instead of a placeholder, if present
+        if (context.Request.Headers["referer"] != null)
+            PROXY_REFERER = context.Request.Headers["referer"];
 
         //referer
         //check against the list of referers if they have been specified in the proxy.config
@@ -105,7 +103,7 @@ public class proxy : IHttpHandler {
 
             if (!allowed)
             {
-                string errorMsg = " Proxy is being used from an unsupported referer: " + context.Request.Headers["referer"];
+                string errorMsg = "Proxy is being used from an unsupported referer: " + context.Request.Headers["referer"];
                 log(TraceLevel.Error, errorMsg);
                 sendErrorResponse(context.Response, null, errorMsg, System.Net.HttpStatusCode.Forbidden);
                 return;
@@ -166,7 +164,7 @@ public class proxy : IHttpHandler {
             if (!tokenIsInApplicationScope) {
                 token = serverUrl.AccessToken;
                 if (String.IsNullOrEmpty(token))
-                    token = getNewTokenIfCredentialsAreSpecified(serverUrl);
+                    token = getNewTokenIfCredentialsAreSpecified(serverUrl, uri);
             }
 
             if (!String.IsNullOrEmpty(token) && !tokenIsInApplicationScope) {
@@ -176,11 +174,11 @@ public class proxy : IHttpHandler {
                 context.Application.UnLock();
             }
         }
-        
-        //name by which token parameter is passed (if url actually came from the list)             
+
+        //name by which token parameter is passed (if url actually came from the list)
         string tokenParamName = serverUrl != null ? serverUrl.TokenParamName : null;
-        
-        
+
+
         if (String.IsNullOrEmpty(tokenParamName))
             tokenParamName = "token";
 
@@ -212,7 +210,7 @@ public class proxy : IHttpHandler {
                 log(TraceLevel.Info, "Renewing token and trying again.");
                 //server returned error - potential cause: token has expired.
                 //we'll do second attempt to call the server with renewed token:
-                token = getNewTokenIfCredentialsAreSpecified(serverUrl);
+                token = getNewTokenIfCredentialsAreSpecified(serverUrl, uri);
                 serverResponse = forwardToServer(context, addTokenToUri(uri, token, tokenParamName), postBody);
 
                 //storing the token in Application scope, to do not waste time on requesting new one untill it expires or the app is restarted.
@@ -309,6 +307,7 @@ public class proxy : IHttpHandler {
     private System.Net.WebResponse doHTTPRequest(string uri, byte[] bytes, string method, string referer, string contentType) {
         System.Net.HttpWebRequest req = (System.Net.HttpWebRequest)System.Net.HttpWebRequest.Create(uri);
         req.ServicePoint.Expect100Continue = false;
+        //is this just localhost?
         req.Referer = referer;
         req.Method = method;
         if (bytes != null && bytes.Length > 0 || method == "POST") {
@@ -332,8 +331,10 @@ public class proxy : IHttpHandler {
         }
     }
 
-    private string getNewTokenIfCredentialsAreSpecified(ServerUrl su) {
+    private string getNewTokenIfCredentialsAreSpecified(ServerUrl su, string reqUrl) {
         string token = "";
+        string infoUrl = "";
+
         bool isUserLogin = !String.IsNullOrEmpty(su.Username) && !String.IsNullOrEmpty(su.Password);
         bool isAppLogin = !String.IsNullOrEmpty(su.ClientId) && !String.IsNullOrEmpty(su.ClientSecret);
         if (isUserLogin || isAppLogin) {
@@ -351,8 +352,24 @@ public class proxy : IHttpHandler {
                 if (!string.IsNullOrEmpty(token))
                     token = exchangePortalTokenForServerToken(token, su);
             } else {
-                //standalone ArcGIS Sevrer token-based authentication
-                string infoUrl = su.Url.Substring(0, su.Url.IndexOf("/rest", StringComparison.OrdinalIgnoreCase));
+                //standalone ArcGIS Server/ArcGIS Online token-based authentication
+
+                //if a request already includes 'generateToken', we're ready to get a token
+                if (reqUrl.ToLower().Contains("/generatetoken"))
+                {
+                    string strippedReqUrl = reqUrl.Substring(0, reqUrl.IndexOf("?"));
+                    string uri = strippedReqUrl + "?f=json&request=getToken&referer=" + PROXY_REFERER + "&expiration=60&username=" + su.Username + "&password=" + su.Password;
+                    string tokenResponse = webResponseToString(doHTTPRequest(uri, "POST"));
+                    token = extractToken(tokenResponse, "token");
+                    return token;
+                }
+                //if the url in the proxy.config contains 'rest', we can determine the url of the token generator dynamically
+                if (su.Url.ToLower().Contains("/rest"))
+                    infoUrl = su.Url.Substring(0, su.Url.IndexOf("/rest", StringComparison.OrdinalIgnoreCase));
+                //if it doesn't lets look for 'rest' in the request url itself
+                else
+                    infoUrl = reqUrl.Substring(0, reqUrl.IndexOf("/rest", StringComparison.OrdinalIgnoreCase));
+
                 if (infoUrl != "") {
                     log(TraceLevel.Info," Querying security endpoint...");
                     infoUrl += "/rest/info?f=json";
@@ -367,6 +384,8 @@ public class proxy : IHttpHandler {
                         token = extractToken(tokenResponse, "token");
                     }
                 }
+
+
             }
         }
         return token;
@@ -486,10 +505,10 @@ public class ProxyConfig
                 using (System.IO.StreamReader file = new System.IO.StreamReader(fileName)) {
                     try {
                         config = (ProxyConfig)reader.Deserialize(file);
-                    }    
+                    }
                     catch (Exception ex) {
                         throw ex;
-                    }         
+                    }
                 }
             }
         }
@@ -513,9 +532,9 @@ public class ProxyConfig
     //create an array with valid referers using the allowedReferers String that is defined in the proxy.config
     public static String[] GetAllowedReferersArray()
     {
-        if (allowedReferers == null) 
+        if (allowedReferers == null)
             return null;
-        
+
         return allowedReferers.Split(',');
     }
 
@@ -523,6 +542,7 @@ public class ProxyConfig
     //check if url starts with prefix...
     public static bool isUrlPrefixMatch(String prefix, String uri)
     {
+
         return uri.ToLower().StartsWith(prefix.ToLower()) ||
                     uri.ToLower().Replace("https://", "http://").StartsWith(prefix.ToLower()) ||
                     uri.ToLower().Substring(uri.IndexOf("//")).StartsWith(prefix.ToLower());
@@ -537,15 +557,15 @@ public class ProxyConfig
     [XmlArrayItem("serverUrl")]
     public ServerUrl[] ServerUrls {
         get { return this.serverUrls; }
-        set 
-        { 
-            this.serverUrls = value; 
+        set
+        {
+            this.serverUrls = value;
         }
     }
     [XmlAttribute("mustMatch")]
     public bool MustMatch {
         get { return mustMatch; }
-        set 
+        set
         { mustMatch = value; }
     }
 
@@ -554,26 +574,30 @@ public class ProxyConfig
     public string AllowedReferers
     {
         get { return allowedReferers; }
-        set 
+        set
         {
             allowedReferers = value;
         }
     }
 
     public ServerUrl GetConfigServerUrl(string uri) {
-        foreach (ServerUrl su in serverUrls)
+
+        foreach (ServerUrl su in serverUrls) {
+            //lets add a slash to the proxy.config url if not present before comparing to the request itself to fend off subdomain attacks (ie: gooddomain.org.baddomain.com)
+            if (!su.Url.Substring(su.Url.Length - 1, 1).Equals("/"))
+                su.Url = su.Url + "/";
             if (
                 su.MatchAll && uri.StartsWith(su.Url, StringComparison.InvariantCultureIgnoreCase)
                 || String.Compare(uri, su.Url, StringComparison.InvariantCultureIgnoreCase) == 0
              )
                 return su;
-
+        }
         if (mustMatch)
-            throw new InvalidOperationException(" Proxy is being used for an unsupported service (proxy.config has mustMatch=\"true\"):");
+            throw new InvalidOperationException("Proxy is being used for an unsupported service (proxy.config has mustMatch=\"true\"):");
         return null;
     }
-    
-    
+
+
 }
 
 public class ServerUrl {
