@@ -61,6 +61,7 @@ function (declare, domConstruct, domStyle, lang, array, query, domAttr, on, dom,
         _layerCollection: {},
         _rendererArray: [],
         newLeft: 0,
+        total: 0,
         /**
         * create legends widget
         * @class
@@ -107,6 +108,9 @@ function (declare, domConstruct, domStyle, lang, array, query, domAttr, on, dom,
                             }
                         }
                     }
+                    var resultListArray = [];
+                    var legendListWidth = [];
+                    domStyle.set(this.divRightArrow, "display", "block");
                     if (defQueryArray.length > 0) {
                         domConstruct.empty(this.divlegendContainer);
                         domConstruct.create("span", { innerHTML: "Loading...", marginTop: "5px" }, this.divlegendContainer);
@@ -115,8 +119,22 @@ function (declare, domConstruct, domStyle, lang, array, query, domAttr, on, dom,
                             domConstruct.empty(this.divlegendContainer);
                             for (var i = 0; i < result.length; i++) {
                                 if (result[i][0] && result[i][1] > 0) {
+                                    resultListArray.push(result[i][1]);
+                                    legendListWidth.push(this.divLegendlist.offsetWidth);
                                     this._addLegendSymbol(this._rendererArray[i], this._layerCollection[this._rendererArray[i].layerUrl].layerName);
                                 }
+                            }
+
+                            var arryList = 0;
+                            for (var j = 0; j < resultListArray.length; j++) {
+                                arryList += resultListArray[j] << 0;
+                            }
+                            this._addlegendListWidth(legendListWidth);
+                            var boxWidth = this.legendbox.offsetWidth - query(".esriCTHeaderRouteContainer")[0].offsetWidth + 200;
+                            if (arryList <= 0 || this.divlegendContainer.offsetWidth < boxWidth) {
+                                domStyle.set(this.divRightArrow, "display", "none");
+                            } else {
+                                domStyle.set(this.divRightArrow, "display", "block");
                             }
                         }));
                     }
@@ -253,7 +271,6 @@ function (declare, domConstruct, domStyle, lang, array, query, domAttr, on, dom,
         * initiates the creation of legend
         */
         startup: function (layerArray) {
-
             var mapServerArray = [];
             for (var index = 0; index < layerArray.length; index++) {
                 var mapServerURL = layerArray[index].split("/");
@@ -348,16 +365,28 @@ function (declare, domConstruct, domStyle, lang, array, query, domAttr, on, dom,
         },
 
         _createLegendList: function (layerList, mapServerUrl) {
+            var legendListWidth = [];
             for (var i = 0; i < layerList.layers.length; i++) {
                 this._layerCollection[mapServerUrl + '/' + layerList.layers[i].layerId] = layerList.layers[i];
 
                 for (var j = 0; j < layerList.layers[i].legend.length; j++) {
                     this._addLegendSymbol(layerList.layers[i].legend[j], layerList.layers[i].layerName);
+                    legendListWidth.push(this.divLegendlist.offsetWidth);
                 }
             }
+            this._addlegendListWidth(legendListWidth);
 
             this._addFieldValue();
 
+        },
+
+        _addlegendListWidth: function (legendListWidth) {
+            var listWidth = legendListWidth;
+            var total = 0;
+            for (j = 0; j < listWidth.length - 1; j++) {
+                total += listWidth[j] << 0;
+            }
+            domStyle.set(query(".divlegendContent")[0], "width", total + "px");
         },
 
         _addLegendSymbol: function (legend, layerName) {
@@ -367,6 +396,7 @@ function (declare, domConstruct, domStyle, lang, array, query, domAttr, on, dom,
                 var image = this._createImage("data:image/gif;base64," + legend.imageData, "", false, legend.width, legend.height);
                 domConstruct.place(image, divLegendImage);
                 this.divLegendlist.appendChild(divLegendImage);
+
 
                 if (legend.label) {
                     var divLegendLabel = dojo.create("div", { "class": "legendlbl", "innerHTML": legend.label }, null);

@@ -121,6 +121,7 @@ define([], function () {
         // Choose if you want to use WebMap or Map Services for operational layers. If using WebMap, specify WebMapId within quotes, otherwise leave this empty and configure operational layers
         WebMapId: "",
 
+        ThemeColor: "js/library/themes/styles/blueTheme.css",
         // OPERATIONAL DATA SETTINGS
         // ------------------------------------------------------------------------------------------------------------------------
 
@@ -351,7 +352,7 @@ define([], function () {
         // 		  it should be the name of Map/Feature Service.
         // QueryLayerId: Layer index used for performing queries.
         // InfoWindowHeader: Specify field for the info window header
-        // MobileCalloutField: Specify field to be displayed in callout bubble for mobile devices
+        // InfoWindowContent: Specify field to be displayed in callout bubble for mobile devices
         // ShowAllFields: When set to true, infowindow will display all fields from layer and InfoWindowData section is ignored
         //				  When set to false, only fields configured in InfoWindowData section will be displayed
         // InfoWindowData: Set the content to be displayed in the info-Popup. Define labels and field values.
@@ -362,7 +363,7 @@ define([], function () {
             Title: "RoadConditions",
             QueryLayerId: "0",
             InfoWindowHeaderField: "${HwyName}",
-            MobileCalloutField: "${HwyDesc}",
+            InfoWindowContent: "${HwyDesc}",
             ShowAllFields: "false",
             InfoWindowData: [{
                 DisplayText: "ROUTE ID:",
@@ -403,7 +404,7 @@ define([], function () {
 		    Title: "RoadConditions",
 		    QueryLayerId: "1",
 		    InfoWindowHeaderField: "${HwyName}",
-		    MobileCalloutField: "${HwyDesc}",
+		    InfoWindowContent: "${HwyDesc}",
 		    ShowAllFields: "false",
 		    InfoWindowData: [{
 		        DisplayText: "Comment:",
@@ -417,7 +418,7 @@ define([], function () {
 		    Title: "RoadConditions",
 		    QueryLayerId: "2",
 		    InfoWindowHeaderField: "${HwyName}",
-		    MobileCalloutField: "${HwyDesc}",
+		    InfoWindowContent: "${HwyDesc}",
 		    ShowAllFields: "false",
 		    InfoWindowData: [{
 		        DisplayText: "Comment:",
@@ -431,10 +432,10 @@ define([], function () {
 		    Title: "RoadConditions",
 		    QueryLayerId: "3",
 		    InfoWindowHeaderField: "${Description}",
-		    MobileCalloutField: "${Description}",
+		    InfoWindowContent: "${Description}",
 		    ShowAllFields: "false",
 		    InfoWindowData: [{
-		        DisplayText: "Link:",
+		        DisplayText: "",
 		        FieldName: "${Link}"
 		    }]
 		},
@@ -442,17 +443,17 @@ define([], function () {
 		    Title: "RoadConditions",
 		    QueryLayerId: "4",
 		    InfoWindowHeaderField: "${Description}",
-		    MobileCalloutField: "${Description}",
+		    InfoWindowContent: "${Description}",
 		    ShowAllFields: "false",
 		    InfoWindowData: [{
-		        DisplayText: "Link:",
+		        DisplayText: "",
 		        FieldName: "${Link}"
 		    }]
 		}, {
 		    Title: "RoadConditions",
 		    QueryLayerId: "5",
 		    InfoWindowHeaderField: "${place_name}", //5
-		    MobileCalloutField: "${state}",
+		    InfoWindowContent: "${state}",
 		    ShowAllFields: "false",
 		    InfoWindowData: [{
 		        DisplayText: "Wind:",
@@ -466,7 +467,7 @@ define([], function () {
 		    Title: "RoadConditions",
 		    QueryLayerId: "6",
 		    InfoWindowHeaderField: "${HwyName}",
-		    MobileCalloutField: "${HwyDesc}",
+		    InfoWindowContent: "${HwyDesc}",
 		    ShowAllFields: "false",
 		    InfoWindowData: [{
 		        DisplayText: "Comments:",
@@ -480,7 +481,7 @@ define([], function () {
 		    Title: "RoadConditions",
 		    QueryLayerId: "7",
 		    InfoWindowHeaderField: "${HwyName}",
-		    MobileCalloutField: "${HwyDesc}",
+		    InfoWindowContent: "${HwyDesc}",
 		    ShowAllFields: "false",
 		    InfoWindowData: [{
 		        DisplayText: "Work Type:",
@@ -494,7 +495,7 @@ define([], function () {
 		    Title: "RoadConditions",
 		    QueryLayerId: "8",
 		    InfoWindowHeaderField: "${SegmentName}",
-		    MobileCalloutField: "${HwyDesc}",
+		    InfoWindowContent: "${HwyDesc}",
 		    ShowAllFields: "false",
 		    InfoWindowData: [{
 		        DisplayText: "Condition Category:",
@@ -508,7 +509,7 @@ define([], function () {
 		    Title: "RoadConditions",
 		    QueryLayerId: "9",
 		    InfoWindowHeaderField: "${SegmentName}",
-		    MobileCalloutField: "${HwyDesc}",
+		    InfoWindowContent: "${HwyDesc}",
 		    ShowAllFields: "false",
 		    InfoWindowData: [{
 		        DisplayText: "Restriction Code:",
@@ -563,7 +564,8 @@ define([], function () {
         FrequentRoutesLayer: {
             LayerURL: "http://50.18.115.76:6080/arcgis/rest/services/RoadConditions/MapServer/10",
             UniqueRouteField: "${ROUTE_ID}",
-            DisplayField: "${ROUTE_ID} / ${HWY_NUM} - ${DIRECTION}"
+            DisplayField: "${ROUTE_ID} / ${HWY_NUM} - ${DIRECTION}",
+            FrequentRoutesEnabled: "true"
         },
 
         // ------------------------------------------------------------------------------------------------------------------------
@@ -596,8 +598,7 @@ define([], function () {
             FillSymbolColor: "0,0,255",
             FillSymbolTransparency: "0.10",
             LineSymbolColor: "0,0,255",
-            LineSymbolTransparency: "0.30",
-
+            LineSymbolTransparency: "0.30"
         },
 
         // Set symbology for route
@@ -608,9 +609,14 @@ define([], function () {
             ColorRGB: "0,0,225",
             Transparency: "0.5",
             Width: "4",
-            DirectionUnits: "MILES"
+            DirectionUnits: "MILES",
+            RouteCircleColor: "007AC2",
+            RouteCircleFillColor: "FFFFFF",
+            RouteCirclewidth: 2,
+            CartographicLineColor: "0,0,225",
+            CartographicTransparency: "0",
+            CartographicLineWidth: 512
         },
-
 
         // ------------------------------------------------------------------------------------------------------------------------
         // SETTINGS FOR MAP SHARING

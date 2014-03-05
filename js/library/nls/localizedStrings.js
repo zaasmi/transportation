@@ -36,7 +36,9 @@ define({
         frequentlRoute: "Frequently Travelled Route",
         webpageDispalyText: "Copy/paste HTML into your web page",
         reRouteDisplayText: "Traffic Incidents found on this route",
-        backToMap:"Back To Map",
+        backToMap: "Back To Map",
+        notFound: "Location could not be found",
+        webMapMessages: "Title and/or QueryLayerId parameters in SearchSettings do not match with configured webmap",
         errorMessages: {
             invalidSearch: "No results found",
             falseConfigParams: "Required configuration key values are either null or not exactly matching with layer attributes. This message may appear multiple times.",
@@ -45,7 +47,6 @@ define({
             widgetNotLoaded: "Fail to load widgets.",
             shareLoadingFailed: "Unable to load share options.",
             shareFailed: "Unable to share."
-
         }
     },
 

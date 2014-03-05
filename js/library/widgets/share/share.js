@@ -74,6 +74,7 @@ function (declare, domConstruct, domStyle, lang, array, domAttr, on, dom, domCla
                 }
             }));
             this.domNode = domConstruct.create("div", { "title": this.title, "class": "esriCTImgSocialMedia" }, null);
+            this.domNode = domConstruct.create("div", { "title": this.title, "class": "esriCTImgSocialMedia" }, null);
             this.own(on(this.domNode, "click", lang.hitch(this, function () {
 
                 /**
@@ -91,16 +92,19 @@ function (declare, domConstruct, domStyle, lang, array, domAttr, on, dom, domCla
         * @memberOf widgets/share/share
         */
         _shreLink: function () {
-
             /**
             * get current map extent to be shared
             */
+            this.esriCTDivshareCodeContent.value = "<iframe width='100%' height='100%' src='" + location.href + "'></iframe> ";
             domAttr.set(this.esriCTDivshareCodeContainer, "innerHTML", nls.webpageDispalyText);
-            if (dojo.configData.WebMapId && lang.trim(dojo.configData.ApplicationFavicon).length == 0) {
-                var mapExtent = this._getMapExtent();
-            }
+            var mapExtent = this._getMapExtent();
             var url = esri.urlToObject(window.location.toString());
-            var urlStr = encodeURI(url.path) + "?extent=" + mapExtent;
+            if (dojo.mapPoint) {
+                var urlStr = encodeURI(url.path) + "?extent=" + mapExtent + "$point=" + dojo.mapPoint.x + "," + dojo.mapPoint.y;
+            } else {
+                var urlStr = encodeURI(url.path) + "?extent=" + mapExtent;
+            }
+
             try {
 
                 /**

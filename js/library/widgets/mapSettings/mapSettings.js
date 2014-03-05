@@ -54,13 +54,14 @@ define([
     "widgets/infoWindow/infoWindow",
     "dojo/text!../infoWindow/templates/infoWindow.html",
     "dojo/topic",
+    "esri/geometry/Point",
     "esri/layers/ArcGISDynamicMapServiceLayer",
     "esri/request",
     "dojo/cookie",
     "dojo/_base/unload",
     "dojo/domReady!"
     ],
-     function (declare, domConstruct, domStyle, lang, esriUtils, on, dom, domAttr, query, domClass, domGeom, array, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, nls, esriMap, ImageParameters, Directions, FeatureLayer, GraphicsLayer, SimpleLineSymbol, SimpleRenderer, basemap, Color, baseMapGallery, route, legends, geometryExtent, HomeButton, Deferred, DeferredList, spatialReference, infoWindow, template, topic, arcGISDynamicMapServiceLayer, esriRequest, cookie, baseUnload) {
+     function (declare, domConstruct, domStyle, lang, esriUtils, on, dom, domAttr, query, domClass, domGeom, array, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, nls, esriMap, ImageParameters, Directions, FeatureLayer, GraphicsLayer, SimpleLineSymbol, SimpleRenderer, basemap, Color, baseMapGallery, route, legends, geometryExtent, HomeButton, Deferred, DeferredList, spatialReference, infoWindow, template, topic, Point, arcGISDynamicMapServiceLayer, esriRequest, cookie, baseUnload) {
 
          //========================================================================================================================//
 
@@ -82,6 +83,7 @@ define([
              * @name widgets/mapSettings/mapSettings
              */
              postCreate: function () {
+
                  /**
                  * set map extent to default extent specified in configuration file
                  * @param {string} dojo.configData.DefaultExtent Default extent of map specified in configuration file
@@ -104,117 +106,261 @@ define([
                      });
                      mapDeferred.then(lang.hitch(this, function (response) {
                          this.map = response.map;
+                         this._fetchWebMapData(response);
                          topic.publish("setMap", this.map);
                          topic.publish("showProgressIndicator");
-                         var getGeometry = response.map.extent;
-                         this.map.addLayer(graphicsLayer);
+                         var geometry = response.map.extent;
+                         this._initializeMapSettings(graphicsLayer, geometry);
                          this._generateLayerURL(response.itemInfo.itemData.operationalLayers);
                          var webMapDetails = response.itemInfo.itemData;
-                         var home = this._addHomeButton();
-                         domConstruct.place(home.domNode, query(".esriSimpleSliderIncrementButton")[0], "after");
-                         home.startup();
                          this._addLayerLegend();
-                         if (dojo.configData.CustomLogoUrl && lang.trim(dojo.configData.CustomLogoUrl).length != 0) {
-                             domConstruct.create("img", { "src": dojoConfig.baseURL + dojo.configData.CustomLogoUrl, "class": "esriCTMapLogo" }, dom.byId("esriCTParentDivContainer"));
-                         }
-                         this.map.on("extent-change", lang.hitch(this, function () {
-                             topic.publish("setMapTipPosition", dojo.selectedMapPoint, this.map, this.infoWindowPanel);
-                         }));
-                         var frequentRoutesLayer = new FeatureLayer(dojo.configData.FrequentRoutesLayer.LayerURL, {
-                             mode: FeatureLayer.MODE_SELECTION,
-                             outFields: ["*"]
-                         });
-                         frequentRoutesLayer.id = this.frequentRoutesLayer;
-                         frequentRoutesLayer.setRenderer(roadLineRenderer);
-                         this.map.addLayer(frequentRoutesLayer);
-                         topic.publish("showInfoWindowContent", getGeometry, this.map);
-                         this.map.on("extent-change", lang.hitch(this, function () {
-                             topic.publish("showInfoWindowContent", getGeometry, this.map);
-                         }));
-                         topic.subscribe("setInfoWindowOnMap", lang.hitch(this, function (infoTitle, mobTitle, divInfoDetailsTab, screenPoint, infoPopupWidth, infoPopupHeight, count) {
-                             this._onSetInfoWindowPosition(infoTitle, mobTitle, divInfoDetailsTab, screenPoint, infoPopupWidth, infoPopupHeight, count);
-                         }));
-                         topic.subscribe("hideInfoWindowOnMap", lang.hitch(this, function () {
-                             this._hideInfoWindow();
-                         }));
-                         baseUnload.addOnWindowUnload(lang.hitch(this, function (a) {
-                             this._storeCredentials(a);
-                         }));
-                         this.map.on("click", lang.hitch(this, function (evt) {
-                             topic.publish("showProgressIndicator");
-                             var _self = this;
-                             this._showInfoWindowOnMap(evt.mapPoint, _self.map);
-                         }));
+                         this._addFrequentRoutesLayer();
+
+                         topic.publish("showInfoWindowContent", geometry);
+                         this._addMapEvents();
                      }));
                  }
-
                  else {
                      this._generateLayerURL(dojo.configData.OperationalLayers);
-
                      this.map = esriMap("esriCTParentDivContainer", {
                          basemap: dojo.configData.BaseMapLayers[0].Key
                      });
-                     var roadLineSymbol = new SimpleLineSymbol();
-                     roadLineSymbol.setWidth(parseInt(dojo.configData.RouteSymbology.Width));
-                     var roadLinefillColor = new Color([parseInt(dojo.configData.RouteSymbology.ColorRGB.split(",")[0]), parseInt(dojo.configData.RouteSymbology.ColorRGB.split(",")[1]), parseInt(dojo.configData.RouteSymbology.ColorRGB.split(",")[2]), parseFloat(dojo.configData.RouteSymbology.Transparency.split(",")[0])]);
-                     roadLineSymbol.setColor(roadLinefillColor);
-                     var roadLineRenderer = new SimpleRenderer(roadLineSymbol);
+                     this._addFrequentRoutesLayer();
+                     this._mapOnLoad(extentPoints, graphicsLayer);
+                 }
+             },
 
-                     var frequentRoutesLayer = new FeatureLayer(dojo.configData.FrequentRoutesLayer.LayerURL, {
-                         mode: FeatureLayer.MODE_SELECTION,
-                         outFields: ["*"]
-                     });
-                     frequentRoutesLayer.id = this.frequentRoutesLayer;
-                     frequentRoutesLayer.setRenderer(roadLineRenderer);
-                     this.map.addLayer(frequentRoutesLayer);
-                     if (dojo.configData.CustomLogoUrl && lang.trim(dojo.configData.CustomLogoUrl).length != 0) {
-                         domConstruct.create("img", { "src": dojoConfig.baseURL + dojo.configData.CustomLogoUrl, "class": "esriCTMapLogo" }, dom.byId("esriCTParentDivContainer"));
-                     }
-                     /**
-                     * load esri 'Home Button' widget
-                     */
-                     var home = this._addHomeButton();
+             _mapOnLoad: function (extentPoints, graphicsLayer) {
 
-                     /* set position of home button widget after map is successfuly loaded
-                     * @param {array} dojo.configData.OperationalLayers List of operational Layers specified in configuration file
-                     */
-                     this.map.on("load", lang.hitch(this, function () {
+                 /* set position of home button widget after map is successfuly loaded
+                 * @param {array} dojo.configData.OperationalLayers List of operational Layers specified in configuration file
+                 */
+                 this.map.on("load", lang.hitch(this, function () {
+                     var extent = this._getQueryString('extent');
+                     if (extent == "") {
                          var mapDefaultExtent = new geometryExtent({ "xmin": parseFloat(extentPoints[0]), "ymin": parseFloat(extentPoints[1]), "xmax": parseFloat(extentPoints[2]), "ymax": parseFloat(extentPoints[3]), "spatialReference": { "wkid": this.map.spatialReference.wkid} });
                          this.map.setExtent(mapDefaultExtent);
-                         domConstruct.place(home.domNode, query(".esriSimpleSliderIncrementButton")[0], "after");
-                         home.extent = mapDefaultExtent;
-                         home.startup();
+                     } else {
+                         var mapDefaultExtent = extent.split(',');
+                         mapDefaultExtent = new geometryExtent({ "xmin": parseFloat(mapDefaultExtent[0]), "ymin": parseFloat(mapDefaultExtent[1]), "xmax": parseFloat(mapDefaultExtent[2]), "ymax": parseFloat(mapDefaultExtent[3]), "spatialReference": { "wkid": this.map.spatialReference.wkid} });
+                         this.map.setExtent(mapDefaultExtent);
+                     }
+                     this._initializeMapSettings(graphicsLayer, mapDefaultExtent);
+                     if (window.location.toString().split("$point=").length > 1) {
+                         var mapPoint = new Point(Number(window.location.toString().split("$point=")[1].split(",")[0]), Number(window.location.toString().split("$point=")[1].split(",")[1]), this.map.spatialReference);
+                         topic.publish("locateAddressOnMap", mapPoint);
+                     }
+                     for (var i in dojo.configData.OperationalLayers) {
+                         this._addOperationalLayerToMap(i, dojo.configData.OperationalLayers[i]);
+                     }
+                     if (dojo.configData.BaseMapLayers.length > 1) {
+                         this._showBasMapGallery();
+                     }
+                     this._addMapEvents();
+                 }));
+             },
 
-                         for (var i in dojo.configData.OperationalLayers) {
-                             this._addOperationalLayerToMap(i, dojo.configData.OperationalLayers[i]);
-                         }
-                         if (dojo.configData.BaseMapLayers.length > 1) {
-                             this._showBasMapGallery();
-                         }
-                         this.map.addLayer(graphicsLayer);
-                         var _self = this;
-                         this.map.on("extent-change", function () {
-                             topic.publish("setMapTipPosition", dojo.selectedMapPoint, _self.map, _self.infoWindowPanel);
-                         });
-                         this._addLayerLegend();
-                     }));
-                     topic.subscribe("setInfoWindowOnMap", lang.hitch(this, function (infoTitle, mobTitle, divInfoDetailsTab, screenPoint, infoPopupWidth, infoPopupHeight, count) {
-                         this._onSetInfoWindowPosition(infoTitle, mobTitle, divInfoDetailsTab, screenPoint, infoPopupWidth, infoPopupHeight, count);
-                         this.map.on("extent-change", lang.hitch(this, function (evt) {
-                             this.infoWindowPanel.resize(infoPopupWidth, infoPopupHeight);
-                         }));
-                     }));
-                     topic.subscribe("hideInfoWindowOnMap", lang.hitch(this, function () {
-                         this._hideInfoWindow();
-                     }));
-                     baseUnload.addOnWindowUnload(lang.hitch(this, function (a) {
-                         this._storeCredentials(a);
-                     }));
+             _initializeMapSettings: function (graphicsLayer, mapDefaultExtent) {
+                 this.map.addLayer(graphicsLayer);
 
-                     this.map.on("click", lang.hitch(this, function (evt) {
-                         topic.publish("showProgressIndicator");
-                         this._showInfoWindowOnMap(evt.mapPoint, this.map);
-                     }));
+                 /**
+                 * load esri 'Home Button' widget
+                 */
+                 var home = this._addHomeButton();
+                 domConstruct.place(home.domNode, query(".esriSimpleSliderIncrementButton")[0], "after");
+                 if (!dojo.configData.WebMapId && lang.trim(dojo.configData.WebMapId).length == 0) {
+                     home.extent = mapDefaultExtent;
+                 }
+                 home.startup();
+                 if (dojo.configData.CustomLogoUrl && lang.trim(dojo.configData.CustomLogoUrl).length != 0) {
+                     domConstruct.create("img", { "src": dojoConfig.baseURL + dojo.configData.CustomLogoUrl, "class": "esriCTMapLogo" }, dom.byId("esriCTParentDivContainer"));
+                 }
+                 this.map.on("extent-change", lang.hitch(this, function () {
+                     topic.publish("setMapTipPosition", dojo.selectedMapPoint, this.map, this.infoWindowPanel);
+                     if (dojo.configData.WebMapId && lang.trim(dojo.configData.WebMapId).length != 0) {
+                         topic.publish("showInfoWindowContent", mapDefaultExtent);
+                     }
+                 }));
+                 this._addLayerLegend();
+             },
+
+             _addMapEvents: function () {
+                 topic.subscribe("setInfoWindowOnMap", lang.hitch(this, function (infoTitle, mobTitle, divInfoDetailsTab, screenPoint, infoPopupWidth, infoPopupHeight, count) {
+                     this._onSetInfoWindowPosition(infoTitle, mobTitle, divInfoDetailsTab, screenPoint, infoPopupWidth, infoPopupHeight, count);
+                 }));
+                 topic.subscribe("hideInfoWindowOnMap", lang.hitch(this, function () {
+                     this._hideInfoWindow();
+                 }));
+                 baseUnload.addOnWindowUnload(lang.hitch(this, function (a) {
+                     this._persistDirectionValue(a);
+                 }));
+
+                 this.map.on("click", lang.hitch(this, function (evt) {
+                     topic.publish("showProgressIndicator");
+                     this._showInfoWindowOnMap(evt.mapPoint, this.map);
+                 }));
+             },
+
+             _fetchWebMapData: function (response) {
+                 dojo.configData.InfoWindowSettings = []
+                 var infoWindowSettings, searchSettings, i, str, layerTitle, layerId, index, infoIndex;
+                 searchSettings = dojo.configData.SearchAnd511Settings;
+                 var webMapDetails = response.itemInfo.itemData;
+                 dojo.configData.OperationalLayers = [];
+                 var operationalLayers = dojo.configData.OperationalLayers;
+                 var serviceTitle = [];
+                 var p = 0;
+                 for (var i = 0; i < webMapDetails.operationalLayers.length; i++) {
+                     var operationalLayerId = lang.trim(webMapDetails.operationalLayers[i].title);
+                     var str = webMapDetails.operationalLayers[i].url.split('/');
+                     var lastIndex = str[str.length - 1];
+                     if (isNaN(lastIndex) || lastIndex == "") {
+                         if (lastIndex == "") {
+                             serviceTitle[operationalLayerId] = webMapDetails.operationalLayers[i].url;
+                         } else {
+                             serviceTitle[operationalLayerId] = webMapDetails.operationalLayers[i].url + "/";
+                         }
+                     } else {
+                         serviceTitle[operationalLayerId] = webMapDetails.operationalLayers[i].url.substring(0, webMapDetails.operationalLayers[i].url.length - 1);
+                     }
+                 }
+
+                 for (var index = 0; index < searchSettings.length; index++) {
+                     if (searchSettings[index].Title && searchSettings[index].QueryLayerId && serviceTitle[searchSettings[index].Title]) {
+                         searchSettings[index].QueryURL = serviceTitle[searchSettings[index].Title] + searchSettings[index].QueryLayerId;
+                         for (var j = 0; j < webMapDetails.operationalLayers.length; j++) {
+                             if (webMapDetails.operationalLayers[j].title && serviceTitle[webMapDetails.operationalLayers[j].title] && (webMapDetails.operationalLayers[j].title == searchSettings[index].Title)) {
+                                 if (webMapDetails.operationalLayers[j].layers) {
+                                     //Fetching infopopup data in case the layers are added as dynamic layers in the webmap
+                                     for (var k = 0; k < webMapDetails.operationalLayers[j].layers.length; k++) {
+                                         var layerInfo = webMapDetails.operationalLayers[j].layers[k];
+                                         if (searchSettings[index].QueryLayerId == layerInfo.id) {
+                                             if (webMapDetails.operationalLayers[j].layers[k].popupInfo) {
+                                                 dojo.configData.InfoWindowSettings.push({ "InfoQueryURL": serviceTitle[searchSettings[index].Title] + searchSettings[index].QueryLayerId });
+                                                 operationalLayers[p] = {};
+                                                 operationalLayers[p]["ServiceURL"] = webMapDetails.operationalLayers[j].url + "/" + webMapDetails.operationalLayers[j].layers[k].id;
+                                                 p++;
+                                                 if (layerInfo.popupInfo.title.split("{").length > 1) {
+                                                     dojo.configData.InfoWindowSettings[dojo.configData.InfoWindowSettings.length - 1]["InfoWindowHeaderField"] = dojo.string.trim(layerInfo.popupInfo.title.split("{")[0]) + " ";
+                                                     for (var l = 1; l < layerInfo.popupInfo.title.split("{").length; l++) {
+                                                         dojo.configData.InfoWindowSettings[dojo.configData.InfoWindowSettings.length - 1]["InfoWindowHeaderField"] += "${" + dojo.string.trim(layerInfo.popupInfo.title.split("{")[l]);
+                                                     }
+                                                 } else {
+                                                     if (dojo.string.trim(layerInfo.popupInfo.title) != "") {
+                                                         dojo.configData.InfoWindowSettings[dojo.configData.InfoWindowSettings.length - 1]["InfoWindowHeaderField"] = dojo.string.trim(layerInfo.popupInfo.title);
+                                                     } else {
+                                                         dojo.configData.InfoWindowSettings[dojo.configData.InfoWindowSettings.length - 1]["InfoWindowHeaderField"] = responseObject.ShowNullValueAs;
+                                                     }
+                                                 }
+                                                 var infowindowIndex = dojo.configData.InfoWindowSettings.length - 1;
+                                                 this.getMobileCalloutContentField(infowindowIndex);
+                                                 dojo.configData.InfoWindowSettings[dojo.configData.InfoWindowSettings.length - 1]["InfoWindowData"] = [];
+                                                 for (var field in layerInfo.popupInfo.fieldInfos) {
+                                                     if (layerInfo.popupInfo.fieldInfos.hasOwnProperty(field)) {
+                                                         if (layerInfo.popupInfo.fieldInfos[field].visible) {
+                                                             dojo.configData.InfoWindowSettings[dojo.configData.InfoWindowSettings.length - 1]["InfoWindowData"].push({
+                                                                 "DisplayText": layerInfo.popupInfo.fieldInfos[field].label + ":",
+                                                                 "FieldName": "${" + layerInfo.popupInfo.fieldInfos[field].fieldName + "}"
+                                                             });
+                                                         }
+                                                     }
+                                                 }
+                                             }
+                                         }
+                                     }
+                                 } else if (webMapDetails.operationalLayers[j].popupInfo) {
+                                     //Fetching infopopup data in case the layers are added as feature layers in the webmap
+                                     operationalLayers[p] = {};
+                                     operationalLayers[p]["ServiceURL"] = webMapDetails.operationalLayers[j].url;
+                                     dojo.configData.InfoWindowSettings.push({ "InfoQueryURL": serviceTitle[searchSettings[index].Title] + searchSettings[index].QueryLayerId });
+                                     p++;
+                                     if (webMapDetails.operationalLayers[j].popupInfo.title.split("{").length > 1) {
+                                         dojo.configData.InfoWindowSettings[index]["InfoWindowHeaderField"] = dojo.string.trim(webMapDetails.operationalLayers[j].popupInfo.title.split("{")[0]);
+                                         for (var l = 1; l < webMapDetails.operationalLayers[j].popupInfo.title.split("{").length; l++) {
+                                             dojo.configData.InfoWindowSettings[index]["InfoWindowHeaderField"] += " ${" + dojo.string.trim(webMapDetails.operationalLayers[j].popupInfo.title.split("{")[l]);
+                                         }
+                                     } else {
+                                         if (dojo.string.trim(webMapDetails.operationalLayers[j].popupInfo.title) != "") {
+                                             dojo.configData.InfoWindowSettings[index]["InfoWindowHeaderField"] = dojo.string.trim(webMapDetails.operationalLayers[j].popupInfo.title);
+                                         } else {
+                                             dojo.configData.InfoWindowSettings[index]["InfoWindowHeaderField"] = responseObject.ShowNullValueAs;
+                                         }
+                                     }
+                                     if (webMapDetails.operationalLayers[j].layerObject.displayField) {
+                                         dojo.configData.InfoWindowSettings[index]["InfoWindowContent"] = "${" + webMapDetails.operationalLayers[j].layerObject.displayField + "}";
+                                     } else {
+                                         this.getMobileCalloutContentField(index);
+                                     }
+                                     dojo.configData.InfoWindowSettings[index]["InfoWindowData"] = [];
+                                     for (var field in webMapDetails.operationalLayers[j].popupInfo.fieldInfos) {
+                                         if (webMapDetails.operationalLayers[j].popupInfo.fieldInfos.hasOwnProperty(field)) {
+                                             if (webMapDetails.operationalLayers[j].popupInfo.fieldInfos[field].visible) {
+                                                 dojo.configData.InfoWindowSettings[index]["InfoWindowData"].push({
+                                                     "DisplayText": webMapDetails.operationalLayers[j].popupInfo.fieldInfos[field].label + ":",
+                                                     "FieldName": "${" + webMapDetails.operationalLayers[j].popupInfo.fieldInfos[field].fieldName + "}"
+                                                 });
+                                             }
+                                         }
+                                     }
+                                 }
+                             }
+                         }
+                     } else {
+                         alert(nls.webMapMessages);
+                     }
+                 }
+             },
+
+             // Get data to be displayed in mobile callout content field
+
+             getMobileCalloutContentField: function (index) {
+                 var def = new Deferred();
+                 esri.request({
+                     url: dojo.configData.InfoWindowSettings[index].InfoQueryURL + '?f=json',
+                     load: function (data) {
+                         if (data.displayField) {
+                             dojo.configData.InfoWindowSettings[index]["InfoWindowContent"] = "${" + data.displayField + "}";
+                         } else {
+                             for (var i = 0; i < data.fields.length; i++) {
+                                 if (data.fields[i].type != "esriFieldTypeOID") {
+                                     dojo.configData.InfoWindowSettings[index]["InfoWindowContent"] = "${" + data.fields[i].name + "}";
+                                     break;
+                                 }
+                             }
+                         }
+                         def.resolve();
+                     }
+                 });
+                 return def;
+             },
+
+             _addFrequentRoutesLayer: function () {
+                 var roadLineSymbol = new SimpleLineSymbol();
+                 roadLineSymbol.setWidth(parseInt(dojo.configData.RouteSymbology.Width));
+                 var roadLinefillColor = new Color([parseInt(dojo.configData.RouteSymbology.ColorRGB.split(",")[0]), parseInt(dojo.configData.RouteSymbology.ColorRGB.split(",")[1]), parseInt(dojo.configData.RouteSymbology.ColorRGB.split(",")[2]), parseFloat(dojo.configData.RouteSymbology.Transparency.split(",")[0])]);
+                 roadLineSymbol.setColor(roadLinefillColor);
+                 var roadLineRenderer = new SimpleRenderer(roadLineSymbol);
+                 var frequentRoutesLayer = new FeatureLayer(dojo.configData.FrequentRoutesLayer.LayerURL, {
+                     mode: FeatureLayer.MODE_SELECTION,
+                     outFields: ["*"]
+                 });
+                 frequentRoutesLayer.id = this.frequentRoutesLayer;
+                 frequentRoutesLayer.setRenderer(roadLineRenderer);
+                 this.map.addLayer(frequentRoutesLayer);
+             },
+
+             _getQueryString: function (key) {
+                 var _default;
+                 if (!_default) {
+                     _default = "";
+                 }
+                 key = key.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
+                 var regex = new RegExp("[\\?&]" + key + "=([^&#]*)");
+                 var qs = regex.exec(window.location.href);
+                 if (!qs) {
+                     return _default;
+                 } else {
+                     return qs[1];
                  }
              },
 
@@ -272,11 +418,11 @@ define([
              _extentFromPoint: function (point) {
                  var tolerance = 3;
                  var screenPoint = this.map.toScreen(point);
-                 var pnt1 = new esri.geometry.Point(screenPoint.x - tolerance, screenPoint.y + tolerance);
-                 var pnt2 = new esri.geometry.Point(screenPoint.x + tolerance, screenPoint.y - tolerance);
-                 var mapPoint1 = this.map.toMap(pnt1);
-                 var mapPoint2 = this.map.toMap(pnt2);
-                 return new esri.geometry.Extent(mapPoint1.x, mapPoint1.y, mapPoint2.x, mapPoint2.y, this.map.spatialReference);
+                 var sourcePoint = new Point(screenPoint.x - tolerance, screenPoint.y + tolerance);
+                 var destinationPoint = new Point(screenPoint.x + tolerance, screenPoint.y - tolerance);
+                 var sourceMapPoint = this.map.toMap(sourcePoint);
+                 var destinationMapPoint = this.map.toMap(destinationPoint);
+                 return new geometryExtent(sourceMapPoint.x, sourceMapPoint.y, destinationMapPoint.x, destinationMapPoint.y, this.map.spatialReference);
              },
 
              _fetchQueryResults: function (featureArray, mapPoint, map) {
@@ -289,7 +435,6 @@ define([
                          this.count = 0;
                          dojo.showInfo = true;
                          domAttr.set(query(".esriCTdivInfoTotalFeatureCount")[0], "innerHTML", '/' + featureArray.length);
-
                          if (featureArray[this.count].attr.geometry.type == "polyline") {
                              var point = featureArray[this.count].attr.geometry.getPoint(0, 0);
                              topic.publish("createInfoWindowContent", point, featureArray[0].attr.attributes, featureArray[0].fields, featureArray[0].layerId, featureArray, this.count, map);
@@ -344,7 +489,7 @@ define([
                  }
              },
 
-             _storeCredentials: function (a) {
+             _persistDirectionValue: function (a) {
                  var locatorAddress, sourceAddress, destAddress;
                  locatorAddress = query(".esriCTTxtAddress")[0].value || domAttr.get(query(".esriCTTxtAddress")[0], "defaultAddress");
                  if (query(".esriGeocoder").length) {

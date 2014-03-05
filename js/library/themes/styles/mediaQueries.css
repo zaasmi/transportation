@@ -346,6 +346,7 @@
     .esriCTHeaderRouteContainer
     {
         top: 61px;
+        height:100%;
     }
 
     .esriCTDirectionContainer .esriCTRouteInformationContainer
@@ -361,6 +362,10 @@
         padding-top: 0px;
     }
 }
+ @media screen and (max-width: 800px){.esriCTHeaderRouteContainer
+    {
+      height:100% ;
+    }}
 @media screen and (max-width: 680px)
 {
 
@@ -384,6 +389,12 @@
     {
         padding-top: 0px;
     }
+    .esriCTInformationLayerList{width:95% !important;}
+      .esriCTFrequentRouteContainerButton, .esriCTFrequentRouteContainerTopButton
+    {
+        width: 98%;
+    }
+
 }
 
 @media screen and (min-width: 321px) and (max-width: 640px)
@@ -617,11 +628,7 @@
     {
         width: 100% !important;
     }
-    .esriCTFrequentRouteContainerButton, .esriCTFrequentRouteContainerTopButton
-    {
-        width: 100%;
-    }
-
+  
     .esriCTAddressContentHeight
     {
         height: 215px !important;
@@ -892,10 +899,7 @@
     {
         top: 30px;
     }
-    .esriCTFrequentRouteContainerButton, .esriCTFrequentRouteContainerTopButton
-    {
-        width: 100%;
-    }
+
     .divInfoMobileContent
     {
         display: block !important;
