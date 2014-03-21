@@ -1,5 +1,5 @@
-﻿/*global define, document, Modernizr */
-/*jslint sloppy:true */
+﻿/*global define,dojo,require,alert */
+/*jslint sloppy:true,nomen:true */
 /** @license
 | Version 10.2
 | Copyright 2013 Esri
@@ -29,16 +29,18 @@ define([
     "dojo/_base/lang",
     "dojo/Deferred",
     "dojo/promise/all",
-    "dojo/i18n!nls/localizedStrings",
-     "dojo/topic",
+    "dojo/i18n!application/js/library/nls/localizedStrings",
+    "dojo/i18n!application/nls/localizedStrings",
+    "dojo/topic",
     "dojo/domReady!"
-    ],
-function (declare, _WidgetBase, Map, appHeader, SplashScreen, array, domAttr, dom, lang, Deferred, all, nls, topic) {
+
+], function (declare, _WidgetBase, Map, AppHeader, SplashScreen, array, lang, Deferred, all, sharedNls, appNls, topic) {
 
     //========================================================================================================================//
 
     return declare([_WidgetBase], {
-        nls: nls,
+        sharedNls: sharedNls,
+        appNls: appNls,
 
         /**
         * load widgets specified in Header Widget Settings of configuration file
@@ -47,13 +49,15 @@ function (declare, _WidgetBase, Map, appHeader, SplashScreen, array, domAttr, do
         * @name coreLibrary/widgetLoader
         */
         startup: function () {
-            var widgets = {},
-            deferredArray = [];
+            var splashScreen, mapInstance,
+                widgets = {},
+                deferredArray = [];
+
             if (dojo.configData.SplashScreen && dojo.configData.SplashScreen.IsVisible) {
-                var splashScreen = new SplashScreen();
+                splashScreen = new SplashScreen();
                 splashScreen.showSplashScreenDialog();
             }
-            var mapInstance = this._initializeMap();
+            mapInstance = this._initializeMap();
 
             /**
             * create an object with widgets specified in Header Widget Settings of configuration file
@@ -62,9 +66,31 @@ function (declare, _WidgetBase, Map, appHeader, SplashScreen, array, domAttr, do
             topic.subscribe("setMap", lang.hitch(this, function (map) {
                 this._initializeWidget(map);
             }));
-            this._applicationThemeLoader();
-            if (!dojo.configData.WebMapId && lang.trim(dojo.configData.WebMapId).length == 0) {
-                this._initializeWidget(mapInstance);
+
+            if (!dojo.configData.WebMapId && lang.trim(dojo.configData.WebMapId).length === 0) {
+                array.forEach(dojo.configData.AppHeaderWidgets, function (widgetConfig) {
+                    var deferred = new Deferred();
+                    widgets[widgetConfig.WidgetPath] = null;
+                    require([widgetConfig.WidgetPath], function (Widget) {
+
+                        widgets[widgetConfig.WidgetPath] = new Widget({ map: widgetConfig.MapInstanceRequired ? mapInstance : undefined });
+
+                        deferred.resolve(widgetConfig.WidgetPath);
+                    });
+                    deferredArray.push(deferred.promise);
+                });
+
+                all(deferredArray).then(lang.hitch(this, function () {
+                    try {
+                        /**
+                        * create application header
+                        */
+                        this._createApplicationHeader(widgets);
+                    } catch (ex) {
+                        alert(sharedNls.errorMessages.widgetNotLoaded);
+                    }
+
+                }));
             }
         },
 
@@ -82,12 +108,12 @@ function (declare, _WidgetBase, Map, appHeader, SplashScreen, array, domAttr, do
         _initializeWidget: function (mapInstance) {
             var widgets = {},
                 deferredArray = [];
-            array.forEach(dojo.configData.AppHeaderWidgets, function (widgetConfig, index) {
+            array.forEach(dojo.configData.AppHeaderWidgets, function (widgetConfig) {
                 var deferred = new Deferred();
                 widgets[widgetConfig.WidgetPath] = null;
-                require([widgetConfig.WidgetPath], function (widget) {
+                require([widgetConfig.WidgetPath], function (Widget) {
 
-                    widgets[widgetConfig.WidgetPath] = new widget({ map: widgetConfig.MapInstanceRequired ? mapInstance : undefined, title: widgetConfig.Title });
+                    widgets[widgetConfig.WidgetPath] = new Widget({ map: widgetConfig.MapInstanceRequired ? mapInstance : undefined });
 
                     deferred.resolve(widgetConfig.WidgetPath);
                 });
@@ -101,7 +127,7 @@ function (declare, _WidgetBase, Map, appHeader, SplashScreen, array, domAttr, do
                     */
                     this._createApplicationHeader(widgets);
                 } catch (ex) {
-                    alert(nls.errorMessages.widgetNotLoaded);
+                    alert(sharedNls.errorMessages.widgetNotLoaded);
                 }
 
             }));
@@ -113,7 +139,7 @@ function (declare, _WidgetBase, Map, appHeader, SplashScreen, array, domAttr, do
         * @memberOf coreLibrary/widgetLoader
         */
         _createApplicationHeader: function (widgets) {
-            var applicationHeader = new appHeader();
+            var applicationHeader = new AppHeader();
             applicationHeader.loadHeaderWidgets(widgets);
         },
 

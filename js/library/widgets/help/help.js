@@ -1,5 +1,5 @@
-﻿/*global dojo,define,document */
-/*jslint sloppy:true */
+﻿/*global define,dojo,window */
+/*jslint sloppy:true,nomen:true */
 /** @license
 | Version 10.2
 | Copyright 2013 Esri
@@ -23,9 +23,9 @@ define([
     "dojo/on",
     "dojo/topic",
     "dojo/_base/lang",
-    "dijit/_WidgetBase"
-  ],
-function (declare, domConstruct, on, topic, lang, _WidgetBase) {
+    "dijit/_WidgetBase",
+    "dojo/i18n!application/js/library/nls/localizedStrings"
+], function (declare, domConstruct, on, topic, lang, _WidgetBase, sharedNls) {
 
     //========================================================================================================================//
 
@@ -38,7 +38,7 @@ function (declare, domConstruct, on, topic, lang, _WidgetBase) {
         * @name widgets/help/help
         */
         postCreate: function () {
-            this.domNode = domConstruct.create("div", { "title": this.title, "class": "esriCTHelpImg" }, null);
+            this.domNode = domConstruct.create("div", { "title": sharedNls.tooltips.help, "class": "esriCTHelpImg" }, null);
             this.own(on(this.domNode, "click", lang.hitch(this, function () {
 
                 /**

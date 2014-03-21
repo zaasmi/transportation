@@ -16,12 +16,47 @@
 | limitations under the License.
 */
 define({
-
-    okButtonText: "OK",
-    splashScreenContent: "Nous allons déchirer les professionnels n'ont jamais cessé , ou désirs à Cilla consectetaur l'argent, mais parce que parfois les circonstances se produisent dans laquelle labeur et la douleur peut lui procurer quelque grand . Pour prendre un exemple trivial, qui de nous n'a jamais entreprend l'exercice physique laborieux, sauf pour obtenir quelque avantage. Nous avons actuellement dans le train arrive à trouver à redire à ce produit aucun plaisir qui en résulte est d'être les applications en ligne . Ces cas sont parfaitement compte du système, ils sont en faute atelier quae laisser adoucit vous recommander . Conscient livre pour vous faire face à la réalité et les lois de punition . Nous allons déchirer les professionnels n'ont jamais cessé , ou désirs à Cilla consectetaur l'argent, mais parce que parfois les circonstances se produisent dans laquelle labeur et la douleur peut lui procurer quelque grand . Pour prendre un exemple trivial, qui de nous n'a jamais entreprend l'exercice physique laborieux, sauf pour obtenir quelque avantage. Nous avons actuellement dans le train arrive à trouver à redire à ce produit aucun plaisir qui en résulte est d'être les applications en ligne . Ces cas sont parfaitement compte du système, ils sont en faute atelier quae laisser adoucit vous recommander . Conscient livre pour vous faire face à la réalité et les lois de punition . Nous allons déchirer les professionnels n'ont jamais cessé , ou désirs à Cilla consectetaur l'argent, mais parce que parfois les circonstances se produisent dans laquelle labeur et la douleur peut lui procurer quelque grand . Pour prendre un exemple trivial, qui de nous n'a jamais entreprend l'exercice physique laborieux, sauf pour obtenir quelque avantage. Nous avons actuellement dans le train arrive à trouver à redire à ce produit aucun plaisir qui en résulte est d'être les applications en ligne . Ces cas sont parfaitement compte du système, ils sont en faute atelier quae laisser adoucit vous recommander . Conscient livre pour vous faire face à la réalité et les lois de punition . Nous allons déchirer les professionnels n'ont jamais cessé , ou désirs à Cilla consectetaur l'argent, mais parce que parfois les circonstances se produisent dans laquelle labeur et la douleur peut lui procurer quelque grand . Pour prendre un exemple trivial, qui de nous n'a jamais entreprend l'exercice physique laborieux, sauf pour obtenir quelque avantage. Nous avons actuellement dans le train arrive à trouver à redire à ce produit aucun plaisir qui en résulte est d'être les applications en ligne . Ces cas sont parfaitement compte du système, ils sont en faute atelier quae laisser adoucit vous recommander . Conscient livre pour vous faire face à la réalité et les lois de punition .",
-    addressDisplayText: "adresse",
-    errorMessages: {
-        invalidSearch: "Aucun résultat",
-        falseConfigParams: "Nécessitait des valeurs de clés de configuration sont soit nul ou pas exactement correspondant à des attributs de la couche, Ce message peut apparaître plusieurs fois."
-    }
+        showNullValue: "@fr@ N/A",
+        buttons: {
+            okButtonText: "@fr@ OK",
+            print: "@fr@ Print",
+            back: "@fr@ Back",
+            more: "@fr@ More",
+            less: "@fr@ Less",
+            link: "@fr@ Link",
+            email: "Email",  // Shown next to icon for sharing the current map extents via email; works with shareViaEmail tooltip
+            Facebook: "Facebook",  // Shown next to icon for sharing the current map extents via a Facebook post; works with shareViaFacebook tooltip
+            Twitter: "Twitter"  // Shown next to icon for sharing the current map extents via a Twitter tweet; works with shareViaTwitter tooltip
+        },
+        tooltips: {
+            search: "Rechercher",
+            route: "@fr@ Route",
+            locate: "Emplacement actuel",
+            share: "Partager",
+            help: "Aide",
+            clearEntry: "@fr@ Clear"
+        },
+        titles: {
+            directionsDisplayText: "@fr@ Directions",
+            informationPanelTitle: "@fr@ Information for current map view",
+            frequentRoute: "@fr@ Frequently travelled route",
+            webpageDisplayText: "@fr@ Copy/paste HTML into your web page"
+        },
+        sentenceFragment: {
+            to: "@fr@ to"
+        },
+        errorMessages: {
+            invalidSearch: "Aucun résultat",
+            falseConfigParams: "Valeurs clés de configuration requis sont null ou pas exactement correspondant à des attributs de la couche. Ce message peut apparaître plusieurs fois.",
+            invalidLocation: "@fr@ Current location not found.",
+            invalidProjection: "@fr@ Unable to plot current location on the map.",
+            widgetNotLoaded: "@fr@ Unable to load widgets.",
+            shareLoadingFailed: "@fr@ Unable to load share options.",
+            shareFailed: "@fr@ Unable to share.",
+            noDirection: "@fr@ No direction found"
+        },
+        notUsed: {
+            addressDisplayText: "@fr@ Address",
+            backToMap: "@fr@ Back to map"
+        }
 });

@@ -16,13 +16,47 @@
 | limitations under the License.
 */
 define({
-
-    okButtonText: "OK",
-    splashScreenContent: "Lorem ipsum dolor sit er elit lamet, consectetaur cillium adipisicing pecu, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Nam liber te conscient to factor tum poen legum odioque civiuda. Lorem ipsum dolor sit er elit lamet, consectetaur cillium adipisicing pecu, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Nam liber te conscient to factor tum poen legum odioque civiuda. Lorem ipsum dolor sit er elit lamet, consectetaur cillium adipisicing pecu, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Nam liber te conscient to factor tum poen legum odioque civiuda. Lorem ipsum dolor sit er elit lamet, consectetaur cillium adipisicing pecu, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Nam liber te conscient to factor tum poen legum odioque civiuda.",
-    addressDisplayText: "Address/County",
-    errorMessages: {
-        invalidSearch: "No results found",
-        falseConfigParams: "Required configuration key values are either null or not exactly matching with layer attributes, This message may appear multiple times."
-    }
-
+        showNullValue: "@it@ N/A",
+        buttons: {
+            okButtonText: "@it@ OK",
+            print: "@it@ Print",
+            back: "@it@ Back",
+            more: "@it@ More",
+            less: "@it@ Less",
+            link: "@it@ Link",
+            email: "e-mail",  // Shown next to icon for sharing the current map extents via email; works with shareViaEmail tooltip
+            Facebook: "Facebook",  // Shown next to icon for sharing the current map extents via a Facebook post; works with shareViaFacebook tooltip
+            Twitter: "Twitter"  // Shown next to icon for sharing the current map extents via a Twitter tweet; works with shareViaTwitter tooltip
+        },
+        tooltips: {
+            search: "Cerca",
+            route: "@it@ Route",
+            locate: "Posizione corrente",
+            share: "Condividi",
+            help: "Guida",
+            clearEntry: "@it@ Clear"
+        },
+        titles: {
+            directionsDisplayText: "@it@ Directions",
+            informationPanelTitle: "@it@ Information for current map view",
+            frequentRoute: "@it@ Frequently travelled route",
+            webpageDisplayText: "@it@ Copy/paste HTML into your web page"
+        },
+        sentenceFragment: {
+            to: "@it@ to"
+        },
+        errorMessages: {
+            invalidSearch: "Nessun risultato trovato.",
+            falseConfigParams: "Valori chiave di configurazione obbligatori sono null o non esattamente corrispondenti con gli attributi di livello. Questo messaggio può apparire più volte.",
+            invalidLocation: "@it@ Current location not found.",
+            invalidProjection: "@it@ Unable to plot current location on the map.",
+            widgetNotLoaded: "@it@ Unable to load widgets.",
+            shareLoadingFailed: "@it@ Unable to load share options.",
+            shareFailed: "@it@ Unable to share.",
+            noDirection: "@it@ No direction found"
+        },
+        notUsed: {
+            addressDisplayText: "@it@ Address",
+            backToMap: "@it@ Back to map"
+        }
 });

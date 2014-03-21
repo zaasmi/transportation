@@ -1,4 +1,5 @@
-﻿/*global dojo */
+﻿/*global define */
+/*jslint sloppy:true */
 /** @license
 | Version 10.2
 | Copyright 2013 Esri
@@ -67,27 +68,22 @@ define([], function () {
         // MapInstanceRequired: true if widget is dependent on the map instance.
 
         AppHeaderWidgets: [
-           {
-               Title: "Search",
-               WidgetPath: "widgets/locator/locator",
-               MapInstanceRequired: true
-           }, {
-               Title: "511 Information",
-               WidgetPath: "widgets/route/route",
-               MapInstanceRequired: true
-           }, {
-               Title: "Locate",
-               WidgetPath: "widgets/geoLocation/geoLocation",
-               MapInstanceRequired: true
-           }, {
-               Title: "Share",
-               WidgetPath: "widgets/share/share",
-               MapInstanceRequired: true
-           }, {
-               Title: "Help",
-               WidgetPath: "widgets/help/help",
-               MapInstanceRequired: false
-           }
+            {
+                WidgetPath: "widgets/locator/locator",
+                MapInstanceRequired: true
+            }, {
+                WidgetPath: "widgets/route/route",
+                MapInstanceRequired: true
+            }, {
+                WidgetPath: "widgets/geoLocation/geoLocation",
+                MapInstanceRequired: true
+            }, {
+                WidgetPath: "widgets/share/share",
+                MapInstanceRequired: true
+            }, {
+                WidgetPath: "widgets/help/help",
+                MapInstanceRequired: false
+            }
         ],
 
         // ------------------------------------------------------------------------------------------------------------------------
@@ -167,8 +163,7 @@ define([], function () {
         }, {
             ServiceURL: "http://50.18.115.76:6080/arcgis/rest/services/RoadConditions/MapServer/0",
             LoadAsServiceType: "dynamic"
-        }
-        ],
+        }],
 
         // ------------------------------------------------------------------------------------------------------------------------
         // SEARCH AND 511 SETTINGS
@@ -177,158 +172,156 @@ define([], function () {
 
         // Configure search and 511 settings below.
         // Title: In case of webmap implementations, it must match layer name specified in webmap and in case of operational layers
-        // 		  it should be the name of Map/Feature Service.
+        //        it should be the name of Map/Feature Service.
         // QueryLayerId: This is the layer index in the webmap or ArcGIS Map/Feature Service and is used for performing queries.
         // SearchDisplayTitle: This text is displayed in search results as the title to group results.
         // SearchDisplayFields: Attribute that will be displayed in the search box when user performs a search.
         // SearchExpression: Configure the query expression to be used for search.
         // BarrierLayer: Configure "true" or "false" to treat this as a barrier layer to be used for routing and re-routing.
         // BarrierSearchExpression: Configure the query expression to search barriers in the layer.
-        //							Set this to emtpy "", if all features in the layer should be considered as barriers.
+        //                          Set this to emtpy "", if all features in the layer should be considered as barriers.
         // InfoLayer: Allowed values are "true" or "false". Configure this to "true" to consider this as 511 Information layer
-        //			  and display in 511 Information panels.
+        //            and display in 511 Information panels.
         // InfoSearchExpression: Configure the query expression to search features and display in 511 Information panels.
-        //						 Set this to empty "", if all features in the layer should be considered.
+        //                       Set this to empty "", if all features in the layer should be considered.
         // InfoListText: This text is displayed in 511 Information Summary panel.
-        //				 If empty "", then SearchDisplayTitle is used (if configured), else layer name in the webmap/mapservice is used.
+        //               If empty "", then SearchDisplayTitle is used (if configured), else layer name in the webmap/mapservice is used.
         // InfoDetailFields: Attributes that will be displayed in the 511 Information Details panel.
-        //					 If empty "", then SearchDisplayFields will be used (if configured), else displayField property of layer in mapservice will be used.
+        //                   If empty "", then SearchDisplayFields will be used (if configured), else displayField property of layer in mapservice will be used.
 
-        SearchAnd511Settings: [
-		{
-		    Title: "RoadConditions",
-		    QueryLayerId: "0",
-		    SearchDisplayTitle: "Width Height Restrictions - Workzones",
-		    SearchDisplayFields: "${HwyDesc} / ${DelayDesc} / ${WidthRestriction} / ${HeightRestriction}",
-		    SearchExpression: "UPPER(HwyName) LIKE UPPER('${0}%') OR UPPER(HwyDesc) LIKE UPPER('${0}%')",
-		    BarrierLayer: "true",
-		    BarrierSearchExpression: "(UPPER(TravelSpeeds) <> UPPER('NORMAL')) AND (ExpectedStartDate >= DATE '${0}' AND ExpectedEndDate <= DATE '${0}')",
-		    InfoLayer: "true",
-		    InfoSearchExpression: "",
-		    InfoListText: "",
-		    InfoDetailFields: "MaxHeight:${HwyDesc} MaxWidth:${WidthRestriction}"
-		}, {
-		    Title: "RoadConditions",
-		    QueryLayerId: "1",
-		    SearchDisplayTitle: "Severe Alerts",
-		    SearchDisplayFields: "${HwyName} / ${ConditionDesc}",
-		    SearchExpression: "UPPER(HwyName) LIKE UPPER('${0}%') OR UPPER(HwyDesc) LIKE UPPER('${0}%')",
-		    BarrierLayer: "true",
-		    BarrierSearchExpression: "(Active = 1) AND (EventStartDateTime >= DATE '${0}' AND EffectiveUntil <= DATE '${0}')",
-		    InfoLayer: "true",
-		    InfoSearchExpression: "",
-		    InfoListText: "",
-		    InfoDetailFields: "Hwy:${HwyName} / ${ConditionDesc}"
-		}, {
-		    Title: "RoadConditions",
-		    QueryLayerId: "2",
-		    SearchDisplayTitle: "Alerts",
-		    SearchDisplayFields: "${HwyName} / ${ConditionDesc}",
-		    SearchExpression: "UPPER(HwyName) LIKE UPPER('${0}%') OR UPPER(HwyDesc) LIKE UPPER('${0}%')",
-		    BarrierLayer: "true",
-		    BarrierSearchExpression: "(UPPER(MapIconID) <> UPPER('INFORMATIONAL-GREY')) AND (EventStartDateTime >= DATE '${0}' AND EffectiveUntil <= DATE '${0}')",
-		    InfoLayer: "true",
-		    InfoSearchExpression: "",
-		    InfoListText: "",
-		    InfoDetailFields: ""
-		}, {
-		    Title: "RoadConditions",
-		    QueryLayerId: "3",
-		    SearchDisplayTitle: "Video Cameras",
-		    SearchDisplayFields: "${Description}",
-		    SearchExpression: "UPPER(Description) LIKE UPPER('%${0}%')",
-		    BarrierLayer: "false",
-		    BarrierSearchExpression: "",
-		    InfoLayer: "true",
-		    InfoSearchExpression: "",
-		    InfoListText: "",
-		    InfoDetailFields: ""
-		}, {
-		    Title: "RoadConditions",
-		    QueryLayerId: "4",
-		    SearchDisplayTitle: "Cameras",
-		    SearchDisplayFields: "${Description}",
-		    SearchExpression: "UPPER(Description) LIKE UPPER('%${0}%')",
-		    BarrierLayer: "false",
-		    BarrierSearchExpression: "",
-		    InfoLayer: "true",
-		    InfoSearchExpression: "",
-		    InfoListText: "",
-		    InfoDetailFields: ""
-		}, {
-		    Title: "RoadConditions",
-		    QueryLayerId: "5",
-		    SearchDisplayTitle: "WindSpeed",
-		    SearchDisplayFields: "${place_name} / ${wind}",
-		    SearchExpression: "UPPER(place_name) LIKE UPPER('${0}%')",
-		    BarrierLayer: "true",
-		    BarrierSearchExpression: "wind_speed > 20",
-		    InfoLayer: "true",
-		    InfoSearchExpression: "wind_speed > 20",
-		    InfoListText: "",
-		    InfoDetailFields: "${place_name} / Windspeed:${wind}"
-		}, {
-		    Title: "RoadConditions",
-		    QueryLayerId: "6",
-		    SearchDisplayTitle: "WorkZones-Point",
-		    SearchDisplayFields: "${HwyName} / ${DelayDesc}",
-		    SearchExpression: "UPPER(HwyName) LIKE UPPER('${0}%') OR UPPER(HwyDesc) LIKE UPPER('${0}%')",
-		    BarrierLayer: "true",
-		    BarrierSearchExpression: "(UPPER(Active) = UPPER('Active')) AND (ExpectedStartDate >= DATE '${0}' AND ExpectedEndDate <= DATE '${0}')",
-		    InfoLayer: "true",
-		    InfoSearchExpression: "UPPER(Active) = UPPER('active')",
-		    InfoListText: "",
-		    InfoDetailFields: "Hwy:${HwyName}"
-		}, {
-		    Title: "RoadConditions",
-		    QueryLayerId: "7",
-		    SearchDisplayTitle: "WorkZones-Line",
-		    SearchDisplayFields: "${HwyName} / ${DelayDesc}",
-		    SearchExpression: "UPPER(HwyName) LIKE UPPER('${0}%') OR UPPER(HwyDesc) LIKE UPPER('${0}%')",
-		    BarrierLayer: "true",
-		    BarrierSearchExpression: "(UPPER(Active) = UPPER('active')) AND (ExpectedStartDate >= DATE '${0}' AND ExpectedEndDate <= DATE '${0}')",
-		    InfoLayer: "true",
-		    InfoSearchExpression: "UPPER(Active) = UPPER('active')",
-		    InfoListText: "",
-		    InfoDetailFields: "Delay:${DelayDesc}"
-		}, {
-		    Title: "RoadConditions",
-		    QueryLayerId: "8",
-		    SearchDisplayTitle: "RoadConditions",
-		    SearchDisplayFields: "${HwyName} / ${ConditionDesc}",
-		    SearchExpression: "UPPER(HwyName) LIKE UPPER('${0}%') OR UPPER(HwyDesc) LIKE UPPER('${0}%')",
-		    BarrierLayer: "true",
-		    BarrierSearchExpression: "(UPPER(ConditionCategory ) <> UPPER('RedWhite')) AND (EffectiveUntil > DATE '${0}') ",
-		    InfoLayer: "true",
-		    InfoSearchExpression: "",
-		    InfoListText: "",
-		    InfoDetailFields: "Condition:${ConditionDesc}"
-		}, {
-		    Title: "RoadConditions",
-		    QueryLayerId: "9",
-		    SearchDisplayTitle: "Load Restrictions",
-		    SearchDisplayFields: "${HwyName} / ${HwyDesc}",
-		    SearchExpression: "UPPER(HwyName) LIKE UPPER('${0}%') OR UPPER(HwyDesc) LIKE UPPER('${0}%')",
-		    BarrierLayer: "true",
-		    BarrierSearchExpression: "InEffect = 'Y'",
-		    InfoLayer: "true",
-		    InfoSearchExpression: "InEffect = 'Y'",
-		    InfoListText: "Load Restrictions",
-		    InfoDetailFields: "Code:${Restriction_Code} / Desc:${Restriction_Code_Desc}"
-		}, {
-		    Title: "RoadConditions",
-		    QueryLayerId: "10",
-		    SearchDisplayTitle: "State Routes",
-		    SearchDisplayFields: "${HWY_CHAR} / ${DIRECTION}",
-		    SearchExpression: "UPPER(HWY_CHAR) LIKE UPPER('${0}%') OR UPPER(HWY_DIR) LIKE UPPER('${0}%')",
-		    BarrierLayer: "false",
-		    BarrierSearchExpression: "",
-		    InfoLayer: "false",
-		    InfoSearchExpression: "",
-		    InfoListText: "",
-		    InfoDetailFields: ""
-		}
-        ],
+        SearchAnd511Settings: [{
+            Title: "RoadConditions",
+            QueryLayerId: "0",
+            SearchDisplayTitle: "Width Height Restrictions - Workzones",
+            SearchDisplayFields: "${HwyDesc} / ${DelayDesc} / ${WidthRestriction} / ${HeightRestriction}",
+            SearchExpression: "UPPER(HwyName) LIKE UPPER('${0}%') OR UPPER(HwyDesc) LIKE UPPER('${0}%')",
+            BarrierLayer: "true",
+            BarrierSearchExpression: "(UPPER(TravelSpeeds) <> UPPER('NORMAL')) AND (ExpectedStartDate >= DATE '${0}' AND ExpectedEndDate <= DATE '${0}')",
+            InfoLayer: "true",
+            InfoSearchExpression: "",
+            InfoListText: "",
+            InfoDetailFields: "MaxHeight:${HwyDesc} MaxWidth:${WidthRestriction}"
+        }, {
+            Title: "RoadConditions",
+            QueryLayerId: "1",
+            SearchDisplayTitle: "Severe Alerts",
+            SearchDisplayFields: "${HwyName} / ${ConditionDesc}",
+            SearchExpression: "UPPER(HwyName) LIKE UPPER('${0}%') OR UPPER(HwyDesc) LIKE UPPER('${0}%')",
+            BarrierLayer: "true",
+            BarrierSearchExpression: "(Active = 1) AND (EventStartDateTime >= DATE '${0}' AND EffectiveUntil <= DATE '${0}')",
+            InfoLayer: "true",
+            InfoSearchExpression: "",
+            InfoListText: "",
+            InfoDetailFields: "Hwy:${HwyName} / ${ConditionDesc}"
+        }, {
+            Title: "RoadConditions",
+            QueryLayerId: "2",
+            SearchDisplayTitle: "Alerts",
+            SearchDisplayFields: "${HwyName} / ${ConditionDesc}",
+            SearchExpression: "UPPER(HwyName) LIKE UPPER('${0}%') OR UPPER(HwyDesc) LIKE UPPER('${0}%')",
+            BarrierLayer: "true",
+            BarrierSearchExpression: "(UPPER(MapIconID) <> UPPER('INFORMATIONAL-GREY')) AND (EventStartDateTime >= DATE '${0}' AND EffectiveUntil <= DATE '${0}')",
+            InfoLayer: "true",
+            InfoSearchExpression: "",
+            InfoListText: "",
+            InfoDetailFields: ""
+        }, {
+            Title: "RoadConditions",
+            QueryLayerId: "3",
+            SearchDisplayTitle: "Video Cameras",
+            SearchDisplayFields: "${Description}",
+            SearchExpression: "UPPER(Description) LIKE UPPER('%${0}%')",
+            BarrierLayer: "false",
+            BarrierSearchExpression: "",
+            InfoLayer: "true",
+            InfoSearchExpression: "",
+            InfoListText: "",
+            InfoDetailFields: ""
+        }, {
+            Title: "RoadConditions",
+            QueryLayerId: "4",
+            SearchDisplayTitle: "Cameras",
+            SearchDisplayFields: "${Description}",
+            SearchExpression: "UPPER(Description) LIKE UPPER('%${0}%')",
+            BarrierLayer: "false",
+            BarrierSearchExpression: "",
+            InfoLayer: "true",
+            InfoSearchExpression: "",
+            InfoListText: "",
+            InfoDetailFields: ""
+        }, {
+            Title: "RoadConditions",
+            QueryLayerId: "5",
+            SearchDisplayTitle: "WindSpeed",
+            SearchDisplayFields: "${place_name} / ${wind}",
+            SearchExpression: "UPPER(place_name) LIKE UPPER('${0}%')",
+            BarrierLayer: "true",
+            BarrierSearchExpression: "wind_speed > 20",
+            InfoLayer: "true",
+            InfoSearchExpression: "wind_speed > 20",
+            InfoListText: "",
+            InfoDetailFields: "${place_name} / Windspeed:${wind}"
+        }, {
+            Title: "RoadConditions",
+            QueryLayerId: "6",
+            SearchDisplayTitle: "WorkZones-Point",
+            SearchDisplayFields: "${HwyName} / ${DelayDesc}",
+            SearchExpression: "UPPER(HwyName) LIKE UPPER('${0}%') OR UPPER(HwyDesc) LIKE UPPER('${0}%')",
+            BarrierLayer: "true",
+            BarrierSearchExpression: "(UPPER(Active) = UPPER('Active')) AND (ExpectedStartDate >= DATE '${0}' AND ExpectedEndDate <= DATE '${0}')",
+            InfoLayer: "true",
+            InfoSearchExpression: "UPPER(Active) = UPPER('active')",
+            InfoListText: "",
+            InfoDetailFields: "Hwy:${HwyName}"
+        }, {
+            Title: "RoadConditions",
+            QueryLayerId: "7",
+            SearchDisplayTitle: "WorkZones-Line",
+            SearchDisplayFields: "${HwyName} / ${DelayDesc}",
+            SearchExpression: "UPPER(HwyName) LIKE UPPER('${0}%') OR UPPER(HwyDesc) LIKE UPPER('${0}%')",
+            BarrierLayer: "true",
+            BarrierSearchExpression: "(UPPER(Active) = UPPER('active')) AND (ExpectedStartDate >= DATE '${0}' AND ExpectedEndDate <= DATE '${0}')",
+            InfoLayer: "true",
+            InfoSearchExpression: "UPPER(Active) = UPPER('active')",
+            InfoListText: "",
+            InfoDetailFields: "Delay:${DelayDesc}"
+        }, {
+            Title: "RoadConditions",
+            QueryLayerId: "8",
+            SearchDisplayTitle: "RoadConditions",
+            SearchDisplayFields: "${HwyName} / ${ConditionDesc}",
+            SearchExpression: "UPPER(HwyName) LIKE UPPER('${0}%') OR UPPER(HwyDesc) LIKE UPPER('${0}%')",
+            BarrierLayer: "true",
+            BarrierSearchExpression: "(UPPER(ConditionCategory ) <> UPPER('RedWhite')) AND (EffectiveUntil > DATE '${0}') ",
+            InfoLayer: "true",
+            InfoSearchExpression: "",
+            InfoListText: "",
+            InfoDetailFields: "Condition:${ConditionDesc}"
+        }, {
+            Title: "RoadConditions",
+            QueryLayerId: "9",
+            SearchDisplayTitle: "Load Restrictions",
+            SearchDisplayFields: "${HwyName} / ${HwyDesc}",
+            SearchExpression: "UPPER(HwyName) LIKE UPPER('${0}%') OR UPPER(HwyDesc) LIKE UPPER('${0}%')",
+            BarrierLayer: "true",
+            BarrierSearchExpression: "InEffect = 'Y'",
+            InfoLayer: "true",
+            InfoSearchExpression: "InEffect = 'Y'",
+            InfoListText: "Load Restrictions",
+            InfoDetailFields: "Code:${Restriction_Code} / Desc:${Restriction_Code_Desc}"
+        }, {
+            Title: "RoadConditions",
+            QueryLayerId: "10",
+            SearchDisplayTitle: "State Routes",
+            SearchDisplayFields: "${HWY_CHAR} / ${DIRECTION}",
+            SearchExpression: "UPPER(HWY_CHAR) LIKE UPPER('${0}%') OR UPPER(HWY_DIR) LIKE UPPER('${0}%')",
+            BarrierLayer: "false",
+            BarrierSearchExpression: "",
+            InfoLayer: "false",
+            InfoSearchExpression: "",
+            InfoListText: "",
+            InfoDetailFields: ""
+        }],
 
         // Following zoom level will be set for the map upon searching an address
         ZoomLevel: 12,
@@ -349,12 +342,12 @@ define([], function () {
         // ------------------------------------------------------------------------------------------------------------------------
         // Configure info-popup settings. The Title and QueryLayerId fields should be the same as configured in "Title" and "QueryLayerId" fields in SearchAnd511Settings.
         // Title: In case of webmap implementations, it must match layer name specified in webmap and in case of operational layers
-        // 		  it should be the name of Map/Feature Service.
+        //        it should be the name of Map/Feature Service.
         // QueryLayerId: Layer index used for performing queries.
         // InfoWindowHeader: Specify field for the info window header
         // InfoWindowContent: Specify field to be displayed in callout bubble for mobile devices
         // ShowAllFields: When set to true, infowindow will display all fields from layer and InfoWindowData section is ignored
-        //				  When set to false, only fields configured in InfoWindowData section will be displayed
+        //                When set to false, only fields configured in InfoWindowData section will be displayed
         // InfoWindowData: Set the content to be displayed in the info-Popup. Define labels and field values.
         //                    These fields should be present in the layer referenced by 'QueryLayerId' specified under section 'SearchSettings'
         // DisplayText: Caption to be displayed instead of field alias names. Set this to empty string ("") if you wish to display field alias names as captions.
@@ -399,126 +392,118 @@ define([], function () {
                 DisplayText: "Expected End Date:",
                 FieldName: "${ExpectedEndDate}"
             }]
-        },
-		{
-		    Title: "RoadConditions",
-		    QueryLayerId: "1",
-		    InfoWindowHeaderField: "${HwyName}",
-		    InfoWindowContent: "${HwyDesc}",
-		    ShowAllFields: "false",
-		    InfoWindowData: [{
-		        DisplayText: "Comment:",
-		        FieldName: "${Comment}"
-		    }, {
-		        DisplayText: "Condition Desc:",
-		        FieldName: "${ConditionDesc}"
-		    }]
-		},
-		{
-		    Title: "RoadConditions",
-		    QueryLayerId: "2",
-		    InfoWindowHeaderField: "${HwyName}",
-		    InfoWindowContent: "${HwyDesc}",
-		    ShowAllFields: "false",
-		    InfoWindowData: [{
-		        DisplayText: "Comment:",
-		        FieldName: "${Comment}"
-		    }, {
-		        DisplayText: "Condition Desc:",
-		        FieldName: "${ConditionDesc}"
-		    }]
-		},
-		{
-		    Title: "RoadConditions",
-		    QueryLayerId: "3",
-		    InfoWindowHeaderField: "${Description}",
-		    InfoWindowContent: "${Description}",
-		    ShowAllFields: "false",
-		    InfoWindowData: [{
-		        DisplayText: "",
-		        FieldName: "${Link}"
-		    }]
-		},
-		{
-		    Title: "RoadConditions",
-		    QueryLayerId: "4",
-		    InfoWindowHeaderField: "${Description}",
-		    InfoWindowContent: "${Description}",
-		    ShowAllFields: "false",
-		    InfoWindowData: [{
-		        DisplayText: "",
-		        FieldName: "${Link}"
-		    }]
-		}, {
-		    Title: "RoadConditions",
-		    QueryLayerId: "5",
-		    InfoWindowHeaderField: "${place_name}", //5
-		    InfoWindowContent: "${state}",
-		    ShowAllFields: "false",
-		    InfoWindowData: [{
-		        DisplayText: "Wind:",
-		        FieldName: "${wind}"
-		    }, {
-		        DisplayText: "Temperature:",
-		        FieldName: "${temperature}"
-		    }]
-		},
-		{
-		    Title: "RoadConditions",
-		    QueryLayerId: "6",
-		    InfoWindowHeaderField: "${HwyName}",
-		    InfoWindowContent: "${HwyDesc}",
-		    ShowAllFields: "false",
-		    InfoWindowData: [{
-		        DisplayText: "Comments:",
-		        FieldName: "${Comments}"
-		    }, {
-		        DisplayText: "Delay Desc:",
-		        FieldName: "${DelayDesc}"
-		    }]
-		},
-		{
-		    Title: "RoadConditions",
-		    QueryLayerId: "7",
-		    InfoWindowHeaderField: "${HwyName}",
-		    InfoWindowContent: "${HwyDesc}",
-		    ShowAllFields: "false",
-		    InfoWindowData: [{
-		        DisplayText: "Work Type:",
-		        FieldName: "${WorkType}"
-		    }, {
-		        DisplayText: "Comments:",
-		        FieldName: "${Comments}"
-		    }]
-		},
-		{
-		    Title: "RoadConditions",
-		    QueryLayerId: "8",
-		    InfoWindowHeaderField: "${SegmentName}",
-		    InfoWindowContent: "${HwyDesc}",
-		    ShowAllFields: "false",
-		    InfoWindowData: [{
-		        DisplayText: "Condition Category:",
-		        FieldName: "${ConditionCategory}"
-		    }, {
-		        DisplayText: "Condition Desc:",
-		        FieldName: "${ConditionDesc}"
-		    }]
-		},
-		{
-		    Title: "RoadConditions",
-		    QueryLayerId: "9",
-		    InfoWindowHeaderField: "${SegmentName}",
-		    InfoWindowContent: "${HwyDesc}",
-		    ShowAllFields: "false",
-		    InfoWindowData: [{
-		        DisplayText: "Restriction Code:",
-		        FieldName: "${Restriction_Code}"
-		    }, {
-		        DisplayText: "Restriction Desc:",
-		        FieldName: "${Restriction_Code_Desc}"
-		    }]
-		}],
+        }, {
+            Title: "RoadConditions",
+            QueryLayerId: "1",
+            InfoWindowHeaderField: "${HwyName}",
+            MobileCalloutField: "${HwyDesc}",
+            ShowAllFields: "false",
+            InfoWindowData: [{
+                DisplayText: "Comment:",
+                FieldName: "${Comment}"
+            }, {
+                DisplayText: "Condition Desc:",
+                FieldName: "${ConditionDesc}"
+            }]
+        }, {
+            Title: "RoadConditions",
+            QueryLayerId: "2",
+            InfoWindowHeaderField: "${HwyName}",
+            MobileCalloutField: "${HwyDesc}",
+            ShowAllFields: "false",
+            InfoWindowData: [{
+                DisplayText: "Comment:",
+                FieldName: "${Comment}"
+            }, {
+                DisplayText: "Condition Desc:",
+                FieldName: "${ConditionDesc}"
+            }]
+        }, {
+            Title: "RoadConditions",
+            QueryLayerId: "3",
+            InfoWindowHeaderField: "${Description}",
+            MobileCalloutField: "${Description}",
+            ShowAllFields: "false",
+            InfoWindowData: [{
+                DisplayText: "Link:",
+                FieldName: "${Link}"
+            }]
+        }, {
+            Title: "RoadConditions",
+            QueryLayerId: "4",
+            InfoWindowHeaderField: "${Description}",
+            MobileCalloutField: "${Description}",
+            ShowAllFields: "false",
+            InfoWindowData: [{
+                DisplayText: "Link:",
+                FieldName: "${Link}"
+            }]
+        }, {
+            Title: "RoadConditions",
+            QueryLayerId: "5",
+            InfoWindowHeaderField: "${place_name}", //5
+            MobileCalloutField: "${state}",
+            ShowAllFields: "false",
+            InfoWindowData: [{
+                DisplayText: "Wind:",
+                FieldName: "${wind}"
+            }, {
+                DisplayText: "Temperature:",
+                FieldName: "${temperature}"
+            }]
+        }, {
+            Title: "RoadConditions",
+            QueryLayerId: "6",
+            InfoWindowHeaderField: "${HwyName}",
+            MobileCalloutField: "${HwyDesc}",
+            ShowAllFields: "false",
+            InfoWindowData: [{
+                DisplayText: "Comments:",
+                FieldName: "${Comments}"
+            }, {
+                DisplayText: "Delay Desc:",
+                FieldName: "${DelayDesc}"
+            }]
+        }, {
+            Title: "RoadConditions",
+            QueryLayerId: "7",
+            InfoWindowHeaderField: "${HwyName}",
+            MobileCalloutField: "${HwyDesc}",
+            ShowAllFields: "false",
+            InfoWindowData: [{
+                DisplayText: "Work Type:",
+                FieldName: "${WorkType}"
+            }, {
+                DisplayText: "Comments:",
+                FieldName: "${Comments}"
+            }]
+        }, {
+            Title: "RoadConditions",
+            QueryLayerId: "8",
+            InfoWindowHeaderField: "${SegmentName}",
+            MobileCalloutField: "${HwyDesc}",
+            ShowAllFields: "false",
+            InfoWindowData: [{
+                DisplayText: "Condition Category:",
+                FieldName: "${ConditionCategory}"
+            }, {
+                DisplayText: "Condition Desc:",
+                FieldName: "${ConditionDesc}"
+            }]
+        }, {
+            Title: "RoadConditions",
+            QueryLayerId: "9",
+            InfoWindowHeaderField: "${SegmentName}",
+            MobileCalloutField: "${HwyDesc}",
+            ShowAllFields: "false",
+            InfoWindowData: [{
+                DisplayText: "Restriction Code:",
+                FieldName: "${Restriction_Code}"
+            }, {
+                DisplayText: "Restriction Desc:",
+                FieldName: "${Restriction_Code_Desc}"
+            }]
+        }],
 
         // ------------------------------------------------------------------------------------------------------------------------
         // ADDRESS SEARCH SETTINGS
@@ -630,5 +615,5 @@ define([], function () {
             TwitterShareURL: "http://mobile.twitter.com/compose/tweet?status=esri%Template ${0}",
             ShareByMailLink: "mailto:%20?subject=Check%20out%20this%20map!&body=${0}"
         }
-    }
+    };
 });

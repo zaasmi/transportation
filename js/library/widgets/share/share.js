@@ -1,5 +1,5 @@
-﻿/*global dojo,define,document */
-/*jslint sloppy:true */
+﻿/*global define,dojo,window,alert,esri,parent:true */
+/*jslint sloppy:true,nomen:true,plusplus:true,unparam:true */
 /** @license
 | Version 10.2
 | Copyright 2013 Esri
@@ -20,30 +20,28 @@
 define([
     "dojo/_base/declare",
     "dojo/dom-construct",
-    "dojo/dom-style",
     "dojo/_base/lang",
-    "dojo/_base/array",
     "dojo/dom-attr",
     "dojo/on",
     "dojo/dom",
     "dojo/dom-class",
-    "dojo/dom-geometry",
     "dojo/string",
     "dojo/_base/html",
     "dojo/text!./templates/shareTemplate.html",
     "dijit/_WidgetBase",
     "dijit/_TemplatedMixin",
     "dijit/_WidgetsInTemplateMixin",
-    "dojo/i18n!nls/localizedStrings",
+    "dojo/i18n!application/js/library/nls/localizedStrings",
+    "dojo/i18n!application/nls/localizedStrings",
     "dojo/topic"
-  ],
-function (declare, domConstruct, domStyle, lang, array, domAttr, on, dom, domClass, domGeom, string, html, template, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, nls, topic) {
+], function (declare, domConstruct, lang, domAttr, on, dom, domClass, string, html, template, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, sharedNls, appNls, topic) {
 
     //========================================================================================================================//
 
     return declare([_WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin], {
         templateString: template,
-        nls: nls,
+        sharedNls: sharedNls,
+        appNls: appNls,
 
         /**
         * create share widget
@@ -58,7 +56,7 @@ function (declare, domConstruct, domStyle, lang, array, domAttr, on, dom, domCla
             * @param {string} widget Key of the newly opened widget
             */
             topic.subscribe("toggleWidget", lang.hitch(this, function (widgetID) {
-                if (widgetID != "share") {
+                if (widgetID !==  "share") {
 
                     /**
                     * divAppContainer Sharing Options Container
@@ -73,8 +71,9 @@ function (declare, domConstruct, domStyle, lang, array, domAttr, on, dom, domCla
                     }
                 }
             }));
-            this.domNode = domConstruct.create("div", { "title": this.title, "class": "esriCTImgSocialMedia" }, null);
-            this.domNode = domConstruct.create("div", { "title": this.title, "class": "esriCTImgSocialMedia" }, null);
+
+            this.domNode = domConstruct.create("div", { "title": sharedNls.tooltips.share, "class": "esriCTImgSocialMedia" }, null);
+
             this.own(on(this.domNode, "click", lang.hitch(this, function () {
 
                 /**
@@ -92,6 +91,7 @@ function (declare, domConstruct, domStyle, lang, array, domAttr, on, dom, domCla
         * @memberOf widgets/share/share
         */
         _shreLink: function () {
+
             /**
             * get current map extent to be shared
             */
@@ -115,12 +115,14 @@ function (declare, domConstruct, domStyle, lang, array, domAttr, on, dom, domCla
                     url: url,
                     callbackParamName: "callback",
                     load: lang.hitch(this, function (data) {
-                        var tinyUrl = data;
-                        var attr = dojo.configData.MapSharingOptions.TinyURLResponseAttribute.split(".");
-                        for (var x = 0; x < attr.length; x++) {
+                        var tinyUrl, attr, x, applicationHeaderDiv;
+
+                        tinyUrl = data;
+                        attr = dojo.configData.MapSharingOptions.TinyURLResponseAttribute.split(".");
+                        for (x = 0; x < attr.length; x++) {
                             tinyUrl = tinyUrl[attr[x]];
                         }
-                        var applicationHeaderDiv = domConstruct.create("div", { "class": "esriCTApplicationShareicon" }, dom.byId("esriCTParentDivContainer"));
+                        applicationHeaderDiv = domConstruct.create("div", { "class": "esriCTApplicationShareicon" }, dom.byId("esriCTParentDivContainer"));
                         applicationHeaderDiv.appendChild(this.divAppContainer);
                         if (html.coords(this.divAppContainer).h > 0) {
 
@@ -130,8 +132,7 @@ function (declare, domConstruct, domStyle, lang, array, domAttr, on, dom, domCla
                             domClass.replace(this.domNode, "esriCTImgSocialMedia", "esriCTImgSocialMedia-select");
                             domClass.replace(this.divAppContainer, "esriCTHideContainerHeight", "esriCTShowContainerHeight");
                             domClass.replace(this.divAppContainer, "esriCTZeroHeight", "esriCTFullHeight");
-                        }
-                        else {
+                        } else {
 
                             /**
                             * when user clicks on share icon in header panel, open the sharing panel if it is closed
@@ -157,14 +158,13 @@ function (declare, domConstruct, domStyle, lang, array, domAttr, on, dom, domCla
                         this.twitterHandle = on(this.tdTwitter, "click", lang.hitch(this, function () { this._Share("twitter", tinyUrl, urlStr); }));
                         this.emailHandle = on(this.tdMail, "click", lang.hitch(this, function () { this._Share("email", tinyUrl, urlStr); }));
                     }),
-                    error: function (error) {
+                    error: function () {
                         domClass.replace(this.domNode, "esriCTImgSocialMedia-select", "esriCTImgSocialMedia");
-                        alert(nls.errorMessages.shareLoadingFailed);
+                        alert(sharedNls.errorMessages.shareLoadingFailed);
                     }
                 });
-            }
-            catch (err) {
-                alert(nls.errorMessages.shareLoadingFailed);
+            } catch (err) {
+                alert(sharedNls.errorMessages.shareLoadingFailed);
             }
         },
 
@@ -175,7 +175,7 @@ function (declare, domConstruct, domStyle, lang, array, domAttr, on, dom, domCla
         */
         _getMapExtent: function () {
             var extents = Math.round(this.map.extent.xmin).toString() + "," + Math.round(this.map.extent.ymin).toString() + "," + Math.round(this.map.extent.xmax).toString() + "," + Math.round(this.map.extent.ymax).toString();
-            return (extents);
+            return extents;
         },
 
         /**
@@ -202,7 +202,7 @@ function (declare, domConstruct, domStyle, lang, array, domAttr, on, dom, domCla
                     this._shareOptions(site, urlStr);
                 }
             } catch (err) {
-                alert(nls.errorMessages.shareFailed);
+                alert(sharedNls.errorMessages.shareFailed);
             }
         },
 
@@ -214,14 +214,15 @@ function (declare, domConstruct, domStyle, lang, array, domAttr, on, dom, domCla
         */
         _shareOptions: function (site, url) {
             switch (site) {
-                case "facebook":
-                    window.open(string.substitute(dojo.configData.MapSharingOptions.FacebookShareURL, [url]));
-                    break;
-                case "twitter":
-                    window.open(string.substitute(dojo.configData.MapSharingOptions.TwitterShareURL, [url]));
-                    break;
-                case "email":
-                    parent.location = string.substitute(dojo.configData.MapSharingOptions.ShareByMailLink, [url]);
+            case "facebook":
+                window.open(string.substitute(dojo.configData.MapSharingOptions.FacebookShareURL, [url]));
+                break;
+            case "twitter":
+                window.open(string.substitute(dojo.configData.MapSharingOptions.TwitterShareURL, [url]));
+                break;
+            case "email":
+                parent.location = string.substitute(dojo.configData.MapSharingOptions.ShareByMailLink, [url]);
+                break;
             }
         }
     });
