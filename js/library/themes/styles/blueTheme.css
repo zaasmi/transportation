@@ -1,4 +1,66 @@
-﻿
+﻿@media only screen and (min-device-width : 768px) and (max-device-width : 1024px) and (-webkit-min-device-pixel-ratio: 2)
+{
+
+    .esriCTTdHeaderSearch
+    {
+        background-image: url("../images/search@2X.png") !important;
+    }
+
+    .esriCTHelpImg
+    {
+        background-image: url("../images/help@2X.png") !important;
+    }
+
+    .esriCTTdHeaderSearch-select
+    {
+        background-image: url("../images/search-select@2X.png") !important;
+    }
+
+    .esriCTTdGeolocation
+    {
+        background-image: url("../images/geo-location@2x.png") !important;
+    }
+
+    .esriCTImgSocialMedia-select
+    {
+        background-image: url("../images/share-select@2X.png") !important;
+    }
+
+    .esriCTImgSocialMedia
+    {
+        background-image: url("../images/share@2X.png") !important;
+    }
+
+    .esriCTRouteImg
+    {
+        background-image: url("../images/get-route@2x.png") !important;
+    }
+
+    .esriCTRouteImg-select
+    {
+        background-image: url("../images/get-route-select@2x.png") !important;
+    }
+
+
+    .facebook
+    {
+        background-image: url("../images/img_facebook@2x.png") !important;
+    }
+
+    .twitter
+    {
+        background-image: url("../images/img_twitter@2x.png") !important;
+    }
+
+    .email
+    {
+        background-image: url("../images/img-email@2x.png") !important;
+    }
+
+}
+
+
+
 .esriCTApplicationHeader
 {
     border-bottom: 1px solid #007ac2;
@@ -42,7 +104,6 @@
 {
     background-image: url("../images/get-route.png");
 }
-
 .esriCTRouteImg-select
 {
     background-image: url("../images/get-route-select.png");
@@ -60,6 +121,10 @@
 .email
 {
     background-image: url("../images/img_email.png") !important;
+}
+.embedding
+{
+    background-image: url("../images/embedding.png") !important;
 }
 .locateSearchicon
 {
@@ -87,14 +152,17 @@
 {
     background: url("../images/blue-arrow.png");
 }
-.divLeftArrow
+.esriCTRightArrow
 {
-    background: url("../images/right.png");
+    background-image: url("../images/right.png");
+    background-repeat: no-repeat;
+    background-position: center center;
 }
-
-.divRightArrow
+.esriCTLeftArrow
 {
-    background: url("../images/left.png");
+    background-image: url('../images/left.png');
+    background-repeat: no-repeat;
+    background-position: center center;
 }
 /* End of Application Header */
 
@@ -138,8 +206,6 @@ input
 {
     color: Gray;
 }
-
-
 .esriCTSearchClose
 {
     background: none repeat scroll 0 0 #FFFFFF;
@@ -148,15 +214,10 @@ input
     border-bottom: 1px solid #DFDFDF;
 }
 
-.clearInput
-{
-    background: #fff url("../images/close.png") !important;
-}
 .esriCTResultColor
 {
     color: #007ac2;
 }
-
 .esriCTDivAppHolder
 {
     background-color: #fff;
@@ -197,7 +258,6 @@ input
     color: #ffffff !important;
     border: #fff solid 0 !important;
 }
-
 .HomeButton .home, .HomeButton .home:hover
 {
     background-image: url('../images/home.png');
@@ -205,21 +265,17 @@ input
     border: #fff solid 0 !important;
 }
 
-
 /* End of Slider */
-
 
 .BasemapToggle .toggleButton
 {
     border-radius: 0px !important;
     border: 2px solid #007ac2 !important;
 }
-
 .BasemapToggle .basemapTitle
 {
     color: #007ac2 !important;
 }
-
 .BasemapToggle .basemapImage
 {
     border: 1px solid #007ac2;
@@ -232,13 +288,11 @@ input
 {
     background-image: url("../images/blue-loader.gif") !important;
 }
-
 .simpleDirections .esriResultsPrint
 {
     background: none !important;
     color: #007AC2;
 }
-
 .simpleDirections .esriGeocoder
 {
     border: 1px solid #DFDFDF !important;
@@ -262,7 +316,6 @@ input
 }
 .esriCTFrequentRouteContainerButton
 {
-    
     border-right: 1px solid #007ac2;
     border-bottom: 1px solid #007ac2;
     color: #007ac2;
@@ -270,7 +323,6 @@ input
 
 .esriCTFrequentRouteContainerTopButton
 {
-   
     border-top: 1px solid #007ac2;
     color: #007ac2;
 }
@@ -292,15 +344,14 @@ input
 .esriCTRouteInformationContent
 {
     color: Black;
- }
+}
 .esriCTRouteInformationDetails
 {
     color: Black !important;
-
 }
 .esriCTRouteInformationTitle
 {
-    color: #007ac2;
+    color: #6e6e6e;
     border-bottom: 1px solid #B4B4B4;
 }
 
@@ -326,28 +377,23 @@ input
 {
     color: #007AC2 !important;
 }
-
-
 .esriCTRouteContainer
 {
     background-color: #FFFFFF;
 }
-
 .simpleDirections .esriStopsGetDirections:hover, .simpleDirections .esriStopsGetDirections:focus
 {
     background: linear-gradient(to bottom, #FFFFFF 0%, #FFFFFF 100%) repeat scroll 0 0 rgba(0, 0, 0, 0) !important;
 }
-
 .esriCTrouteUpTitleArrow
 {
     background-image: url("../images/arrow-gray-down.png");
-     background-color:#007ac2;
+    background-color: #007ac2;
 }
-
 .esriCTrouteDownTitleArrow
 {
     background-image: url("../images/arrow-gray-up.png");
-       background-color:#007ac2;
+    background-color: #007ac2;
 }
 /* End of Route */
 
@@ -356,9 +402,8 @@ input
 .esriCTSplashScreenDialog
 {
     background-color: #fff;
-    color: #000;
+    color: #6e6e6e;
 }
-
 .applicationHeaderSplashscreenContainer
 {
     background: rgba(0,0,0,0.65);
@@ -373,18 +418,19 @@ input
     box-shadow: 0 0 10px #fff;
     behavior: url("styles/PIE.htc");
 }
-.divSplashScreenContent{   background-color: black;}
+.divSplashScreenContent
+{
+    background-color: black;
+}
 .divSplashContent
 {
     color: #fff;
 }
-
 .customButton
 {
     color: #fff;
     background: #007ac2;
 }
-
 
 /* End of splash Screen */
 
@@ -403,12 +449,10 @@ input
 
 /* CSS for Scroll Bar */
 
-
 .scrollbar_handle
 {
     background-color: #C0C0C0;
 }
-
 .divAddressResults
 {
     color: White;
@@ -427,6 +471,7 @@ input
 /* End of CSS for Loading Indicator */
 
 /*Styles for base-map container*/
+
 .basemapThumbnail
 {
     -moz-box-shadow: 0 0 5px #666;
@@ -435,7 +480,6 @@ input
     behavior: url("PIE.htc");
     border: 4px solid #fff;
 }
-
 .selectedBaseMap
 {
     -webkit-box-shadow: 0 0 15px #63BA65;
@@ -451,10 +495,8 @@ input
 
 .legendbox
 {
-    /* not needed, just for clarification */
-    background: #FFFFFF; /* the next props are meant to keep this block independent from the other floated one */
+    background: #FFFFFF; 
 }
-
 .legenboxInner
 {
     border: 1px solid #007ac2;
@@ -469,7 +511,7 @@ input
 
 .legenboxInner div
 {
-    color: #464646;
+    color: #6e6e6e;
 }
 
 /* End of legends */
@@ -528,43 +570,27 @@ input
     color: #007AC2;
     background-image: url("../images/back.png");
 }
-
-/*
-
-.resultPanelContents
-{
-    border-top: 1px solid #B4B4B4;
-}*/
-
 .simpleDirections .esriStopsRemovable .esriStop .esriStopIconRemove
 {
     background: url("../images/close.png") !important;
 }
-
-
-
-
 .showRouteImgContent
 {
     background-image: url("../images/re-route.jpg");
 }
-
 .esriCTshowRouteInfoContent
 {
     color: #7b6e40;
 }
-
 .esriCTshowCountContent
 {
     color: #7b6e40;
 }
-
 .esriCTdivShowReRouteContainer
 {
     color: #007AC2 !important;
     background: #ffecab;
 }
-
 .esriPopup .titlePane
 {
     color: #007AC2 !important;
@@ -572,31 +598,25 @@ input
     border-color: #007AC2 !important;
     border-bottom: 1px solid #007AC2;
 }
-
 .esriPopup .contentPane
 {
     background: #fff !important;
     border-color: #007AC2 !important;
 }
-
 .esriPopup .actionsPane
 {
     border-radius: 0px !important;
     background: #fff !important;
     border-color: #007AC2 !important;
 }
-
 .esriPopup .titleButton
 {
     background: url("../images/close.png") !important;
 }
-
 .esriPopup .pointer, .esriPopup .outerPointer
 {
     background: url("../images/bottom-Arrow.png") !important;
 }
-
-
 .simpleDirections .esriStopsContainer
 {
     border-bottom: 1px solid #007AC2;
@@ -610,33 +630,27 @@ input
     background: #FFF;
     behavior: url("styles/PIE.htc");
 }
-
 .esriCTinfoWindow
 {
     border: #007ac2 solid 1px;
     background: #FFF;
 }
-
 .esriCTdivTransparent
 {
     color: #6e6e6e;
 }
-
 .esriCTDisplayField
 {
     color: #6e6e6e;
 }
-
 .esriCTValueField
 {
     color: #6e6e6e;
 }
-
 .divInfoDetailsContainer
 {
     color: #6e6e6e;
 }
-
 .esriCTclosediv
 {
     background: url("../images/close.png");
@@ -645,18 +659,15 @@ input
 {
     color: #007ac2;
 }
-
 .infopanel
 {
     border-top: 1px #007ac2 solid;
     color: #fff;
 }
-
 .esriCTdivTriangle
 {
     background-image: url("../images/bottomArrow.png");
 }
-
 .esriCTInfoDetailsScroll
 {
     color: White;
@@ -672,7 +683,6 @@ input
 {
     background-image: url('../images/blue-loader.gif');
 }
-
 
 /* End of loading indicator Styles */
 
@@ -705,13 +715,10 @@ input
 {
     color: #007AC2;
 }
-
 .esriCTBottomBorder
 {
     border-bottom: 1px solid #b4b4b4;
 }
-
-
 .simpleDirections .esriGeocoderResults
 {
     color: #808080 !important;
@@ -719,4 +726,8 @@ input
 .simpleDirections .esriGeocoderResults ul
 {
     border: 1px solid #DFDFDF !important;
+}
+.esriCTRouteInformation511ttile
+{
+   color: #6e6e6e;
 }

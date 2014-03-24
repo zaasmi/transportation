@@ -20,6 +20,7 @@
 define([
     "dojo/_base/declare",
     "dojo/dom-construct",
+    "dojo/dom-style",
     "dojo/_base/lang",
     "dojo/dom-attr",
     "dojo/on",
@@ -34,7 +35,8 @@ define([
     "dojo/i18n!application/js/library/nls/localizedStrings",
     "dojo/i18n!application/nls/localizedStrings",
     "dojo/topic"
-], function (declare, domConstruct, lang, domAttr, on, dom, domClass, string, html, template, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, sharedNls, appNls, topic) {
+  ],
+function (declare, domConstruct, domStyle, lang, domAttr, on, dom, domClass, string, html, template, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, sharedNls, appNls, topic) {
 
     //========================================================================================================================//
 
@@ -56,7 +58,7 @@ define([
             * @param {string} widget Key of the newly opened widget
             */
             topic.subscribe("toggleWidget", lang.hitch(this, function (widgetID) {
-                if (widgetID !==  "share") {
+                if (widgetID !== "share") {
 
                     /**
                     * divAppContainer Sharing Options Container
@@ -73,7 +75,6 @@ define([
             }));
 
             this.domNode = domConstruct.create("div", { "title": sharedNls.tooltips.share, "class": "esriCTImgSocialMedia" }, null);
-
             this.own(on(this.domNode, "click", lang.hitch(this, function () {
 
                 /**
@@ -81,8 +82,24 @@ define([
                 */
                 topic.publish("toggleWidget", "share");
                 topic.publish("setMaxLegendLength");
-                this._shreLink();
+                this._shareLink();
             })));
+            on(this.embedding, "click", lang.hitch(this, function () {
+                this._showEmbeddingContainer();
+            }));
+            domAttr.set(this.embedding, "title", sharedNls.buttons.embedding);
+            domAttr.set(this.imgMail, "title", sharedNls.buttons.email);
+            domAttr.set(this.imgTwitter, "title", sharedNls.buttons.twitter);
+            domAttr.set(this.imgFacebook, "title", sharedNls.buttons.facebook);
+        },
+
+        _showEmbeddingContainer: function () {
+            if (domStyle.get(this.esriCTDivshareContainer, "display") === "none") {
+                domStyle.set(this.esriCTDivshareContainer, "display", "block");
+            }
+            else {
+                domStyle.set(this.esriCTDivshareContainer, "display", "none");
+            }
         },
 
         /**
@@ -90,23 +107,30 @@ define([
         * @param {array} dojo.configData.MapSharingOptions Sharing option settings specified in configuration file
         * @memberOf widgets/share/share
         */
-        _shreLink: function () {
-
+        _shareLink: function () {
             /**
             * get current map extent to be shared
             */
+            var mapExtent, url, urlStr;
             this.esriCTDivshareCodeContent.value = "<iframe width='100%' height='100%' src='" + location.href + "'></iframe> ";
-            domAttr.set(this.esriCTDivshareCodeContainer, "innerHTML", nls.webpageDispalyText);
-            var mapExtent = this._getMapExtent();
-            var url = esri.urlToObject(window.location.toString());
+            domAttr.set(this.esriCTDivshareCodeContainer, "innerHTML", sharedNls.titles.webpageDisplayText);
+             mapExtent = this._getMapExtent();
+             url = esri.urlToObject(window.location.toString());
+           
             if (dojo.mapPoint) {
-                var urlStr = encodeURI(url.path) + "?extent=" + mapExtent + "$point=" + dojo.mapPoint.x + "," + dojo.mapPoint.y;
-            } else {
-                var urlStr = encodeURI(url.path) + "?extent=" + mapExtent;
+                 urlStr = encodeURI(url.path) + "?extent=" + mapExtent + "$point=" + dojo.mapPoint.x + "," + dojo.mapPoint.y + "$selectedDirection=" + dojo.selectedDirection;
+            } else if (dojo.featurePoint) {
+                 urlStr = encodeURI(url.path) + "?extent=" + mapExtent + "$featurepoint=" + dojo.featurePoint + "$LayerID=" + dojo.LayerID + "$selectedDirection=" + dojo.selectedDirection;
+            }  else if (dojo.frequentRouteId) {
+                 urlStr = encodeURI(url.path) + "?extent=" + mapExtent + "$frequentRouteId=" + dojo.frequentRouteId + "$selectedDirection=" + dojo.selectedDirection;
             }
-
+            else {
+                 urlStr = encodeURI(url.path) + "?extent=" + mapExtent + "$selectedDirection=" + dojo.selectedDirection + "$selectedInfo=" + dojo.selectedInfo;
+            }
+            if (dojo.stops && dojo.stops.length > 0) {
+                urlStr = urlStr + "$stops=" + dojo.stops.join("^");
+            }
             try {
-
                 /**
                 * call tinyurl service to generate share URL
                 */
@@ -116,13 +140,12 @@ define([
                     callbackParamName: "callback",
                     load: lang.hitch(this, function (data) {
                         var tinyUrl, attr, x, applicationHeaderDiv;
-
-                        tinyUrl = data;
-                        attr = dojo.configData.MapSharingOptions.TinyURLResponseAttribute.split(".");
-                        for (x = 0; x < attr.length; x++) {
+                         tinyUrl = data;
+                         attr = dojo.configData.MapSharingOptions.TinyURLResponseAttribute.split(".");
+                        for ( x = 0; x < attr.length; x++) {
                             tinyUrl = tinyUrl[attr[x]];
                         }
-                        applicationHeaderDiv = domConstruct.create("div", { "class": "esriCTApplicationShareicon" }, dom.byId("esriCTParentDivContainer"));
+                         applicationHeaderDiv = domConstruct.create("div", { "class": "esriCTApplicationShareicon" }, dom.byId("esriCTParentDivContainer"));
                         applicationHeaderDiv.appendChild(this.divAppContainer);
                         if (html.coords(this.divAppContainer).h > 0) {
 
@@ -163,7 +186,8 @@ define([
                         alert(sharedNls.errorMessages.shareLoadingFailed);
                     }
                 });
-            } catch (err) {
+            }
+            catch (err) {
                 alert(sharedNls.errorMessages.shareLoadingFailed);
             }
         },
@@ -186,7 +210,7 @@ define([
         * @memberOf widgets/share/share
         */
         _Share: function (site, tinyUrl, urlStr) {
-
+            dojo.share = true;
             /*
             * hide share panel once any of the sharing options is selected
             */
@@ -214,15 +238,15 @@ define([
         */
         _shareOptions: function (site, url) {
             switch (site) {
-            case "facebook":
-                window.open(string.substitute(dojo.configData.MapSharingOptions.FacebookShareURL, [url]));
-                break;
-            case "twitter":
-                window.open(string.substitute(dojo.configData.MapSharingOptions.TwitterShareURL, [url]));
-                break;
-            case "email":
-                parent.location = string.substitute(dojo.configData.MapSharingOptions.ShareByMailLink, [url]);
-                break;
+                case "facebook":
+                    window.open(string.substitute(dojo.configData.MapSharingOptions.FacebookShareURL, [url]));
+                    break;
+                case "twitter":
+                    window.open(string.substitute(dojo.configData.MapSharingOptions.TwitterShareURL, [url]));
+                    break;
+                case "email":
+                    parent.location = string.substitute(dojo.configData.MapSharingOptions.ShareByMailLink, [url]);
+                    break;
             }
         }
     });

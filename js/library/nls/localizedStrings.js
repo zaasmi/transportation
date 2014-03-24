@@ -22,12 +22,14 @@ define({
             okButtonText: "OK",
             print: "Print",
             back: "Back",
+            backToMap: "Back to map",
             more: "More",
             less: "Less",
             link: "Link",
+            embedding: "Embedding",
             email: "email",  // Shown next to icon for sharing the current map extents via email; works with shareViaEmail tooltip
-            Facebook: "Facebook",  // Shown next to icon for sharing the current map extents via a Facebook post; works with shareViaFacebook tooltip
-            Twitter: "Twitter"  // Shown next to icon for sharing the current map extents via a Twitter tweet; works with shareViaTwitter tooltip
+            facebook: "Facebook",  // Shown next to icon for sharing the current map extents via a Facebook post; works with shareViaFacebook tooltip
+            twitter: "Twitter"  // Shown next to icon for sharing the current map extents via a Twitter tweet; works with shareViaTwitter tooltip
         },
         tooltips: {
             search: "Search",
@@ -35,7 +37,8 @@ define({
             locate: "Locate",
             share: "Share",
             help: "Help",
-            clearEntry: "Clear"
+            clearEntry: "Clear",
+            loadingText: "Loading..."
         },
         titles: {
             directionsDisplayText: "Directions",
@@ -54,12 +57,11 @@ define({
             widgetNotLoaded: "Unable to load widgets.",
             shareLoadingFailed: "Unable to load share options.",
             shareFailed: "Unable to share.",
-            noDirection: "No direction found"
-        },
-        notUsed: {
-            addressDisplayText: "Address",
-            backToMap: "Back to map"
+            noDirection: "Location could not be found",
+            webMapMessages: "Title and/or QueryLayerId parameters in SearchSettings do not match with configured webmap",
+            noInfoWindow: "InfoWindow not found for this layer"
         }
+
     },
     es: true,
     fr: true,

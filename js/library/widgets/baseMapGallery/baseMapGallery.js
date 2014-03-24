@@ -45,33 +45,23 @@ define([
         * @name widgets/baseMapGallery/baseMapGallery
         */
         postCreate: function () {
-            var i, basemapContainer, layer,
+            var i, basemapContainer,
                 baseMapURL = 0,
                 baseMapURLCount = 0,
                 baseMapLayers = dojo.configData.BaseMapLayers;
 
             for (i = 0; i < baseMapLayers.length; i++) {
                 if (baseMapLayers[i].MapURL) {
-                    this.map.addLayer(this._createBaseMapLayer(baseMapLayers[i].MapURL, baseMapLayers[i].Key));
                     if (baseMapURLCount === 0) {
                         baseMapURL = i;
                     }
                     baseMapURLCount++;
                 }
             }
+
             basemapContainer = domConstruct.create("div", {}, dom.byId("esriCTParentDivContainer"));
             basemapContainer.appendChild(this.esriCTDivLayerContainer);
             this.layerList.appendChild(this._createBaseMapElement(baseMapURL, baseMapURLCount));
-
-            if (baseMapURLCount >= 1) {
-                layer = this.map.getLayer(baseMapLayers[baseMapURL].Key);
-                layer.show();
-            }
-        },
-
-        _createBaseMapLayer: function (layerURL, layerId) {
-            var layer = new esri.layers.ArcGISTiledMapServiceLayer(layerURL, { id: layerId, visible: false });
-            return layer;
         },
 
         _createBaseMapElement: function (baseMapURL, baseMapURLCount) {
@@ -101,24 +91,11 @@ define([
 
         _changeBaseMap: function (spanControl) {
             var layer;
+            var basemap = this.map.getLayer("esriCTbasemap");
+            this.map.removeLayer(basemap);
 
-            this._hideMapLayers();
-            layer = this.map.getLayer(dojo.configData.BaseMapLayers[spanControl].Key);
-            layer.show();
-        },
-
-        _hideMapLayers: function () {
-            var i, layer;
-
-            for (i = 0; i < dojo.configData.BaseMapLayers.length; i++) {
-                if (dojo.configData.BaseMapLayers[i].MapURL) {
-                    layer = this.map.getLayer(dojo.configData.BaseMapLayers[i].Key);
-                    if (layer) {
-                        layer.hide();
-                    }
-                }
-            }
+            layer = new esri.layers.ArcGISTiledMapServiceLayer(dojo.configData.BaseMapLayers[spanControl].MapURL, { id: "esriCTbasemap", visible: true });
+            this.map.addLayer(layer, 0);
         }
-
     });
 });

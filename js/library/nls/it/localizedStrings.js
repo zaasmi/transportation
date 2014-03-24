@@ -16,47 +16,48 @@
 | limitations under the License.
 */
 define({
-        showNullValue: "@it@ N/A",
-        buttons: {
-            okButtonText: "@it@ OK",
-            print: "@it@ Print",
-            back: "@it@ Back",
-            more: "@it@ More",
-            less: "@it@ Less",
-            link: "@it@ Link",
-            email: "e-mail",  // Shown next to icon for sharing the current map extents via email; works with shareViaEmail tooltip
-            Facebook: "Facebook",  // Shown next to icon for sharing the current map extents via a Facebook post; works with shareViaFacebook tooltip
-            Twitter: "Twitter"  // Shown next to icon for sharing the current map extents via a Twitter tweet; works with shareViaTwitter tooltip
-        },
-        tooltips: {
-            search: "Cerca",
-            route: "@it@ Route",
-            locate: "Posizione corrente",
-            share: "Condividi",
-            help: "Guida",
-            clearEntry: "@it@ Clear"
-        },
-        titles: {
-            directionsDisplayText: "@it@ Directions",
-            informationPanelTitle: "@it@ Information for current map view",
-            frequentRoute: "@it@ Frequently travelled route",
-            webpageDisplayText: "@it@ Copy/paste HTML into your web page"
-        },
-        sentenceFragment: {
-            to: "@it@ to"
-        },
-        errorMessages: {
-            invalidSearch: "Nessun risultato trovato.",
-            falseConfigParams: "Valori chiave di configurazione obbligatori sono null o non esattamente corrispondenti con gli attributi di livello. Questo messaggio può apparire più volte.",
-            invalidLocation: "@it@ Current location not found.",
-            invalidProjection: "@it@ Unable to plot current location on the map.",
-            widgetNotLoaded: "@it@ Unable to load widgets.",
-            shareLoadingFailed: "@it@ Unable to load share options.",
-            shareFailed: "@it@ Unable to share.",
-            noDirection: "@it@ No direction found"
-        },
-        notUsed: {
-            addressDisplayText: "@it@ Address",
-            backToMap: "@it@ Back to map"
-        }
+    showNullValue: "N/A",
+    buttons: {
+        okButtonText: "OK",
+        print: "Print",
+        back: "Back",
+        backToMap: "Back to map",
+        more: "More",
+        less: "Less",
+        link: "Link",
+        embedding: "Embedding",
+        email: "email",  // Shown next to icon for sharing the current map extents via email; works with shareViaEmail tooltip
+        facebook: "Facebook",  // Shown next to icon for sharing the current map extents via a Facebook post; works with shareViaFacebook tooltip
+        twitter: "Twitter"  // Shown next to icon for sharing the current map extents via a Twitter tweet; works with shareViaTwitter tooltip
+    },
+    tooltips: {
+        search: "Search",
+        route: "Route",
+        locate: "Locate",
+        share: "Share",
+        help: "Help",
+        clearEntry: "Clear",
+        loadingText: "Loading..."
+    },
+    titles: {
+        directionsDisplayText: "Directions",
+        informationPanelTitle: "Information for current map view",
+        frequentRoute: "Frequently travelled route",
+        webpageDisplayText: "Copy/paste HTML into your web page"
+    },
+    sentenceFragment: {
+        to: "to"
+    },
+    errorMessages: {
+        invalidSearch: "No results found",
+        falseConfigParams: "Required configuration key values are either null or not exactly matching with layer attributes. This message may appear multiple times.",
+        invalidLocation: "Current location not found.",
+        invalidProjection: "Unable to plot current location on the map.",
+        widgetNotLoaded: "Unable to load widgets.",
+        shareLoadingFailed: "Unable to load share options.",
+        shareFailed: "Unable to share.",
+        noDirection: "Location could not be found",
+        webMapMessages: "Title and/or QueryLayerId parameters in SearchSettings do not match with configured webmap",
+        noInfoWindow: "InfoWindow not found for this layer"
+    }
 });

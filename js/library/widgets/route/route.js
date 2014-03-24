@@ -23,51 +23,39 @@ define([
     "dojo/on",
     "dojo/topic",
     "dojo/_base/lang",
-    "dojo/_base/array",
     "dojo/dom-style",
     "dojo/dom-attr",
     "dojo/dom",
     "dojo/query",
     "dojo/dom-class",
-    "esri/tasks/RouteParameters",
-    "esri/tasks/FeatureSet",
     "dojo/dom-geometry",
     "esri/tasks/GeometryService",
     "dojo/string",
     "dojo/_base/html",
-    "dojo/text!./templates/getRoute.html",
-    "esri/urlUtils",
+    "dojo/text!./templates/routeTemplate.html",
     "esri/tasks/query",
-    "esri/dijit/Directions",
     "esri/tasks/QueryTask",
     "dojo/Deferred",
     "dojo/DeferredList",
-    "esri/dijit/editing/Union",
     "dijit/layout/BorderContainer",
-    "esri/symbols/SimpleLineSymbol",
     "esri/renderers/SimpleRenderer",
     "dijit/layout/ContentPane",
     "../scrollBar/scrollBar",
     "esri/graphic",
     "dojo/_base/Color",
-    "esri/symbols/SimpleFillSymbol",
-    "esri/symbols/SimpleMarkerSymbol",
     "dojo/aspect",
-    "esri/tasks/DataFile",
-    "dojo/cookie",
-    "esri/tasks/BufferParameters",
+     "dojo/cookie",
     "dijit/_WidgetBase",
     "dijit/_TemplatedMixin",
     "dijit/_WidgetsInTemplateMixin",
     "dojo/i18n!application/js/library/nls/localizedStrings",
     "dojo/i18n!application/nls/localizedStrings",
     "esri/geometry/Polyline",
-    "esri/SnappingManager",
     "esri/symbols/CartographicLineSymbol",
     "esri/layers/GraphicsLayer",
     "./routeSetting"
   ],
-function (declare, domConstruct, on, topic, lang, array, domStyle, domAttr, dom, query, domClass, RouteParameters, FeatureSet, domGeom, GeometryService, string, html, template, urlUtils, Query, Directions, QueryTask, Deferred, DeferredList, Union, _BorderContainer, SimpleLineSymbol, SimpleRenderer, _ContentPane, scrollBar, Graphic, Color, SimpleFillSymbol, SimpleMarkerSymbol, aspect, DataFile, cookie, BufferParameters, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, nls, Polyline, SnappingManager, CartographicLineSymbol, GraphicsLayer, routeSetting) {
+function (declare, domConstruct, on, topic, lang, domStyle, domAttr, dom, query, domClass, domGeom, GeometryService, string, html, template, Query, QueryTask, Deferred, DeferredList, _BorderContainer, SimpleRenderer, _ContentPane, scrollBar, Graphic, Color, aspect, cookie, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, sharedNls, appNls, Polyline, CartographicLineSymbol, GraphicsLayer, routeSetting) {
 
     //========================================================================================================================//
 
@@ -98,16 +86,16 @@ function (declare, domConstruct, on, topic, lang, array, domStyle, domAttr, dom,
         * @name widgets/route/route
         */
         postCreate: function () {
+            var bufferGeometry;
             this.snapManager = null;
-            handle = new Graphic();
 
-            //relative path/// <reference path="../../proxy.ashx" />
-            /// <reference path="../../proxy.ashx" />
-            // millisecond
-            this.logoContainer = (query(".map .logo-sm") && query(".map .logo-sm")[0])
-                || (query(".map .logo-med") && query(".map .logo-med")[0]);
+            this.logoContainer = query(".map .logo-sm") && query(".map .logo-sm")[0] 
+            || query(".map .logo-med") && query(".map .logo-med")[0];
             topic.subscribe("toggleWidget", lang.hitch(this, function (widgetID) {
-                if (widgetID !==  "route") {
+                if (widgetID !== "route") {
+                    if (widgetID !== "share") {
+                        dojo.selectedDirection = false;
+                    }
 
                     /**
                     * @memberOf widgets/route/route
@@ -124,38 +112,70 @@ function (declare, domConstruct, on, topic, lang, array, domStyle, domAttr, dom,
                         }
                     }
                 } else if (widgetID === "route") {
+                    dojo.selectedDirection = true;
                     domStyle.set(this.esriCTRouteInformationContent, "display", "block");
                 }
 
             }));
-            dojo.showInfo = false;
+            dojo.selectedInfo = false;
+            dojo.selectedDirection = true;
             this.domNode = domConstruct.create("div", { "title": sharedNls.tooltips.route, "class": "esriCTRouteImg esriCTRouteImg-select-i" }, null);
-            this._showHideInfoRouteContainer();
 
+            topic.subscribe("showDirection", lang.hitch(this, function () {
+                this._shareDirection();
+            }));
+            topic.subscribe("showfrequentRouteResult", lang.hitch(this, function (id, a, b) {
+                this._showfrequentRouteResult(id, a, b);
+            }));
+            topic.subscribe("clearAllGraphics", lang.hitch(this, function () {
+                this._clearAllGraphics();
+            }));
+            if (this.logoContainer) {
+                domClass.add(this.logoContainer, "mapLogo");
+            }
+            topic.subscribe("show511InfoResult", lang.hitch(this, function (bufferGeometry) {
+                this.extenChangeResult = true;
+                this._executeOnload(bufferGeometry);
+            }));
             /**
             * minimize other open header panel widgets and show route
             */
-            var bufferGeometry;
-            this.applicationRouteContainer = domConstruct.create("div", { "class": "applicationRouteContainer" }, dom.byId("esriCTParentDivContainer"));
-            this.applicationRouteContainer.appendChild(this.applicationHeaderRouteContainer);
-            domStyle.set(this.esriCTRouteContainer, "display", "none");
-            domStyle.set(this.esriCTRouteInformationContainer, "display", "block");
-            domStyle.set(this.esriCTRouteInformationContent, "display", "block");
-
-            if (dojo.configData.WebMapId && lang.trim(dojo.configData.WebMapId).length !==  0) {
-                topic.subscribe("showInfoWindowContent", lang.hitch(this, function (getGeometry, map) {
-                    this.map = map;
-                    this._showInfoWindowContent(getGeometry, map);
-                }));
-
-            } else {
-                this._executeOnload(bufferGeometry);
-
+                setTimeout(lang.hitch(this, function () {
+                    this.map.setExtent(this.map.extent);
+                }), 1000);
+            if (window.location.toString().split("$selectedDirection=")[1] === "true" || window.location.toString().split("$point=").length <= 1) {
+                this._showHideInfoRouteContainer();
+                this.applicationRouteContainer = domConstruct.create("div", { "class": "applicationRouteContainer" }, dom.byId("esriCTParentDivContainer"));
+                this.applicationRouteContainer.appendChild(this.applicationHeaderRouteContainer);
+                domStyle.set(this.esriCTRouteContainer, "display", "none");
+                domStyle.set(this.esriCTRouteInformationContainer, "display", "block");
+                domStyle.set(this.esriCTRouteInformationContent, "display", "block");
+                if (dojo.configData.WebMapId && lang.trim(dojo.configData.WebMapId).length !== 0) {
+                    topic.subscribe("showInfoWindowContent", lang.hitch(this, function (bufferGeometry) {
+                        this._showInfoWindowContent(bufferGeometry);
+                    }));
+                } 
+            } else if (this.logoContainer) {
+                domClass.remove(this.logoContainer, "mapLogo");
             }
+
+            if (window.location.toString().split("$stops=").length > 1) {
+                setTimeout(lang.hitch(this, function () {
+                    var stops, stopsArray;
+                    this._shareDirection();
+                    stops = window.location.toString().split("$stops=")[1].split("$")[0];
+                    stops = stops.replace(/%20/g, " ");
+                    stopsArray = stops.split("^");
+                    this._esriDirectionsWidget.updateStops(stopsArray).then(lang.hitch(this, function () {
+                        this._esriDirectionsWidget.getDirections();
+                    }));
+                }), 2000);
+            }
+            handle = new Graphic();
             graphicsLayerHandle = new GraphicsLayer();
             this.routeHandle = this.own(on(this.domNode, "click", lang.hitch(this, function () {
                 topic.publish("toggleWidget", "route");
-                if (dojo.window.getBox().w <= 640) {
+                if (dojo.window.getBox().w <= 680) {
                     this._showHideInfoRouteContainer();
                 }
                 domClass.remove(this.domNode, "esriCTRouteImg-select-i");
@@ -164,37 +184,65 @@ function (declare, domConstruct, on, topic, lang, array, domStyle, domAttr, dom,
                     domStyle.set(this.esriCTRouteContainer, "display", "block");
                     domStyle.set(this.esriCTRouteInformationContent, "display", "none");
                 }
-                if (dojo.window.getBox().w >= 640) {
+                if (dojo.window.getBox().w >= 680) {
                     this._showHideInfoRouteContainer();
                 }
-
-                if (domStyle.get(this.esriCTRouteInformationContent, "display", "block") === "block") {
-                    this._showInfoResultsPanel(getGeometry);
-
+                if (domStyle.get(this.esriCTRouteInformationContent, "display") === "block") {
+                    if (this.showInfoRouteContainer) {
+                        this._showInfoResultsPanel(bufferGeometry);
+                    }
                 }
             })));
-            if (this.logoContainer) {
-                domClass.add(this.logoContainer, "mapLogo");
-            }
 
-            if (dojo.configData.RoutingEnabled === "true" && lang.trim(dojo.configData.RoutingEnabled).length !==  0) {
-                this.own(on(this.esriCTDirectionContainer, "click", lang.hitch(this, function () {
-                    this.showRoute();
-                    if (!query(".esriRoutes")[0]) {
-                        if (dojo.configData.FrequentRoutesLayer.FrequentRoutesEnabled == "true" && lang.trim(dojo.configData.FrequentRoutesLayer.FrequentRoutesEnabled).length != 0) {
-                            if (!this.divFrequentRouteContainer) {
-                                domStyle.set(this.routeLoader, "display", "block");
-                                this._showFrequentRoutes();
-                                this._showFrequentRoutesPanel();
-                            }
-                        }
+            this._showWidgetContainer(bufferGeometry);
+            this._activate();
+        },
+
+        _executeOnload: function (bufferGeometry) {
+                this.map.on("extent-change", lang.hitch(this, function (evt) {
+                    bufferGeometry = evt.extent;
+                    if (this.extenChangeResult) {
+                        this._showInfoWindowContent(bufferGeometry);
                     }
-                    this._showDirectionTab();
+                    graphicsHandleEvent.spatialReference = this.map.extent.spatialReference;
+                }));
+                aspect.after(this.map.on("extent-change", lang.hitch(this, function () {
+                    if (window.location.toString().split("$frequentRouteId=").length > 1 || window.location.toString().split("$selectedInfo=")[1] === "true") {
+                        dojo.share = true;
+                        topic.publish("showDirection");
+                    }
                 })));
+        },
+
+        _showWidgetContainer: function (bufferGeometry) {
+            if (dojo.configData.RoutingEnabled === "true" && lang.trim(dojo.configData.RoutingEnabled).length !== 0) {
+                this.own(on(this.esriCTDirectionContainer, "click", lang.hitch(this, function () {
+                    this._shareDirection();
+                })));
+            }
+            else {
+                domStyle.set(this.esriCTDirectionContainer, "cursor", "default");
             }
             this.own(on(this.esriCTRouteInformationContainer, "click", lang.hitch(this, function () {
                 this._showInformationTab(bufferGeometry);
             })));
+        },
+
+        _shareDirection: function () {
+            dojo.selectedDirection = true;
+            dojo.selectedInfo = true;
+            this.showRoute();
+            if (!query(".esriRoutes")[0]) {
+                if (dojo.configData.FrequentRoutesLayer.FrequentRoutesEnabled === "true" && lang.trim(dojo.configData.FrequentRoutesLayer.FrequentRoutesEnabled).length !== 0) {
+                    if (!this.divFrequentRouteContainer) {
+                        topic.publish("showProgressIndicator");
+                        domStyle.set(this.routeLoader, "display", "block");
+                        this._showFrequentRoutes();
+                        this._showFrequentRoutesPanel();
+                    }
+                }
+            }
+            this._showDirectionTab();
         },
 
         _activate: function () {
@@ -208,13 +256,14 @@ function (declare, domConstruct, on, topic, lang, array, domStyle, domAttr, dom,
             graphicsLayerHandle.clear();
         },
 
-        _showInfoWindowContent: function (getGeometry) {
-            if (domStyle.get(this.esriCTRouteInformationContent, "display", "block") === "block") {
-                if (dojo.window.getBox().w <= 640) {
+        _showInfoWindowContent: function (bufferGeometry) {
+            this.extenChangeResult = false;
+            if (domStyle.get(this.esriCTRouteInformationContent, "display") === "block") {
+                if (dojo.window.getBox().w <= 680) {
                     if (this.esriCTRouteInformationContent.offsetHeight > 1 && !dojo.showInfo) {
                         this._showInfoResultsPanel(bufferGeometry);
                     }
-                } else if (!dojo.showInfo && !dojo.featureResult) {
+                } else if (!dojo.featureResult && !dojo.showInfo) {
                     this._showInfoResultsPanel(bufferGeometry);
                 }
             }
@@ -224,46 +273,29 @@ function (declare, domConstruct, on, topic, lang, array, domStyle, domAttr, dom,
             if (!this.inforesult || this.map.getLayer("frequentRoutesLayerID").graphics.length <= 0) {
                 if (this.map.getLayer("esriGraphicsLayerMapSettings").graphics.length <= 0) {
                     topic.publish("showProgressIndicator");
-                    domAttr.set(this.esriCTRouteInformationTitle, "innerHTML", nls.informationPanelTitle);
+                    dojo.showIndicator = true;
+                    this.extenChangeResult = false;
+                    domAttr.set(this.esriCTRouteInformationTitle, "innerHTML", sharedNls.titles.informationPanelTitle);
                     this._infoResult(bufferGeometry);
                 }
             }
         },
 
         _showFrequentRoutesPanel: function () {
-            var divapplicationFrequentRoutes, containerButtonHtml, routeTopTiteArrow;
-
             this.divFrequentRouteContainerButton = domConstruct.create("div", { "class": "esriCTFrequentRouteContainerButton" });
-
-            this.applicationRouteContainer.appendChild(this.divFrequentRouteContainerButton);
-            divapplicationFrequentRoutes = domConstruct.create("span", { "class": "esriCTcontainerButtonHtml esriCTCursorPointer" }, this.divFrequentRouteContainerButton);
-            containerButtonHtml = domConstruct.create("span", { "class": "esriCTcontainerButtonHtml esriCTCursorPointer" }, divapplicationFrequentRoutes);
-            domAttr.set(containerButtonHtml, "innerHTML", sharedNls.more);
-            if (containerButtonHtml.innerHTML === sharedNls.more) {
-                this.infoPanelHeight = true;
-            } else {
-                this.infoPanelHeight = false;
-            }
-            routeTopTiteArrow = domConstruct.create("span", { "class": "esriCTrouteUpTitleArrow esriCTCursorPointer" }, divapplicationFrequentRoutes);
-            this.own(on(divapplicationFrequentRoutes, "click", lang.hitch(this, function () {
-                if (containerButtonHtml.innerHTML === sharedNls.more) {
-                    this.infoPanelHeight = false;
-                    domClass.remove(query(".esriCTHeaderRouteContainer")[0], "esriCTHeaderFrequentRouteContainer");
-                    domClass.replace(this.divFrequentRouteContainerButton, "esriCTFrequentRouteContainerTopButton", "esriCTFrequentRouteContainerButton");
-                    domClass.replace(routeTopTiteArrow, "esriCTrouteDownTitleArrow", "esriCTrouteUpTitleArrow");
-                    domAttr.set(containerButtonHtml, "innerHTML", sharedNls.less);
-                } else if (containerButtonHtml.innerHTML === sharedNls.less) {
-                    domClass.add(query(".esriCTHeaderRouteContainer")[0], "esriCTHeaderFrequentRouteContainer");
-                    domClass.replace(this.divFrequentRouteContainerButton, "esriCTFrequentRouteContainerButton", "esriCTFrequentRouteContainerTopButton");
-                    domClass.replace(routeTopTiteArrow, "esriCTrouteUpTitleArrow", "esriCTrouteDownTitleArrow");
-                    domAttr.set(containerButtonHtml, "innerHTML", sharedNls.more);
-                }
-            })));
+            domConstruct.place(this.divFrequentRouteContainerButton, query(".esriStopsContainer")[0], "after");
+            this.divapplicationFrequentRoutes = domConstruct.create("div", { "class": "esriCTcontainerButtonHtml " }, this.divFrequentRouteContainerButton);
+            this.containerButtonHtml = domConstruct.create("div", { "class": "esriCTFTRHeader esriCTCursorPointer" }, this.divapplicationFrequentRoutes);
+            domAttr.set(this.containerButtonHtml, "innerHTML", sharedNls.titles.frequentRoute);
+            this.routeTopTiteArrow = domConstruct.create("div", { "class": "esriCTrouteUpTitleArrow esriCTCursorPointer" }, this.divapplicationFrequentRoutes);
         },
 
         _showHideInfoRouteContainer: function () {
             if (html.coords(this.applicationHeaderRouteContainer).h > 1) {
-
+                this.showInfoRouteContainer = false;
+                dojo.showIndicator = false;
+                dojo.showInfo = true;
+                dojo.featureResult = true;
                 /**
                 * when user clicks on share icon in header panel, close the sharing panel if it is open
                 */
@@ -283,7 +315,9 @@ function (declare, domConstruct, on, topic, lang, array, domStyle, domAttr, dom,
 
                 topic.publish("setMaxLegendLength");
             } else {
-
+                this.showInfoRouteContainer = true;
+                dojo.showInfo = false;
+                dojo.featureResult = false;
                 /**
                 * when user clicks on share icon in header panel, open the sharing panel if it is closed
                 */
@@ -294,16 +328,8 @@ function (declare, domConstruct, on, topic, lang, array, domStyle, domAttr, dom,
                 domClass.replace(this.domNode, "esriCTRouteImg-select", "esriCTRouteImg");
                 domClass.replace(this.applicationHeaderRouteContainer, "esriCTShowRouteContainerHeight", "esriCTHideContainerHeight");
                 domClass.replace(this.esriCTRouteContainer, "esriCTShowRouteContainerHeight", "esriCTHideContainerHeight");
-                if (domStyle.get(this.esriCTRouteInformationContent, "display", "none") === "none") {
-                    if (this.divFrequentRouteContainerButton && !query(".esriRoutes")[0]) {
-                        domStyle.set(this.divFrequentRouteContainerButton, "display", "block");
-                        if (this.divFrequentRouteContainerButton.innerText === sharedNls.less) {
-                            domClass.remove(query(".esriCTHeaderRouteContainer")[0], "esriCTHeaderFrequentRouteContainer");
-                        } else {
-                            domClass.add(query(".esriCTHeaderRouteContainer")[0], "esriCTHeaderFrequentRouteContainer");
-                        }
-                    }
-
+                if (domStyle.get(this.esriCTRouteInformationContent, "display") != "block" && this.divFrequentRouteContainerButton) {
+                    domStyle.set(this.divFrequentRouteContainerButton, "display", "block");
                 }
                 this.inforesult = false;
                 topic.publish("setMinLegendLength");
@@ -311,16 +337,11 @@ function (declare, domConstruct, on, topic, lang, array, domStyle, domAttr, dom,
         },
 
         _showDirectionTab: function () {
-            if (domStyle.get(this.esriCTRouteInformationContent, "display") == "block") {
+            if (domStyle.get(this.esriCTRouteInformationContent, "display") === "block") {
                 domStyle.set(this.esriCTRouteInformationContent, "display", "none");
                 domStyle.set(this.esriCTRouteContainer, "display", "block");
                 if (this.divFrequentRouteContainerButton) {
                     domStyle.set(this.divFrequentRouteContainerButton, "display", "block");
-                    if (this.divFrequentRouteContainerButton.innerText === sharedNls.less) {
-                        domClass.remove(query(".esriCTHeaderRouteContainer")[0], "esriCTHeaderFrequentRouteContainer");
-                    } else {
-                        domClass.add(query(".esriCTHeaderRouteContainer")[0], "esriCTHeaderFrequentRouteContainer");
-                    }
                 }
                 domClass.replace(this.esriCTDirectionContainer, "esriCTDirectionContainer-select", "esriCTDirectionContainer");
                 domClass.replace(this.esriCTRouteContainer, "esriCTShowRouteContainerHeight", "esriCTHideContainerHeight");
@@ -329,7 +350,8 @@ function (declare, domConstruct, on, topic, lang, array, domStyle, domAttr, dom,
         },
 
         _showInformationTab: function (bufferGeometry) {
-            if (domStyle.get(this.esriCTRouteInformationContent, "display") == "none") {
+            dojo.selectedInfo = false;
+            if (domStyle.get(this.esriCTRouteInformationContent, "display") === "none") {
                 if (this.divFrequentRouteContainerButton) {
                     domStyle.set(this.divFrequentRouteContainerButton, "display", "none");
                 }
@@ -338,7 +360,7 @@ function (declare, domConstruct, on, topic, lang, array, domStyle, domAttr, dom,
                 domClass.replace(this.esriCTDirectionContainer, "esriCTDirectionContainer", "esriCTDirectionContainer-select");
                 domClass.replace(this.esriCTRouteInformationContainer, "esriCTRouteInformationContainer", "esriCTRouteInformationContainer-select");
                 this.infoPanelHeight = true;
-                if (domStyle.get(this.esriCTInfoLayerFeatureList, "display") == "block") {
+                if (domStyle.get(this.esriCTInfoLayerFeatureList, "display") === "block") {
                     dojo.featureResult = false;
                     domStyle.set(this.esriCTInfoLayerFeatureList, "display", "none");
                     domStyle.set(this.esriCTRouteInformationTitle, "display", "block");
@@ -349,22 +371,21 @@ function (declare, domConstruct, on, topic, lang, array, domStyle, domAttr, dom,
         },
 
         _showFrequentRoutes: function () {
-            var queryTask, queryLayer, routeId, queryOnRouteTask, deferredListResult,
-                featuresetResult = [],
-                defffeaturesetResult = [];
-
-            queryTask = new QueryTask(dojo.configData.FrequentRoutesLayer.LayerURL);
-            queryLayer = new Query();
-            queryLayer.where = "1=1";
-            queryLayer.returnGeometry = false;
-            queryLayer.outSpatialReference = { wkid: 102100 };
+            var featuresetResult = [], defffeaturesetResult = [], routeId, queryTask,
+            queryLayer, queryOnRouteTask, deferred, deferredListResult, arrayResult, i;
+             queryTask = new QueryTask(dojo.configData.FrequentRoutesLayer.LayerURL);
+             queryLayer = new Query();
+             queryLayer.where = "1=1";
+             queryLayer.returnGeometry = false;
+             queryLayer.outSpatialReference = { wkid: this.map.spatialReference.wkid };
+           
             dojo.configData.FrequentRoutesLayer.UniqueRouteField.replace(/\$\{([^\s\:\}]+)(?:\:([^\s\:\}]+))?\}/g, function (match, key) {
                 routeId = key;
             });
             queryLayer.orderByFields = [routeId];
             queryLayer.outFields = ["*"];
             queryOnRouteTask = queryTask.execute(queryLayer, lang.hitch(this, function (featureSet) {
-                var deferred = new Deferred();
+                 deferred = new Deferred();
                 deferred.resolve(featureSet);
                 return deferred.promise;
             }), function (err) {
@@ -372,14 +393,12 @@ function (declare, domConstruct, on, topic, lang, array, domStyle, domAttr, dom,
                 topic.publish("hideProgressIndicator");
             });
             defffeaturesetResult.push(queryOnRouteTask);
-            deferredListResult = new DeferredList(defffeaturesetResult);
+             deferredListResult = new DeferredList(defffeaturesetResult);
             deferredListResult.then(lang.hitch(this, function (result) {
-                var arrayResult, i;
-
                 if (result) {
                     if (result[0][1].features.length > 0) {
-                        for (arrayResult = 0; arrayResult < result[0][1].features.length; arrayResult++) {
-                            for (i in result[0][1].features[arrayResult].attributes) {
+                        for ( arrayResult = 0; arrayResult < result[0][1].features.length; arrayResult++) {
+                            for ( i in result[0][1].features[arrayResult].attributes) {
                                 if (result[0][1].features[arrayResult].attributes.hasOwnProperty(i)) {
                                     if (!result[0][1].features[arrayResult].attributes[i]) {
                                         result[0][1].features[arrayResult].attributes[i] = sharedNls.showNullValue;
@@ -394,6 +413,7 @@ function (declare, domConstruct, on, topic, lang, array, domStyle, domAttr, dom,
                         this._frequentRoutesResult(featuresetResult);
                     }
                 }
+                topic.publish("hideProgressIndicator");
             }), function (err) {
                 alert(err.message);
                 topic.publish("hideProgressIndicator");
@@ -401,48 +421,83 @@ function (declare, domConstruct, on, topic, lang, array, domStyle, domAttr, dom,
         },
 
         _frequentRoutesResult: function (featuresetResult) {
-            var i;
-            this.divFrequentRouteContainer = domConstruct.create("div", { "class": "esriCTFrequentRouteContainer" });
-            domConstruct.place(this.divFrequentRouteContainer, query(".esriRoutesContainer")[0]);
+            var esriRoutesHeight, esriRoutesStyle, i, j, frequentRouteId, frequentRouteName;
+            this.divFrequentRoutePanel = domConstruct.create("div", { "class": "esriCTdivFrequentRoutePanel" });
+            domConstruct.place(this.divFrequentRoutePanel, query(".esriRoutesContainer")[0], "after");
+            this.divFrequentRouteContainer = domConstruct.create("div", { "class": "esriCTFrequentRouteContainer" }, this.divFrequentRoutePanel);
             this.divFrequentRouteContainerScroll = domConstruct.create("div", { "class": "esriCTFrequentRouteContainerScroll" }, this.divFrequentRouteContainer);
-            for (i = 0; i < featuresetResult.length; i++) {
+             esriRoutesHeight = window.innerHeight - query(".esriCTApplicationHeader")[0].offsetHeight - html.coords(query(".simpleDirections .esriStopsContainer")[0]).h - 94;
+             esriRoutesStyle = { height: esriRoutesHeight + 'px' };
+            domAttr.set(this.divFrequentRouteContainer, "style", esriRoutesStyle);
+            if (!this.esriCTrouteDirectionScrollbar) {
+                this.esriCTrouteDirectionScrollbar = new scrollBar({ domNode: this.esriCTRouteContainer });
+                this.esriCTrouteDirectionScrollbar.setContent(query(".simpleDirections")[0]);
+                this.esriCTrouteDirectionScrollbar.createScrollBar();
+            }
+            for ( i = 0; i < featuresetResult.length; i++) {
                 this._displayFrequentRouteResult(featuresetResult[i]);
+            }
+            if (dojo.share) {
+                if (window.location.toString().split("$frequentRouteId=").length > 1) {
+                    if (window.location.toString().split("$frequentRouteId=")[1].split("$selectedDirection=")[1].length > 1 && window.location.toString().split("$frequentRouteId=")[1].split("$selectedDirection=")[1] === "true") {
+                         frequentRouteId = window.location.toString().split("$frequentRouteId=")[1].split("$selectedDirection=")[0];
+                        for ( j = 0; j < featuresetResult.length; j++) {
+                            if (frequentRouteId === featuresetResult[j].routeId) {
+                                 frequentRouteName = featuresetResult[j].name;
+                            }
+                        }
+                        topic.publish("showfrequentRouteResult", frequentRouteId, frequentRouteName);
+                    }
+                }
             }
             domStyle.set(this.routeLoader, "display", "none");
         },
 
         _displayFrequentRouteResult: function (featuresetRouteResult) {
-            var _this = this, divFrequentRouteContent;
-
-            divFrequentRouteContent = domConstruct.create("div", { "class": " esriCTInformationLayerList esriCTCursorPointer esriInfoPanelContainer" }, this.divFrequentRouteContainerScroll);
-            domAttr.set(divFrequentRouteContent, "innerHTML", featuresetRouteResult.name);
-            domAttr.set(divFrequentRouteContent, "routeId", featuresetRouteResult.routeId);
-            divFrequentRouteContent.onclick = function () {
-                var id, routeId, queryLayer, frequentRouteName;
-
+            var divFrequentRouteContent, divFrequentRoutePanelContainer, _this = this, divFrequentRouteList, id;
+             divFrequentRoutePanelContainer = domConstruct.create("div", { "class": " esriInfoPanelContainer " }, this.divFrequentRouteContainerScroll);
+             divFrequentRouteContent = domConstruct.create("div", { "class": " esriCTInformationLayerList esriCTCursorPointer " }, divFrequentRoutePanelContainer);
+             divFrequentRouteList = domConstruct.create("div", { "class": "esriCTinfoPanelContentList" }, divFrequentRouteContent);
+            domAttr.set(divFrequentRouteList, "innerHTML", featuresetRouteResult.name);
+            domAttr.set(divFrequentRouteList, "routeId", featuresetRouteResult.routeId);
+            divFrequentRouteList.onclick = function () {
                 topic.publish("showProgressIndicator");
                 _this._clearAllGraphics();
-                id = domAttr.get(divFrequentRouteContent, "routeId");
-                dojo.configData.FrequentRoutesLayer.UniqueRouteField.replace(/\$\{([^\s\:\}]+)(?:\:([^\s\:\}]+))?\}/g, function (match, key) {
-                    routeId = key;
-                });
-                queryLayer = new Query();
-                queryLayer.where = routeId + "=" + id;
-                frequentRouteName = domAttr.get(divFrequentRouteContent, "innerHTML", featuresetRouteResult.name).toUpperCase();
-                _this.map.getLayer("frequentRoutesLayerID").selectFeatures(queryLayer, esri.layers.FeatureLayer.SELECTION_NEW, lang.hitch(this, function (features) {
-                    _this._showFrequentRouteOnMap(features[0].geometry, frequentRouteName);
-                }), function (err) {
-                    alert(err.message);
-                    topic.publish("hideProgressIndicator");
-                });
+                id = domAttr.get(divFrequentRouteList, "routeId");
+                _this._showfrequentRouteResult(id, featuresetRouteResult, divFrequentRouteList);
             };
         },
-        _showFrequentRouteOnMap: function (featureGeometry, frequentRouteName) {
-            var polyLine, routeSegments, roadArray, j;
 
-            polyLine = new esri.geometry.Polyline(this.map.spatialReference);
-            routeSegments = this.map.getLayer("frequentRoutesLayerID").graphics.length;
-            roadArray = [];
+        _showfrequentRouteResult: function (id, featuresetRouteResult, divFrequentRouteList) {
+            var routeId, _this = this, queryResult;
+            dojo.configData.FrequentRoutesLayer.UniqueRouteField.replace(/\$\{([^\s\:\}]+)(?:\:([^\s\:\}]+))?\}/g, function (match, key) {
+                routeId = key;
+            });
+            dojo.frequentRouteId = id;
+             queryResult = new Query();
+            queryResult.where = routeId + "=" + id;
+
+            if (!dojo.share) {
+                dojo.frequentRouteName = featuresetRouteResult.name;
+                var frequentRouteName = domAttr.get(divFrequentRouteList, "innerHTML", featuresetRouteResult.name);
+            }
+            _this.map.getLayer("frequentRoutesLayerID").selectFeatures(queryResult, esri.layers.FeatureLayer.SELECTION_NEW, lang.hitch(this, function (features) {
+                if (!dojo.share) {
+                    _this._showFrequentRouteOnMap(features[0].geometry, frequentRouteName);
+                }
+                else {
+                    _this._showFrequentRouteOnMap(features[0].geometry, featuresetRouteResult);
+                }
+            }), function (err) {
+                alert(err.message);
+                topic.publish("hideProgressIndicator");
+            });
+        },
+
+        _showFrequentRouteOnMap: function (featureGeometry, frequentRouteName) {
+            var polyLine, routeSegments, roadArray = [], j; 
+             polyLine = new Polyline(this.map.spatialReference);
+             routeSegments = this.map.getLayer("frequentRoutesLayerID").graphics.length;
             if (0 < routeSegments) {
                 for (j = 0; j < routeSegments; j++) {
                     if (this.map.getLayer("frequentRoutesLayerID").graphics[j]) {
@@ -457,85 +512,15 @@ function (declare, domConstruct, on, topic, lang, array, domStyle, domAttr, dom,
 
         _addBufferGeometryOnMap: function (featureGeometry, frequentRouteName) {
             var geometryServiceUrl, geometryService;
+            if (this._esriDirectionsWidget) {
+                this.esriRoute = true;
+                this._emptyPersistRouteAddress();
+                domConstruct.empty(query(".esriRoutesContainer")[0]);
+            }
             this.inforesult = true;
-            geometryServiceUrl = dojo.configData.GeometryService;
-            geometryService = new GeometryService(geometryServiceUrl);
-            this._showGraphicBufferDistance(featureGeometry, geometryService, this.map.getLayer("frequentRoutesLayerID"), frequentRouteName);
-        },
-
-        /**
-        * show route page
-        * @memberOf widgets/route/route
-        */
-        _showRoute: function () {
-            var directionsUnits, divFrequentRoute;
-
-            esriConfig.defaults.io.alwaysUseProxy = true;
-            directionsUnits = dojo.configData.RouteSymbology.DirectionUnits;
-
-        _showHideFrequentRouteContainer: function () {
-            if (this.divFrequentRouteContainerButton) {
-                domClass.replace(this.divFrequentRouteContainerButton, "esriCTFrequentRouteContainerTopButton", "esriCTFrequentRouteContainerButton");
-                domClass.replace(this.routeTopTiteArrow, "esriCTrouteDownTitleArrow", "esriCTrouteUpTitleArrow");
-                var _this = this;
-                this.divapplicationFrequentRoutes.onclick = function (evt) {
-                    if (!_this.esriRoute) {
-                        if (query(".esriRoutesContainer")[0]) {
-                            if (domStyle.get(query(".esriRoutesContainer")[0], "display") == "none") {
-                                domClass.replace(_this.divFrequentRouteContainerButton, "esriCTFrequentRouteContainerTopButton", "esriCTFrequentRouteContainerButton");
-                                domClass.replace(_this.routeTopTiteArrow, "esriCTrouteDownTitleArrow", "esriCTrouteUpTitleArrow");
-                                domStyle.set(query(".esriRoutesContainer")[0], "display", "block");
-                                domStyle.set(_this.divFrequentRoutePanel, "display", "none");
-
-                this._esriDirectionsWidget.options.routeSymbol.color = new Color([parseInt(dojo.configData.RouteSymbology.ColorRGB.split(",")[0], 10), parseInt(dojo.configData.RouteSymbology.ColorRGB.split(",")[1], 10), parseInt(dojo.configData.RouteSymbology.ColorRGB.split(",")[2], 10), parseFloat(dojo.configData.RouteSymbology.Transparency.split(",")[0])]);
-                this._esriDirectionsWidget.options.routeSymbol.width = parseInt(dojo.configData.RouteSymbology.Width, 10);
-                divFrequentRoute = domConstruct.create("div", { "class": "esriCTdivFrequentRoute" });
-                domAttr.set(divFrequentRoute, "innerHTML", sharedNls.titles.frequentRoute);
-                domConstruct.place(divFrequentRoute, query(".esriRoutesContainer")[0], "first");
-                this.routeLoader = domConstruct.create("img", { "class": "esriCTInfoLoader" }, divFrequentRoute);
-                domAttr.set(this.routeLoader, "src", dojoConfig.baseURL + "/js/library/themes/images/blue-loader.gif");
-                this.own(on(this._esriDirectionsWidget, "directions-finish", lang.hitch(this, function () {
-                    topic.publish("showProgressIndicator");
-                    this._onDirectionFinish();
-                }), function (err) {
-                    alert(err.message);
-                    topic.publish("hideProgressIndicator");
-                }));
-                this.own(on(this._esriDirectionsWidget, "add-stops", lang.hitch(this, function () {
-                    topic.publish("showProgressIndicator");
-                    this._esriDirectionsWidget.getDirections();
-                })));
-                this._persistRouteAddress();
-            }
-        },
-
-        _onDirectionFinish: function () {
-            var esriRoutesHeight, esriRoutesStyle;
-
-            this.infoPanelHeight = false;
-            domStyle.set(this.divFrequentRouteContainerButton, "display", "none");
-            domClass.remove(query(".esriCTHeaderRouteContainer")[0], "esriCTHeaderFrequentRouteContainer");
-            this.inforesult = true;
-            if (this.divFrequentRouteContainer) {
-                domConstruct.empty(this.divFrequentRouteContainer, query(".esriResultsContainer")[0], "first");
-            }
-            if (this._esriDirectionsWidget.directions !==  null) {
-                this._clearAllGraphics();
-                this._addBufferGeometry();
-                this._enableMouseEvents();
-                esriRoutesHeight = window.innerHeight - query(".esriCTApplicationHeader")[0].offsetHeight - html.coords(query(".simpleDirections .esriStopsContainer")[0]).h - 117;
-                esriRoutesStyle = { height: esriRoutesHeight + 'px' };
-                domAttr.set(query(".esriRoutes")[0], "style", esriRoutesStyle);
-                domAttr.set(query(".esriResultsPrint")[0], "innerHTML", sharedNls.buttons.print);
-                if (!this.esriCTrouteDirectionScrollbar) {
-                    this.esriCTrouteDirectionScrollbar = new ScrollBar({ domNode: this.esriCTRouteContainer });
-                    this.esriCTrouteDirectionScrollbar.setContent(query(".simpleDirections")[0]);
-                    this.esriCTrouteDirectionScrollbar.createScrollBar();
-                }
-            } else {
-                alert(sharedNls.errorMessages.noDirection);
-                topic.publish("hideProgressIndicator");
-            }
+             geometryServiceUrl = dojo.configData.GeometryService;
+             geometryService = new GeometryService(geometryServiceUrl);
+            this.executeBufferQuery(featureGeometry, geometryService, this.map.getLayer("frequentRoutesLayerID"), frequentRouteName);
         },
 
         disableMouseEvents: function () {
@@ -546,108 +531,8 @@ function (declare, domConstruct, on, topic, lang, array, domStyle, domAttr, dom,
             dojo.disconnect(this.graphicsLayerHandleEventPadding_onMouseUp);
         },
 
-        _enableMouseEvents: function () {
-            var routeGraphics, dragSymbol;
-
-            this.disableMouseEvents();
-            routeGraphics = this.map.getLayer("esriCTParentDivContainer_graphics");
-            dragSymbol = new SimpleMarkerSymbol(
-                SimpleMarkerSymbol.STYLE_CIRCLE,
-                12,
-                new SimpleLineSymbol(
-                    SimpleLineSymbol.STYLE_SOLID,
-                    new Color("#007AC2"),
-                    2
-                ),
-                new Color("#FFFFFF")
-            );
-
-            this.routeGraphics_onMouseMove = on(routeGraphics, "mouse-over", lang.hitch(this, function (evt) {
-                //snapping to active directions geometry on hovering
-                this._initSnappingManager();
-                handle.setSymbol(dragSymbol);
-                clearTimeout(handle.hideTimer);
-                this.map.setMapCursor("pointer");
-                this.map.snappingManager.getSnappingPoint(evt.screenPoint).then(this._moveHandle);
-            }));
-            this.routeGraphics_onMouseOut = on(routeGraphics, "mouse-out", lang.hitch(this, function (evt) {
-                //hide the handle
-                clearTimeout(handle.hideTimer);
-                handle.hideTimer = setTimeout(this._clearGraphicsLayer, 500);
-                this.map.setMapCursor("default");
-            }));
-
-            this.routeGraphics_onMouseDown = on(routeGraphics, "mouse-down", lang.hitch(this, function (evt) {
-                handle.setSymbol(dragSymbol);
-                this._onHandleDrag(evt);
-            }));
-
-            this.graphicsLayerHandleEventPadding_onMouseDrag = on(graphicsLayerHandleEventPadding, "mouse-move", lang.hitch(this, function (evt) {
-                this._onHandleDrag(evt);
-            }));
-            this.graphicsLayerHandleEventPadding_onMouseUp = on(graphicsLayerHandleEventPadding, "mouse-up", lang.hitch(this, function (evt) {
-                graphicsLayerHandleEventPadding.clear(); //hiding circular geometry around mouse cursor which helped to deal with mouse events
-                this._onMoveWaypoint(evt); //permanently moving waypoint, rebuilding directions
-            }));
-        },
-
-        _clearGraphicsLayer: function () {
-            graphicsLayerHandle.clear();
-        },
-
-        _initSnappingManager: function (tolerance) {
-            if (this.snapManager === null) {
-                if (!tolerance) {
-                    tolerance = 15;
-                }
-                this.snapManager = this.map.enableSnapping({
-                    layerInfos: [{
-                        layer: this.map.getLayer("esriCTParentDivContainer_graphics"),
-                        snapToVertex: false,
-                        snapToPoint: true,
-                        snapToEdge: true
-                    }],
-                    tolerance: tolerance
-                });
-            }
-        },
-
-        _onHandleDrag: function (evt) {
-            var r, pl;
-
-            dojo.stopEvent(evt);
-            this._moveHandle(evt.mapPoint);
-
-            //using the handle.eventPadding 1px length line with a 512px-width symbol around the handle
-            //so if user moves cursor too fast, graphicsLayterHandle will still produce onMouseMove events
-            //while draggin the Handle
-            r = Math.max(this.map.toMap(new esri.geometry.Point(0, 0)).y - this.map.toMap(new esri.geometry.Point(0, 1)).y, 1);
-            pl = new esri.geometry.Polyline({ paths: [[[evt.mapPoint.x, evt.mapPoint.y - r], [evt.mapPoint.x, evt.mapPoint.y + r]]] });
-            pl.setSpatialReference(graphicsLayerHandleEventPadding.spatialReference);
-            if (!handle.eventPadding) {
-                handle.eventPadding = new esri.Graphic(pl);
-            }
-            handle.eventPadding.setGeometry(pl);
-            graphicsLayerHandleEventPadding.clear();
-            graphicsLayerHandleEventPadding.add(handle.eventPadding);
-            this.map.addLayer(graphicsLayerHandleEventPadding);
-        },
-
-        _onMoveWaypoint: function (evt) {
-            var stopIndex = Math.ceil(this._esriDirectionsWidget.stops.length / 2);
-            this._esriDirectionsWidget.addStop(evt.mapPoint, stopIndex);
-            this._esriDirectionsWidget.clearDirections();
-        },
-
-        _moveHandle: function (point) {
-            //moving handle
-            handle.geometry = point;
-            graphicsLayerHandle.clear();
-            graphicsLayerHandle.add(handle);
-        },
-        _persistRouteAddress: function () {
+        _emptyPersistRouteAddress: function () {
             var storage, stops;
-
             stops = [];
             storage = window.localStorage;
             if (storage) {
@@ -655,250 +540,17 @@ function (declare, domConstruct, on, topic, lang, array, domStyle, domAttr, dom,
                 stops.push("");
             } else {
                 if (cookie.isSupported()) {
-                    stops.push((cookie("SourceAddress") !==  undefined) ? cookie("SourceAddress") : "");
-                    stops.push((cookie("DestAddress") !==  undefined) ? cookie("DestAddress") : "");
+                    stops.push("");
+                    stops.push("");
                 }
             }
             this._esriDirectionsWidget.updateStops(stops);
         },
-        _addBufferGeometry: function () {
-            var geometryServiceUrl, geometryService, featureIndex, featureGeometry = [];
-
-            geometryServiceUrl = dojo.configData.GeometryService;
-            geometryService = new GeometryService(geometryServiceUrl);
-            for (featureIndex = 1; featureIndex < this._esriDirectionsWidget.directions.features.length; featureIndex++) {
-                featureGeometry.push(this._esriDirectionsWidget.directions.features[featureIndex].geometry);
-            }
-            if (this.countBuffer) {
-                this._getIncidentGeometryOnMap(featureGeometry, geometryService);
-            } else {
-                this._showBufferDistance(featureGeometry, geometryService);
-                this._showBufferOnRoute(featureGeometry, geometryService);
-            }
-        },
-
-        _getIncidentGeometryOnMap: function (geometry, geometryService) {
-            this.countBuffer = false;
-            geometryService.union(geometry).then(lang.hitch(this, function (geometries) {
-                var params = new BufferParameters();
-                params.distances = [parseInt(dojo.configData.BufferMilesForProximityAnalysis, 10) * this.buffercount];
-                params.bufferSpatialReference = new esri.SpatialReference({ wkid: 102100 });
-                params.outSpatialReference = this.map.spatialReference;
-                params.unit = GeometryService.UNIT_STATUTE_MILE;
-                params.geometries = [geometries];
-                geometryService.buffer(params, lang.hitch(this, function (bufferedRouteGeometries) {
-                    this._onRouteIncidentCount(bufferedRouteGeometries[0]);
-                }));
-
-            }), function (err) {
-                alert(err.message);
-                topic.publish("hideProgressIndicator");
-            });
-        },
-
-        _onRouteIncidentCount: function (onBuffergeometry) {
-            var index, deferredListResult, i,
-                onRouteFeaturArray = [],
-                onRouteFeatureData = [],
-                barrierArray = [];
-
-            for (index = 0; index < dojo.configData.SearchAnd511Settings.length; index++) {
-                if (dojo.configData.SearchAnd511Settings[index].BarrierLayer === "true") {
-                    onRouteFeatureData.push(dojo.configData.SearchAnd511Settings[index]);
-                    this._showfeatureCountResult(onRouteFeaturArray, index, onBuffergeometry);
-                }
-            }
-            deferredListResult = new DeferredList(onRouteFeaturArray);
-            deferredListResult.then(lang.hitch(this, function (result) {
-                var count, featureList;
-
-                for (count = 0; count < result.length; count++) {
-                    featureList = result[count][1].features;
-                    if (featureList) {
-                        if (featureList.length > 0) {
-                            for (i = 0; i < featureList.length; ++i) {
-                                barrierArray.push(featureList[i]);
-                            }
-                        }
-                    }
-                }
-                this._esriDirectionsWidget.getDirections();
-            }));
-        },
-
-        _showBufferOnRoute: function (geometry, geometryService) {
-            var params;
-
-            esriConfig.defaults.io.alwaysUseProxy = true;
-            geometryService.union(geometry).then(lang.hitch(this, function (geometries) {
-                params = new BufferParameters();
-                params.distances = [parseInt(dojo.configData.BufferMetersForFindingBarriers, 10)];
-                params.bufferSpatialReference = new esri.SpatialReference({ wkid: 102100 });
-                params.outSpatialReference = this.map.spatialReference;
-                params.unit = GeometryService.UNIT_METER;
-                params.geometries = [geometries];
-                geometryService.buffer(params, lang.hitch(this, function (bufferedRouteGeometries) {
-                    if (bufferedRouteGeometries.length > 0) {
-                        this._onRouteFeatureCount(geometries);
-                    }
-                }));
-
-            }), function (err) {
-                alert(err.message);
-                topic.publish("hideProgressIndicator");
-            });
-        },
-
-        _showGraphicBufferDistance: function (geometry, geometryService, featureLayer, frequentRouteName) {
-            var params = new BufferParameters();
-            params.distances = [parseInt(dojo.configData.BufferMilesForProximityAnalysis, 10)];
-            params.bufferSpatialReference = new esri.SpatialReference({ wkid: 102100 });
-            params.outSpatialReference = this.map.spatialReference;
-            params.unit = GeometryService.UNIT_STATUTE_MILE;
-            params.geometries = [geometry];
-            geometryService.buffer(params, lang.hitch(this, function (bufferedGeometries) {
-                this._showBufferRoute(featureLayer, bufferedGeometries);
-                this._onBufferInfoREsult(bufferedGeometries[0], frequentRouteName);
-            }), function (err) {
-                alert(err.message);
-                topic.publish("hideProgressIndicator");
-            });
-        },
-
-        _showBufferDistance: function (geometry, geometryService) {
-            var routeLength, routeFirstName, routeLastName, routeName;
-
-            esriConfig.defaults.io.alwaysUseProxy = true;
-            routeLength = this._esriDirectionsWidget.stops.length;
-            routeFirstName = this._esriDirectionsWidget.stops[0].name.toUpperCase();
-            routeLastName = this._esriDirectionsWidget.stops[routeLength - 1].name.toUpperCase();
-            routeName = routeFirstName + " " + sharedNls.to + " " + routeLastName;
-            geometryService.union(geometry).then(lang.hitch(this, function (geometries) {
-                var params = new BufferParameters();
-                params.distances = [parseInt(dojo.configData.BufferMilesForProximityAnalysis, 10)];
-                params.bufferSpatialReference = new esri.SpatialReference({ wkid: 102100 });
-                params.outSpatialReference = this.map.spatialReference;
-                params.unit = GeometryService.UNIT_STATUTE_MILE;
-                params.geometries = [geometries];
-                geometryService.buffer(params, lang.hitch(this, function (bufferedGeometries) {
-                    if (bufferedGeometries.length > 0) {
-                        this._showBufferRoute(this.map.getLayer("esriGraphicsLayerMapSettings"), bufferedGeometries);
-                        this._onBufferInfoREsult(bufferedGeometries[0], routeName);
-                    }
-                }));
-
-            }), function (err) {
-                alert(err.message);
-                topic.publish("hideProgressIndicator");
-            });
-        },
-
-        _onBufferInfoREsult: function (geometry, routeName) {
-            domAttr.set(this.esriCTRouteInformationTitle, "innerHTML", routeName);
-            this._infoResult(geometry);
-        },
-
-        _onRouteFeatureCount: function (onRoutegeometry) {
-            var index, deferredListResult,
-                onRouteFeaturArray = [],
-                onRouteFeatureData = [],
-                barrierArray = [];
-
-            topic.publish("hideInfoWindowOnMap");
-            this.divSearchLoader = domConstruct.create("div", { "class": "esriCTRouteLoader" });
-            domConstruct.place(this.divSearchLoader, query(".esriRoutesContainer")[0], "first");
-            for (index = 0; index < dojo.configData.SearchAnd511Settings.length; index++) {
-                if (dojo.configData.SearchAnd511Settings[index].BarrierLayer === "true") {
-                    onRouteFeatureData.push(dojo.configData.SearchAnd511Settings[index]);
-                    this._showfeatureCountResult(onRouteFeaturArray, index, onRoutegeometry);
-                }
-            }
-            deferredListResult = new DeferredList(onRouteFeaturArray);
-            deferredListResult.then(lang.hitch(this, function (result) {
-                var count, featureList, feature, i, countOfFeatures = 0;
-
-                for (count = 0; count < result.length; count++) {
-                    featureList = result[count][1].features;
-                    if (featureList) {
-                        if (featureList.length > 0) {
-                            for (i = 0; i < featureList.length; ++i) {
-                                countOfFeatures++;
-                                feature = featureList[i];
-                                barrierArray.push(feature);
-                                if (feature.geometry && feature.geometry.type && feature.geometry.type.toLowerCase() === "polygon") {
-                                    this._esriDirectionsWidget.routeParams.polygonBarriers.features.push(new Graphic(feature.geometry));
-                                } else if (feature.geometry && feature.geometry.type && feature.geometry.type.toLowerCase() === "polyline") {
-                                    this._esriDirectionsWidget.routeParams.polylineBarriers.features.push(new Graphic(feature.geometry));
-                                } else if (feature.geometry && feature.geometry.type && feature.geometry.type.toLowerCase() === "point") {
-                                    this._esriDirectionsWidget.routeParams.barriers.features.push(new Graphic(feature.geometry));
-                                }
-                            }
-                        }
-                    }
-                }
-
-                if (countOfFeatures > 0) {
-                    if (this.divEmptyContainer) {
-                        domConstruct.empty(this.divEmptyContainer, this.esriCTRouteInformationContent, "first");
-                    }
-                    this._showRouteButton(countOfFeatures, onRoutegeometry);
-                }
-            }));
-        },
-
-        _showRouteButton: function (countOfFeatures) {
-            var showRouteInfoContent, showRouteImgContent;
-
-            this.divShowReRouteContainer = domConstruct.create("div", { "class": "esriCTdivShowReRouteContainer" });
-            domConstruct.place(this.divShowReRouteContainer, query(".esriRoutesContainer")[0], "first");
-            showRouteInfoContent = domConstruct.create("div", { "class": "esriCTshowRouteInfoContent" }, this.divShowReRouteContainer);
-            domAttr.set(showRouteInfoContent, "innerHTML", countOfFeatures + " " + appNls.titles.reRouteDisplayText);
-            showRouteImgContent = domConstruct.create("div", { "class": "showRouteImgContent esriCTCursorPointer" }, this.divShowReRouteContainer);
-            this.own(on(showRouteImgContent, "click", lang.hitch(this, function (evt) {
-                topic.publish("showProgressIndicator");
-                this.countBuffer = true;
-                this.buffercount++;
-                this._addBufferGeometry();
-            })));
-        },
-
-        _showfeatureCountResult: function (onRouteFeaturArray, index, geometry) {
-            var layerobject, queryTask, queryLayer, newDate, newTime, fullDate, queryOnRouteTask;
-
-            layerobject = dojo.configData.SearchAnd511Settings[index];
-            if (layerobject.QueryURL) {
-                queryTask = new QueryTask(layerobject.QueryURL);
-                queryLayer = new Query();
-                newDate = (new Date().toISOString().split("T")[0]);
-                newTime = ((new Date().toISOString().split("T")[1]).split(".")[0]);
-                fullDate = newDate + " " + newTime;
-                if (layerobject.BarrierSearchExpression && layerobject.BarrierSearchExpression.length !==  0) {
-                    queryLayer.where = string.substitute(layerobject.BarrierSearchExpression, [fullDate, fullDate]);
-                } else {
-                    queryLayer.where = "1=1";
-                }
-                queryLayer.returnGeometry = true;
-                queryLayer.outSpatialReference = { wkid: 102100 };
-                queryLayer.outFields = ["*"];
-                queryLayer.geometry = geometry;
-                queryLayer.spatialRelationship = Query.SPATIAL_REL_INTERSECTS;
-                queryOnRouteTask = queryTask.execute(queryLayer, lang.hitch(this, function (featureSet) {
-                    var deferred = new Deferred();
-                    deferred.resolve(featureSet);
-                    return deferred.promise;
-                }), function (err) {
-                    alert(err.message);
-                    topic.publish("hideProgressIndicator");
-                });
-                onRouteFeaturArray.push(queryOnRouteTask);
-            }
-        },
 
         _clearAllGraphics: function () {
             var graphicsLength, graphicsBufferLength;
-
-            graphicsLength  = this.map.getLayer("esriGraphicsLayerMapSettings").graphics.length;
-            graphicsBufferLength = this.map.getLayer("frequentRoutesLayerID").graphics.length;
+             graphicsLength = this.map.getLayer("esriGraphicsLayerMapSettings").graphics.length;
+             graphicsBufferLength = this.map.getLayer("frequentRoutesLayerID").graphics.length;
             if (graphicsLength > 0) {
                 if (this.map.getLayer("esriGraphicsLayerMapSettings").visible) {
                     this.map.getLayer("esriGraphicsLayerMapSettings").clear();
@@ -911,36 +563,12 @@ function (declare, domConstruct, on, topic, lang, array, domStyle, domAttr, dom,
             }
         },
 
-        _showBufferRoute: function (layer, geometries) {
-            this.inforesult = true;
-            var symbol = new SimpleFillSymbol(
-                    SimpleFillSymbol.STYLE_SOLID,
-                    new SimpleLineSymbol(
-                        SimpleLineSymbol.STYLE_SOLID,
-                        new Color([parseInt(dojo.configData.BufferSymbology.LineSymbolColor.split(",")[0], 10), parseInt(dojo.configData.BufferSymbology.LineSymbolColor.split(",")[1], 10), parseInt(dojo.configData.BufferSymbology.LineSymbolColor.split(",")[2], 10), parseFloat(dojo.configData.BufferSymbology.LineSymbolTransparency.split(",")[0])]),
-                        2
-                    ),
-                    new Color([parseInt(dojo.configData.BufferSymbology.FillSymbolColor.split(",")[0], 10), parseInt(dojo.configData.BufferSymbology.FillSymbolColor.split(",")[1], 10), parseInt(dojo.configData.BufferSymbology.FillSymbolColor.split(",")[2], 10), parseFloat(dojo.configData.BufferSymbology.FillSymbolTransparency.split(",")[0])])
-                );
-            dojo.forEach(geometries, lang.hitch(this, function (geometry) {
-                var routeGraphic, featureSet, features = [];
-
-                routeGraphic = new Graphic(geometry, symbol);
-
-                features.push(routeGraphic);
-                featureSet = new FeatureSet();
-                featureSet.features = features;
-                layer.add(featureSet.features[0]);
-            }));
-        },
-
         _infoResult: function (geometry) {
-            var graphicsBufferLength, index, deferredListResult, infoArrayResult,
-                infoArray = [],
-                layerData = [],
-                arrInfoResult = [];
+            var infoArray = [], layerData = [], graphicsBufferLength, index, arrInfoResult = [],
+            infoArrayResult, deferredListResult;
 
-            graphicsBufferLength = this.map.getLayer("frequentRoutesLayerID").graphics.length;
+            this.extenChangeResult = false;
+             graphicsBufferLength = this.map.getLayer("frequentRoutesLayerID").graphics.length;
             if (graphicsBufferLength > 0) {
                 topic.publish("hideInfoWindowOnMap");
                 this.infoPanelHeight = true;
@@ -949,21 +577,23 @@ function (declare, domConstruct, on, topic, lang, array, domStyle, domAttr, dom,
                 domConstruct.destroy(this.esriCTInfoLayerTitle, this.esriCTRouteInformationContent, "first");
                 domConstruct.destroy(this.esriCTInfoLayerTitle);
             }
-            for (index = 0; index < dojo.configData.SearchAnd511Settings.length; index++) {
+           
+            for ( index = 0; index < dojo.configData.SearchAnd511Settings.length; index++) {
                 if (dojo.configData.SearchAnd511Settings[index].InfoLayer === "true") {
                     layerData.push(dojo.configData.SearchAnd511Settings[index]);
-                    this._locateInformationSearchResult(infoArray, index, geometry);
+                    this._locateInformationSearchResult(infoArray, index, geometry, layerData);
                 }
             }
-            deferredListResult = new DeferredList(infoArray);
+             deferredListResult = new DeferredList(infoArray);
             deferredListResult.then(lang.hitch(this, function (result) {
                 if (result) {
                     for (infoArrayResult = 0; infoArrayResult < result.length; infoArrayResult++) {
                         if (result[infoArrayResult][1].features) {
+                            this.extenChangeResult = false;
                             arrInfoResult.push({
                                 resultFeatures: result[infoArrayResult][1].features,
                                 resultFields: result[infoArrayResult][1].fields,
-                                layerDetails: dojo.configData.SearchAnd511Settings[infoArrayResult]
+                                layerDetails: layerData[infoArrayResult]
                             });
                         }
                     }
@@ -973,24 +603,23 @@ function (declare, domConstruct, on, topic, lang, array, domStyle, domAttr, dom,
         },
 
         _locateInformationSearchResult: function (infoArray, index, geometry) {
-            var layerobject, queryTask, queryLayer, queryOverlayTask;
-
-            layerobject = dojo.configData.SearchAnd511Settings[index];
+            var layerobject = dojo.configData.SearchAnd511Settings[index], queryLayer, queryTask, queryOverlayTask, deferred;
             if (layerobject.QueryURL) {
-                queryTask = new QueryTask(layerobject.QueryURL);
-                queryLayer = new Query();
-                if (layerobject.InfoSearchExpression && layerobject.InfoSearchExpression.length !==  0) {
+                 queryTask = new QueryTask(layerobject.QueryURL);
+                 queryLayer = new Query();
+                if (layerobject.InfoSearchExpression && layerobject.InfoSearchExpression.length !== 0) {
                     queryLayer.where = layerobject.InfoSearchExpression;
                 } else {
                     queryLayer.where = "1=1";
                 }
-                queryLayer.outSpatialReference = { wkid: 102100 };
+                queryLayer.outSpatialReference = { wkid: this.map.spatialReference.wkid };
                 queryLayer.returnGeometry = false;
                 queryLayer.outFields = ["*"];
                 queryLayer.geometry = geometry;
                 queryLayer.spatialRelationship = Query.SPATIAL_REL_INTERSECTS;
-                queryOverlayTask = queryTask.execute(queryLayer, lang.hitch(this, function (featureSet) {
-                    var deferred = new Deferred();
+                 queryOverlayTask = queryTask.execute(queryLayer, lang.hitch(this, function (featureSet) {
+                    this.extenChangeResult = false;
+                     deferred = new Deferred();
                     deferred.resolve(featureSet);
                     return deferred.promise;
                 }), function (err) {
@@ -1002,22 +631,20 @@ function (declare, domConstruct, on, topic, lang, array, domStyle, domAttr, dom,
         },
 
         _showInfoResults: function (result, arrInfoResult, geometry) {
-            var backPanelInfoHeader, backPanel, resultTitle, resultPanelContainer, esriRoutesHeight, esriRoutesStyle,
-                i, infoLayerTitlePanel, esriInfoPanelContainer, esriInfoTitle, infoTitleText, infoTitleNum, infoBackTite;
-
-            this.esriCTInfoLayerTitle = domConstruct.esriCTInfoLayerTitle = domConstruct.create("div", { "class": "esriCTInfoLayerTitle" }, this.esriCTRouteInformationContent);
+            var backPanelInfoHeader, backPanel, infoBackTite, resultTitle, resultPanelContainer, esriRoutesHeight, esriRoutesStyle;
+            this.esriCTInfoLayerTitle = domConstruct.create("div", { "class": "esriCTInfoLayerTitle" }, this.esriCTRouteInformationContent);
             this.esriCTInfoLayerTitleContent = domConstruct.create("div", { "class": "esriCTInfoLayerTitleContent" }, this.esriCTInfoLayerTitle);
             this.esriCTInfoLayerFeatureList = domConstruct.create("div", { "class": "esriCTInfoLayerFeatureList" }, this.esriCTRouteInformationContent);
-            backPanelInfoHeader = domConstruct.create("div", { "class": "esriCTRouteInformationBackTitle" }, this.esriCTInfoLayerFeatureList);
-            backPanel = domConstruct.create("div", { "class": "" }, backPanelInfoHeader);
+             backPanelInfoHeader = domConstruct.create("div", { "class": "" }, this.esriCTInfoLayerFeatureList);
+             backPanel = domConstruct.create("div", { "class": "esriCTRouteInformationBackTitle" }, backPanelInfoHeader);
             domConstruct.create("span", { "class": "infoBackTiteArrow esriCTCursorPointer" }, backPanel);
-            infoBackTite = domConstruct.create("span", { "class": "infoBackTite esriCTCursorPointer" }, backPanel);
+             infoBackTite = domConstruct.create("span", { "class": "infoBackTite esriCTCursorPointer" }, backPanel);
             domAttr.set(infoBackTite, "innerHTML", sharedNls.buttons.back);
-            resultTitle = domConstruct.create("span", {}, backPanelInfoHeader);
-            resultPanelContainer = domConstruct.create("div", { "class": "resultPanelContainer" }, this.esriCTInfoLayerFeatureList);
+             resultTitle = domConstruct.create("div", { "class": "esriCTRouteInformation511ttile" }, backPanelInfoHeader);
+             resultPanelContainer = domConstruct.create("div", { "class": "resultPanelContainer" }, this.esriCTInfoLayerFeatureList);
             this.resultPanelContents = domConstruct.create("div", { "class": "resultPanelContents" }, resultPanelContainer);
-            esriRoutesHeight = domGeom.position(query(".esriCTHeaderRouteContainer")[0]).h - query(".esriCTRouteInformationBackTitle")[0].offsetHeight - 130;
-            esriRoutesStyle = { height: esriRoutesHeight + 'px' };
+             esriRoutesHeight = domGeom.position(query(".esriCTHeaderRouteContainer")[0]).h - query(".esriCTRouteInformationBackTitle")[0].offsetHeight - 130;
+             esriRoutesStyle = { height: esriRoutesHeight + 'px' };
             if (!this.infoPanelHeight) {
                 domAttr.set(this.esriCTInfoLayerTitle, "style", esriRoutesStyle);
             }
@@ -1026,153 +653,162 @@ function (declare, domConstruct, on, topic, lang, array, domStyle, domAttr, dom,
             this.infoPanelHeight = false;
             domStyle.set(backPanelInfoHeader, "display", "none");
             domStyle.set(resultPanelContainer, "display", "none");
-            if (!this.esriCTrouteScrollbar && this.esriCTInfoLayerTitle.offsetHeight > 1) {
-                this.esriCTrouteScrollbar = new ScrollBar({ domNode: this.esriCTInfoLayerTitle });
-                this.esriCTrouteScrollbar.setContent(this.esriCTInfoLayerTitleContent);
-                this.esriCTrouteScrollbar.createScrollBar();
+            if (this.esriCTrouteScrollbar) {
+                this.esriCTrouteScrollbar.removeScrollBar && this.esriCTrouteScrollbar.removeScrollBar();
+                this.esriCTrouteScrollbar = null;
+            }
+            if (!this.esriCTrouteScrollbar) {
+                if (this.esriCTInfoLayerTitle.offsetHeight > 1) {
+                    this.esriCTrouteScrollbar = new scrollBar({ domNode: this.esriCTInfoLayerTitle });
+                    this.esriCTrouteScrollbar.setContent(this.esriCTInfoLayerTitleContent);
+                    this.esriCTrouteScrollbar.createScrollBar();
+                }
             }
             topic.publish("hideProgressIndicator");
+            this._showInfoResultsList(arrInfoResult, backPanel, resultPanelContainer, backPanelInfoHeader, resultTitle, geometry);
+            this.extenChangeResult = true;
+        },
 
-            for (i in dojo.configData.SearchAnd511Settings) {
-                if (dojo.configData.SearchAnd511Settings.hasOwnProperty(i)) {
-                    if (dojo.configData.SearchAnd511Settings[i].InfoLayer === "true") {
-                        if (arrInfoResult.length > 0) {
-                            if (dojo.configData.SearchAnd511Settings[i].SearchDisplayTitle) {
-                                infoLayerTitlePanel = domConstruct.create("div", { "infoTitle": dojo.configData.SearchAnd511Settings[i].SearchDisplayTitle, "class": "esriCTInformationLayerListContainer " }, this.esriCTInfoLayerTitleContent);
-                                domAttr.set(infoLayerTitlePanel, "layer", dojo.configData.SearchAnd511Settings[i].QueryURL);
-                                domAttr.set(infoLayerTitlePanel, "index", i);
-                                esriInfoPanelContainer = domConstruct.create("div", { "class": "esriInfoPanelContainer esriCTCursorPointer" }, infoLayerTitlePanel);
-                                esriInfoTitle = domConstruct.create("div", { "class": "esriCTInformationLayerList esriCTInformationLayerListContent esriCTCursorPointer" }, esriInfoPanelContainer);
-                                infoTitleText = domConstruct.create("div", { "class": "esriCTRouteMapName" }, esriInfoTitle);
-                                domAttr.set(infoTitleText, "innerHTML", dojo.configData.SearchAnd511Settings[i].SearchDisplayTitle);
-                                infoTitleNum = domConstruct.create("div", { "class": "esriCTRouteMapNum" }, esriInfoTitle);
-                                domAttr.set(infoTitleNum, "innerHTML", '(' + arrInfoResult[i].resultFeatures.length + ')');
-                                domConstruct.create("div", { "class": "infoTitleArrow esriCTCursorPointer" }, esriInfoTitle);
-                                domStyle.set(this.esriCTInfoLayerFeatureList, "display", "none");
-                                if (arrInfoResult[i].resultFeatures.length > 0) {
-                                    this.own(on(infoLayerTitlePanel, "click", lang.hitch(this, function (evt) {
-                                        var esriInfoPanelHeight, esriInfoPanelStyle, infoTitle, layer, selectedIndex,
-                                            index, routeArray, j, x, currentIndex;
+        _showInfoResultsList: function (arrInfoResult, backPanel, resultPanelContainer, backPanelInfoHeader, resultTitle, geometry) {
+            var i, infoLayerTitlePanel, esriInfoPanelContainer, esriInfoTitle, infoTitleText, infoTitleNum;
+            for (i = 0; i < arrInfoResult.length; i++) {
+                if (arrInfoResult[i].layerDetails.SearchDisplayTitle) {
+                     infoLayerTitlePanel = domConstruct.create("div", { "infoTitle": arrInfoResult[i].layerDetails.SearchDisplayTitle, "class": "esriCTInformationLayerListContainer " }, this.esriCTInfoLayerTitleContent);
+                    domAttr.set(infoLayerTitlePanel, "layer", arrInfoResult[i].layerDetails.QueryURL);
+                    domAttr.set(infoLayerTitlePanel, "index", arrInfoResult[i].layerDetails.QueryLayerId);
+                     esriInfoPanelContainer = domConstruct.create("div", { "class": "esriInfoPanelContainer esriCTCursorPointer" }, infoLayerTitlePanel);
+                     esriInfoTitle = domConstruct.create("div", { "class": "esriCTInformationLayerList esriCTInformationLayerListContent esriCTCursorPointer" }, esriInfoPanelContainer);
+                     infoTitleText = domConstruct.create("div", { "class": "esriCTRouteMapName" }, esriInfoTitle);
+                    domAttr.set(infoTitleText, "innerHTML", arrInfoResult[i].layerDetails.SearchDisplayTitle);
+                     infoTitleNum = domConstruct.create("div", { "class": "esriCTRouteMapNum" }, esriInfoTitle);
+                    domAttr.set(infoTitleNum, "innerHTML", '(' + arrInfoResult[i].resultFeatures.length + ')');
+                    domConstruct.create("div", { "class": "infoTitleArrow esriCTCursorPointer" }, esriInfoTitle);
+                    domStyle.set(this.esriCTInfoLayerFeatureList, "display", "none");
+                    if (arrInfoResult[i].resultFeatures.length > 0) {
+                        this.own(on(infoLayerTitlePanel, "click", lang.hitch(this, function (event) {
+                            this._showLayerListPanel(arrInfoResult, event, resultTitle, resultPanelContainer, backPanelInfoHeader, geometry);
+                        })));
+                    } else {
+                        domStyle.set(esriInfoTitle, "cursor", "default");
+                    }
+                    this.own(on(backPanel, "click", lang.hitch(this, function () {
+                        this.extenChangeResult = true;
+                        dojo.featureResult = false;
+                        domStyle.set(this.esriCTInfoLayerTitle, "display", "block");
+                        domStyle.set(this.esriCTInfoLayerFeatureList, "display", "none");
+                        this.InfoPanelScrollbar.removeScrollBar();
+                        domStyle.set(backPanelInfoHeader, "display", "none");
+                        domStyle.set(resultPanelContainer, "display", "none");
+                        domStyle.set(this.esriCTInfoLayerTitle, "display", "block");
+                        domStyle.set(this.esriCTRouteInformationTitle, "display", "block");
+                        domConstruct.empty(this.resultPanelContents);
+                    })));
+                }
+            }
+        },
 
-                                        //                                dojo.showInfo = true;
-                                        domStyle.set(this.esriCTInfoLayerTitle, "display", "none");
-                                        domStyle.set(this.esriCTInfoLayerFeatureList, "display", "block");
-                                        dojo.featureResult = true;
-                                        esriInfoPanelHeight = domGeom.position(query(".esriCTHeaderRouteContainer")[0]).h - query(".esriCTRouteInformationBackTitle")[0].offsetHeight - 145;
-                                        esriInfoPanelStyle = { height: esriInfoPanelHeight + 'px' };
-                                        domStyle.set(resultPanelContainer, "display", "block");
-                                        domAttr.set(resultPanelContainer, "style", esriInfoPanelStyle);
-                                        if (this.InfoPanelScrollbar) {
-                                            domClass.add(this.InfoPanelScrollbar._scrollBarContent, "esriCTZeroHeight");
-                                            this.InfoPanelScrollbar.removeScrollBar();
-                                        }
-                                        infoTitle = domAttr.get(evt.currentTarget, "infoTitle");
-                                        layer = domAttr.get(evt.currentTarget, "layer");
-                                        selectedIndex = domAttr.get(evt.currentTarget, "index");
-                                        domAttr.set(resultTitle, "innerHTML", infoTitle);
-                                        domStyle.set(backPanelInfoHeader, "display", "block");
-                                        domStyle.set(this.esriCTRouteInformationTitle, "display", "none");
-                                        this.InfoPanelScrollbar = new ScrollBar({ domNode: resultPanelContainer });
-                                        this.InfoPanelScrollbar.setContent(this.resultPanelContents);
-                                        this.InfoPanelScrollbar.createScrollBar();
-                                        for (index = 0; index < arrInfoResult.length; index++) {
-                                            if (arrInfoResult[index].layerDetails.SearchDisplayTitle === infoTitle) {
-                                                routeArray = [];
-                                                for (j = 0; j < arrInfoResult[index].resultFeatures.length; j++) {
-                                                    for (x in arrInfoResult[index].resultFeatures[j].attributes) {
-                                                        if (arrInfoResult[index].resultFeatures[j].attributes.hasOwnProperty(x)) {
-                                                            if (!arrInfoResult[index].resultFeatures[j].attributes[x]) {
-                                                                arrInfoResult[index].resultFeatures[j].attributes[x] = sharedNls.showNullValue;
-                                                            }
-                                                        }
-                                                    }
-                                                    if (arrInfoResult[index].resultFeatures[j].attributes) {
-                                                        if (arrInfoResult[index].layerDetails.InfoDetailFields && arrInfoResult[index].layerDetails.InfoDetailFields.length !==  0) {
-                                                            routeArray.push({
-                                                                name: string.substitute(arrInfoResult[index].layerDetails.InfoDetailFields, arrInfoResult[index].resultFeatures[j].attributes)
-                                                            });
-                                                        } else {
-                                                            routeArray.push({
-                                                                name: string.substitute(arrInfoResult[index].layerDetails.SearchDisplayFields, arrInfoResult[index].resultFeatures[j].attributes)
-                                                            });
-                                                        }
-                                                    }
-                                                }
-                                                for (currentIndex = 0; currentIndex < routeArray.length; currentIndex++) {
-                                                    this._displayInfoPanelResult(routeArray[currentIndex], layer, arrInfoResult[selectedIndex], currentIndex, selectedIndex);
-                                                }
-                                            }
-                                        }
-                                    })));
-                                } else {
-                                    domStyle.set(esriInfoTitle, "cursor", "default");
+        _showLayerListPanel: function (arrInfoResult, event, resultTitle, resultPanelContainer, backPanelInfoHeader, geometry) {
+            var routeArray = [], esriInfoPanelHeight, esriInfoPanelStyle, infoTitle, layer, selectedIndex, index, j, x, currentIndex;
+            domStyle.set(this.esriCTInfoLayerTitle, "display", "none");
+            domStyle.set(this.esriCTInfoLayerFeatureList, "display", "block");
+            dojo.featureResult = true;
+             esriInfoPanelHeight = domGeom.position(query(".esriCTHeaderRouteContainer")[0]).h - query(".esriCTRouteInformationBackTitle")[0].offsetHeight - 153;
+             esriInfoPanelStyle = { height: esriInfoPanelHeight + 'px' };
+            domStyle.set(resultPanelContainer, "display", "block");
+            domAttr.set(resultPanelContainer, "style", esriInfoPanelStyle);
+            if (this.InfoPanelScrollbar) {
+                domClass.add(this.InfoPanelScrollbar._scrollBarContent, "esriCTZeroHeight");
+                this.InfoPanelScrollbar.removeScrollBar();
+            }
+             infoTitle = domAttr.get(event.currentTarget, "infoTitle");
+             layer = domAttr.get(event.currentTarget, "layer");
+             selectedIndex = domAttr.get(event.currentTarget, "index");
+            domAttr.set(resultTitle, "innerHTML", infoTitle);
+            domStyle.set(backPanelInfoHeader, "display", "block");
+            domStyle.set(this.esriCTRouteInformationTitle, "display", "none");
+            this.InfoPanelScrollbar = new scrollBar({ domNode: resultPanelContainer });
+            this.InfoPanelScrollbar.setContent(this.resultPanelContents);
+            this.InfoPanelScrollbar.createScrollBar();
+            for (index = 0; index < arrInfoResult.length; index++) {
+                if (arrInfoResult[index].layerDetails.SearchDisplayTitle === infoTitle) {
+                    for (j = 0; j < arrInfoResult[index].resultFeatures.length; j++) {
+                        for (x in arrInfoResult[index].resultFeatures[j].attributes) {
+                            if (arrInfoResult[index].resultFeatures[j].attributes.hasOwnProperty(x)) {
+                                if (!arrInfoResult[index].resultFeatures[j].attributes[x]) {
+                                    arrInfoResult[index].resultFeatures[j].attributes[x] = sharedNls.showNullValue;
                                 }
-                                this.own(on(backPanel, "click",
-                                    this._hideInfoResults(backPanelInfoHeader, resultPanelContainer)));
                             }
                         }
+                        if (arrInfoResult[index].resultFeatures[j].attributes) {
+                            if (arrInfoResult[index].layerDetails.InfoDetailFields && arrInfoResult[index].layerDetails.InfoDetailFields.length != 0) {
+                                routeArray.push({
+                                    name: string.substitute(arrInfoResult[index].layerDetails.InfoDetailFields, arrInfoResult[index].resultFeatures[j].attributes)
+                                });
+                            } else {
+                                routeArray.push({
+                                    name: string.substitute(arrInfoResult[index].layerDetails.SearchDisplayFields, arrInfoResult[index].resultFeatures[j].attributes)
+                                });
+                            }
+                        }
+                    }
+                    for ( currentIndex = 0; currentIndex < routeArray.length; currentIndex++) {
+                        this._displayInfoPanelResult(routeArray[currentIndex], layer, arrInfoResult[index], currentIndex, selectedIndex, geometry);
                     }
                 }
             }
         },
 
-        _hideInfoResults: function (backPanelInfoHeader, resultPanelContainer) {
-            return function () {
-                dojo.featureResult = false;
-                domStyle.set(this.esriCTInfoLayerTitle, "display", "block");
-                domStyle.set(this.esriCTInfoLayerFeatureList, "display", "none");
-                this.InfoPanelScrollbar.removeScrollBar();
-                domStyle.set(backPanelInfoHeader, "display", "none");
-                domStyle.set(resultPanelContainer, "display", "none");
-                domStyle.set(this.esriCTInfoLayerTitle, "display", "block");
-                domStyle.set(this.esriCTRouteInformationTitle, "display", "block");
-                domConstruct.empty(this.resultPanelContents);
-            };
-        },
-
-        _displayInfoPanelResult: function (arrSearchResult, selectedLayer, featureset, currentIndex, selectedIndex) {
-            var esriInfoPanelContainer, infoPanel, i;
-
-            esriInfoPanelContainer = domConstruct.create("div", { "class": "esriInfoPanelContainer" }, this.resultPanelContents);
-            infoPanel = domConstruct.create("div", { "class": "esriCTInformationLayerList" }, esriInfoPanelContainer);
-            domAttr.set(infoPanel, "innerHTML", arrSearchResult.name);
-            domAttr.set(infoPanel, "currentLayer", selectedLayer);
+        _displayInfoPanelResult: function (arrSearchResult, selectedLayer, featureset, currentIndex, selectedIndex, geometry) {
+            var esriInfoPanelContainer, infoPanel, infoPanelContent, i;
+             esriInfoPanelContainer = domConstruct.create("div", { "class": "esriInfoPanelContainer" }, this.resultPanelContents);
+             infoPanel = domConstruct.create("div", { "class": "esriCTInformationLayerList" }, esriInfoPanelContainer);
+             infoPanelContent = domConstruct.create("div", { "class": "esriCTinfoPanelContentList" }, infoPanel);
+            domAttr.set(infoPanelContent, "innerHTML", arrSearchResult.name);
+            domAttr.set(infoPanelContent, "currentLayer", selectedLayer);
             this.selectedIndex = selectedIndex;
-            for (i = 0; i < featureset.resultFields.length; i++) {
-                if (featureset.resultFields[i].type === "esriFieldTypeOID") {
+            for ( i = 0; i < featureset.resultFields.length; i++) {
+                if (featureset.resultFields[i].type == "esriFieldTypeOID") {
                     this.objID = featureset.resultFields[i].name;
                     break;
                 }
             }
-            domAttr.set(infoPanel, "selectedFeatureID", featureset.resultFeatures[currentIndex].attributes[this.objID]);
-            this.own(on(infoPanel, "click", lang.hitch(this, function () {
-                var map = this.map, currentLayer, selectedFeature, queryTask, queryLayer;
-
+            domAttr.set(infoPanelContent, "selectedFeatureID", featureset.resultFeatures[currentIndex].attributes[this.objID]);
+            this.own(on(infoPanelContent, "click", lang.hitch(this, function () {
+                var map, currentLayer, selectedFeature, queryTask, queryLayer, geometryPaths, j, point;
+                dojo.showIndicator = false;
+                dojo.openInfowindow = false;
+                dojo.setMapTipPosition = false;
+                 map = this.map;
                 if (dojo.window.getBox().w <= 640) {
                     domStyle.set(this.applicationHeaderRouteContainer, "display", "none");
                     domClass.replace(this.domNode, "esriCTRouteImg", "esriCTRouteImg-select");
                 }
-                dojo.showInfo = true;
                 this.inforesult = true;
                 topic.publish("showProgressIndicator");
-                currentLayer = domAttr.get(infoPanel, "currentLayer");
-                selectedFeature = domAttr.get(infoPanel, "selectedFeatureID");
-                queryTask = new QueryTask(currentLayer);
-                queryLayer = new Query();
-                queryLayer.where = this.objID + "=" + selectedFeature;
-                queryLayer.outSpatialReference = this.map.spatialReference;
-                queryLayer.returnGeometry = true;
-                queryLayer.outFields = ["*"];
-                queryTask.execute(queryLayer, lang.hitch(this, function (featureSet) {
-                    var point;
-
+                 currentLayer = domAttr.get(infoPanelContent, "currentLayer");
+                 selectedFeature = domAttr.get(infoPanelContent, "selectedFeatureID");
+                 queryTask = new QueryTask(currentLayer);
+                 queryLayer = new Query();
+                 queryLayer.where = this.objID + "=" + selectedFeature;
+                 queryLayer.outSpatialReference = this.map.spatialReference;
+                 queryLayer.returnGeometry = true;
+                 queryLayer.maxAllowableOffset = 100;
+                 queryLayer.outFields = ["*"];
+                 queryTask.execute(queryLayer, lang.hitch(this, function (featureSet) {
                     if (featureSet.features[0].geometry.type === "point") {
                         topic.publish("createInfoWindowContent", featureSet.features[0].geometry, featureSet.features[0].attributes, featureSet.fields, this.selectedIndex, null, null, map);
-                    } else if (featureSet.features[0].geometry.type === "polyline") {
-                        point = featureSet.features[0].geometry.getPoint(0, 0);
-                        topic.publish("createInfoWindowContent", point, featureSet.features[0].attributes, featureSet.fields, this.selectedIndex, null, null, map);
+                    } else if (featureSet.features[0].geometry.type == "polyline") {
+                         geometryPaths = featureSet.features[0].geometry.paths;
+                        for ( i = 0; i < geometryPaths.length; i++) {
+                            for ( j = 0; j < geometryPaths[i].length; j++) {
+                                 point = featureSet.features[0].geometry.getPoint(i, j);
+                                if (geometry.contains(point)) {
+                                    topic.publish("createInfoWindowContent", point, featureSet.features[0].attributes, featureSet.fields, this.selectedIndex, null, null, map);
+                                    return;
+                                }
+                            }
+                        }
                     }
-
                 }), function (err) {
                     alert(err.message);
                     topic.publish("hideProgressIndicator");

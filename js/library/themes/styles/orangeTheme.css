@@ -24,7 +24,7 @@
 
 .esriCTTdHeaderSearch-select
 {
-    background-image: url("../images/search-select-orange.png");
+    background-image: url("../images/search-select.png");
 }
 .esriCTTdGeolocation
 {
@@ -32,7 +32,7 @@
 }
 .esriCTImgSocialMedia-select
 {
-    background-image: url("../images/imgSocialMedia-select-orange.png");
+    background-image: url("../images/share-orange-select.png");
 }
 .esriCTImgSocialMedia
 {
@@ -51,10 +51,13 @@
 {
     background-image: url("../images/img_facebook_orange.png") !important;
 }
-
 .twitter
 {
     background-image: url("../images/img_twitter_orange.png") !important;
+}
+.embedding
+{
+    background-image: url("../images/embedding-select-orange.png") !important;
 }
 
 .email
@@ -71,7 +74,7 @@
 }
 .infoTitleArrow
 {
-    background-image: url("../images/right-arrow-orange.png");
+    background-image: url("../images/right-orange-arrow.png");
 }
 
 .infoBackTiteArrow
@@ -80,20 +83,27 @@
 }
 .esriCTdivInfoRightArrow
 {
-    background: url("../images/right-arrow-blue-orange.png");
+    background: url("../images/right-orange-arrow.png");
 }
 .esriCTdivInfoLeftArrow
 {
     background: url("../images/blue-arrow-orange.png");
 }
-.divLeftArrow
-{
-    background: url("../images/left-orange_Legend-arrow.png");
-}
-
 .divRightArrow
 {
     background: url("../images/right-orange_Legend-arrow.png");
+}
+.esriCTRightArrow
+{
+    background-image: url("../images/right-arrow-orange.png");
+    background-repeat: no-repeat;
+    background-position: center center;
+}
+.esriCTLeftArrow
+{
+    background-image: url('../images/left-orange_Legend-arrow.png');
+    background-repeat: no-repeat;
+    background-position: center center;
 }
 /* End of Application Header */
 
@@ -146,10 +156,6 @@ input
     border-bottom: 1px solid #DFDFDF;
 }
 
-.clearInput
-{
-    background: #fff url("../images/close.png") !important;
-}
 .esriCTResultColor
 {
     color: #d15706;
@@ -259,7 +265,7 @@ input
 }
 .esriCTFrequentRouteContainerButton
 {
-    
+
     border-right: 1px solid #d15706;
     border-bottom: 1px solid #d15706;
     color: #d15706;
@@ -267,7 +273,7 @@ input
 
 .esriCTFrequentRouteContainerTopButton
 {
-   
+
     border-top: 1px solid #d15706;
     color: #d15706;
 }
@@ -297,7 +303,7 @@ input
 }
 .esriCTRouteInformationTitle
 {
-    color: #d15706;
+    color: #6e6e6e;
     border-bottom: 1px solid #B4B4B4;
 }
 
@@ -329,7 +335,6 @@ input
 {
     background-color: #FFFFFF;
 }
-
 .simpleDirections .esriStopsGetDirections:hover, .simpleDirections .esriStopsGetDirections:focus
 {
     background: linear-gradient(to bottom, #FFFFFF 0%, #FFFFFF 100%) repeat scroll 0 0 rgba(0, 0, 0, 0) !important;
@@ -353,7 +358,7 @@ input
 .esriCTSplashScreenDialog
 {
     background-color: #fff;
-    color: #000;
+    color: #6e6e6e;
 }
 
 .applicationHeaderSplashscreenContainer
@@ -381,7 +386,6 @@ input
     color: #fff;
     background: #d15706;
 }
-
 
 /* End of splash Screen */
 
@@ -448,8 +452,7 @@ input
 
 .legendbox
 {
-    /* not needed, just for clarification */
-    background: #FFFFFF; /* the next props are meant to keep this block independent from the other floated one */
+    background: #FFFFFF; 
 }
 
 .legenboxInner
@@ -466,7 +469,7 @@ input
 
 .legenboxInner div
 {
-    color: #464646;
+    color: #6e6e6e;
 }
 
 /* End of legends */
@@ -526,15 +529,10 @@ input
     background-image: url("../images/back.png");
 }
 
-
-
-
 .simpleDirections .esriStopsRemovable .esriStop .esriStopIconRemove
 {
     background: url("../images/close.png") !important;
 }
-
-
 
 .showRouteImgContent
 {
@@ -646,7 +644,7 @@ input
 
 .esriCTdivTriangle
 {
-    background-image: url("../images/bottomArrow.png");
+    background-image: url("../images/bottomArrow-orange.png");
 }
 
 .esriCTInfoDetailsScroll
@@ -704,7 +702,6 @@ input
     border-bottom: 1px solid #b4b4b4;
 }
 
-
 .simpleDirections .esriGeocoderResults
 {
     color: #808080 !important;
@@ -712,4 +709,8 @@ input
 .simpleDirections .esriGeocoderResults ul
 {
     border: 1px solid #DFDFDF !important;
+}
+.esriCTRouteInformation511ttile
+{
+   color: #6e6e6e;
 }

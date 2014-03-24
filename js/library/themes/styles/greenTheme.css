@@ -42,7 +42,6 @@
 {
     background-image: url("../images/get-route.png");
 }
-
 .esriCTRouteImg-select
 {
     background-image: url("../images/get-route-select-green.png");
@@ -51,12 +50,14 @@
 {
     background-image: url("../images/img_facebook_green.png") !important;
 }
-
+.embedding
+{
+    background-image: url("../images/embedding-select-green.png") !important;
+}
 .twitter
 {
     background-image: url("../images/img_twitter_green.png") !important;
 }
-
 .email
 {
     background-image: url("../images/img_email_green.png") !important;
@@ -73,7 +74,6 @@
 {
     background-image: url("../images/right-arrow-blue-green.png");
 }
-
 .infoBackTiteArrow
 {
     background-image: url("../images/blue-arrow-green.png");
@@ -86,14 +86,17 @@
 {
     background: url("../images/blue-arrow-green.png");
 }
-.divLeftArrow
+.esriCTRightArrow
 {
-    background: url("../images/left-green_Legend-arrow.png");
+    background-image: url("../images/right-arrow.png");
+    background-repeat: no-repeat;
+    background-position: center center;
 }
-
-.divRightArrow
+.esriCTLeftArrow
 {
-    background: url("../images/right-green_Legend-arrow.png");
+    background-image: url('../images/left-green_Legend-arrow.png');
+    background-repeat: no-repeat;
+    background-position: center center;
 }
 /* End of Application Header */
 
@@ -106,7 +109,6 @@
     border-bottom: 1px solid #028D6A;
     background-color: #fff;
 }
-
 .esriCTTxtAddress
 {
     border: #DFDFDF solid 1px;
@@ -116,7 +118,6 @@ input
 {
     color: #808080 !important;
 }
-
 .divAddressList
 {
     color: #6e6e6e !important;
@@ -137,7 +138,6 @@ input
 {
     color: Gray;
 }
-
 .esriCTSearchClose
 {
     background: none repeat scroll 0 0 #FFFFFF;
@@ -146,15 +146,10 @@ input
     border-bottom: 1px solid #DFDFDF;
 }
 
-.clearInput
-{
-    background: #fff url("../images/close.png") !important;
-}
 .esriCTResultColor
 {
     color: #028D6A;
 }
-
 .esriCTDivAppHolder
 {
     background-color: #fff;
@@ -169,7 +164,6 @@ input
     border-left: 1px solid #028D6A;
     border-bottom: 1px solid #028D6A;
 }
-
 .esriCTTxtShare
 {
     border-top: 1px solid #028D6A;
@@ -187,14 +181,12 @@ input
     background-color: #028D6A !important;
     border: #fff solid 0 !important;
 }
-
 .esriSimpleSlider
 {
     background-color: transparent !important;
     color: #ffffff !important;
     border: #fff solid 0 !important;
 }
-
 .HomeButton .home, .HomeButton .home:hover
 {
     background-image: url('../images/home.png');
@@ -202,21 +194,17 @@ input
     border: #fff solid 0 !important;
 }
 
-
 /* End of Slider */
-
 
 .BasemapToggle .toggleButton
 {
     border-radius: 0px !important;
     border: 2px solid #028D6A !important;
 }
-
 .BasemapToggle .basemapTitle
 {
     color: #028D6A !important;
 }
-
 .BasemapToggle .basemapImage
 {
     border: 1px solid #028D6A;
@@ -267,7 +255,7 @@ input
 
 .esriCTFrequentRouteContainerTopButton
 {
-    
+
     border-top: 1px solid #028D6A;
     color: #028D6A;
 }
@@ -297,7 +285,7 @@ input
 }
 .esriCTRouteInformationTitle
 {
-    color: #028D6A;
+    color: #6e6e6e;
     border-bottom: 1px solid #B4B4B4;
 }
 
@@ -353,7 +341,7 @@ input
 .esriCTSplashScreenDialog
 {
     background-color: #fff;
-    color: #000;
+    color: #6e6e6e;
 }
 
 .applicationHeaderSplashscreenContainer
@@ -448,8 +436,7 @@ input
 
 .legendbox
 {
-    /* not needed, just for clarification */
-    background: #FFFFFF; /* the next props are meant to keep this block independent from the other floated one */
+    background: #FFFFFF;
 }
 
 .legenboxInner
@@ -463,12 +450,10 @@ input
     color: #6e6e6e;
 }
 
-
 .legenboxInner div
 {
-    color: #464646;
+    color: #6e6e6e;
 }
-
 /* End of legends */
 
 .simpleDirections .esriRoutesError li
@@ -526,19 +511,10 @@ input
     background-image: url("../images/back.png");
 }
 
-
-/*
-.resultPanelContents
-{
-    border-top: 1px solid #B4B4B4;
-}*/
-
 .simpleDirections .esriStopsRemovable .esriStop .esriStopIconRemove
 {
     background: url("../images/close.png") !important;
 }
-
-
 
 .showRouteImgContent
 {
@@ -650,7 +626,7 @@ input
 
 .esriCTdivTriangle
 {
-    background-image: url("../images/bottomArrow.png");
+    background-image: url("../images/bottomArrow-green.png");
 }
 
 .esriCTInfoDetailsScroll
@@ -669,9 +645,7 @@ input
     background-image: url('../images/blue-loader.gif');
 }
 
-
 /* End of loading indicator Styles */
-
 
 .esriCTShowInfoLeftArrow
 {
@@ -716,4 +690,8 @@ input
 .simpleDirections .esriGeocoderResults ul
 {
     border: 1px solid #DFDFDF !important;
+}
+.esriCTRouteInformation511ttile
+{
+   color: #6e6e6e;
 }

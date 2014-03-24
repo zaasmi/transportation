@@ -72,8 +72,8 @@ define([
 
         _showCurrentLocation: function () {
             var mapPoint, self = this, currentBaseMap,
-                geometryServiceUrl = dojo.configData.GeometryService,
-                geometryService = new GeometryService(geometryServiceUrl);
+            geometryServiceUrl = dojo.configData.GeometryService,
+            geometryService = new GeometryService(geometryServiceUrl);
 
             /**
             * get device location using geolocation service
@@ -91,7 +91,7 @@ define([
                 * @param {object} newPoint Map point of device location in spatialReference of map
                 */
                 geometryService.project([mapPoint], self.map.spatialReference).then(function (newPoint) {
-                    currentBaseMap = self.map.getLayer(self.map.basemapLayerIds[0]);
+                    currentBaseMap = self.map.getLayer("esriCTbasemap");
                     if (currentBaseMap.visible) {
                         if (!currentBaseMap.fullExtent.contains(newPoint[0])) {
                             alert(sharedNls.errorMessages.invalidLocation);
@@ -116,8 +116,8 @@ define([
         */
         _addGraphic: function (mapPoint) {
             var geoLocationPushpin = dojoConfig.baseURL + dojo.configData.LocatorSettings.DefaultLocatorSymbol,
-                locatorMarkupSymbol = new PictureMarkerSymbol(geoLocationPushpin, "35", "35"),
-                graphic = new Graphic(mapPoint, locatorMarkupSymbol, null, null);
+            locatorMarkupSymbol = new PictureMarkerSymbol(geoLocationPushpin, "35", "35"),
+            graphic = new Graphic(mapPoint, locatorMarkupSymbol, null, null);
             this.map.getLayer("esriGraphicsLayerMapSettings").clear();
             this.map.getLayer("esriGraphicsLayerMapSettings").add(graphic);
         }

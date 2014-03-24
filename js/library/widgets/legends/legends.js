@@ -30,6 +30,8 @@ define([
     "dojo/dom-class",
     "dojo/text!./templates/legendsTemplate.html",
     "dojo/topic",
+    "dojo/Deferred",
+    "dojo/DeferredList",
     "dijit/_WidgetBase",
     "dijit/_TemplatedMixin",
     "dijit/_WidgetsInTemplateMixin",
@@ -38,7 +40,8 @@ define([
     "esri/request",
     "esri/tasks/query",
     "esri/tasks/QueryTask"
-], function (declare, domConstruct, domStyle, lang, array, query, domAttr, on, dom, domClass, template, topic, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, sharedNls, appNls, esriRequest, Query, QueryTask) {
+  ],
+function (declare, domConstruct, domStyle, lang, array, query, domAttr, on, dom, domClass, template, topic, Deferred, DeferredList, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, sharedNls, appNls, esriRequest, Query, QueryTask) {
 
     //========================================================================================================================//
 
@@ -72,7 +75,8 @@ define([
 
             if (this.isExtentBasedLegend) {
                 this.map.on("extent-change", lang.hitch(this, function (evt) {
-                    var defQueryArray = [], layer, layerObject, rendererObject, index, queryResult, queryDefList, i;
+                    var defQueryArray = [], queryResult, layerObject, rendererObject, index, resultListArray = [], legendListWidth = [],
+                    queryDefList, arryList = 0, boxWidth, i;
 
                     this._resetLegendContainer();
                     this._rendererArray.length = 0;
@@ -102,13 +106,12 @@ define([
                             }
                         }
                     }
-                    var resultListArray = [];
-                    var legendListWidth = [];
+
                     domStyle.set(this.divRightArrow, "display", "block");
                     if (defQueryArray.length > 0) {
                         domConstruct.empty(this.divlegendContainer);
-                        domConstruct.create("span", { innerHTML: "Loading...", marginTop: "5px" }, this.divlegendContainer);
-                        queryDefList = new dojo.DeferredList(defQueryArray);
+                        domConstruct.create("span", { innerHTML: sharedNls.tooltips.loadingText, "class": "divlegendLoadingContainer" }, this.divlegendContainer);
+                        queryDefList = new DeferredList(defQueryArray);
                         queryDefList.then(lang.hitch(this, function (result) {
                             domConstruct.empty(this.divlegendContainer);
                             for (i = 0; i < result.length; i++) {
@@ -119,12 +122,11 @@ define([
                                 }
                             }
 
-                            var arryList = 0;
-                            for (var j = 0; j < resultListArray.length; j++) {
-                                arryList += resultListArray[j] << 0;
+                            for (i = 0; i < resultListArray.length; i++) {
+                                arryList += resultListArray[i] << 0;
                             }
                             this._addlegendListWidth(legendListWidth);
-                            var boxWidth = this.legendbox.offsetWidth - query(".esriCTHeaderRouteContainer")[0].offsetWidth + 200;
+                            boxWidth = this.legendbox.offsetWidth - query(".esriCTHeaderRouteContainer")[0].offsetWidth + 200;
                             if (arryList <= 0 || this.divlegendContainer.offsetWidth < boxWidth) {
                                 domStyle.set(this.divRightArrow, "display", "none");
                             } else {
@@ -144,9 +146,9 @@ define([
                 domClass.replace(this.legendrightbox, query(".legendrightbox")[0], "legendrightboxTest");
             }
             if (this.divRightArrow) {
-                domClass.replace(this.divRightArrow, "divRightArrowRightMargin", query(".divRightArrow")[0]);
-            } else if (query(".divRightArrow")[0]) {
-                domClass.replace(this.divRightArrow, query(".divRightArrow")[0], "divRightArrowRightMargin");
+                domClass.replace(this.divRightArrow, "divRightArrowRightMargin", query(".esriCTRightArrow")[0]);
+            } else if (query(".esriCTRightArrow")[0]) {
+                domClass.replace(this.divRightArrow, query(".esriCTRightArrow")[0], "divRightArrowRightMargin");
             }
         },
 
@@ -157,10 +159,10 @@ define([
             } else if (query(".legendrightbox")[0]) {
                 domClass.replace(this.legendrightbox, query(".legendrightbox")[0], "legendrightboxTest");
             }
-            if (this.divRightArrow) {
-                domClass.replace(this.divRightArrow, query(".divRightArrow")[0], "divRightArrowRightMargin");
-            } else if (query(".divRightArrow")[0]) {
-                domClass.replace(this.divRightArrow, query(".divRightArrow")[0], "divRightArrowRightMargin");
+            if (this.esriCTRightArrow) {
+                domClass.replace(this.divRightArrow, query(".esriCTRightArrow")[0], "divRightArrowRightMargin");
+            } else if (query(".esriCTRightArrow")[0]) {
+                domClass.replace(this.divRightArrow, query(".esriCTRightArrow")[0], "divRightArrowRightMargin");
             }
         },
 
@@ -171,34 +173,29 @@ define([
         },
 
         _createLegendContainerUI: function () {
-            var divlegendContainer, divLeftArrow, esriCTLeftArrow, esriCTRightArrow;
+            var divlegendContainer, divLeftArrow;
 
             this.esriCTLegendContainer = domConstruct.create("div", {}, dom.byId("esriCTParentDivContainer"));
             this.esriCTLegendContainer.appendChild(this.esriCTdivLegendbox);
             divlegendContainer = domConstruct.create("div", { "class": "divlegendContainer" }, this.divlegendList);
             this.divlegendContainer = domConstruct.create("div", { "class": "divlegendContent" }, divlegendContainer);
-            divLeftArrow = domConstruct.create("div", { "class": "divLeftArrow" }, this.legendbox);
-            esriCTLeftArrow = domConstruct.create("img", { "class": "esriCTArrow" }, divLeftArrow);
-            domAttr.set(esriCTLeftArrow, "src", "js/library/themes/images/left.png");
+            divLeftArrow = domConstruct.create("div", { "class": "esriCTLeftArrow" }, this.legendbox);
             domStyle.set(divLeftArrow, "display", "none");
             on(divLeftArrow, "click", lang.hitch(this, function () {
                 this._slideLeft();
             }));
-            this.divRightArrow = domConstruct.create("div", { "class": "divRightArrow" }, this.legendbox);
-            esriCTRightArrow = domConstruct.create("img", { "class": "esriCTArrow" }, this.divRightArrow);
+            this.divRightArrow = domConstruct.create("div", { "class": "esriCTRightArrow" }, this.legendbox);
             domStyle.set(this.divRightArrow, "display", "block");
-            on(esriCTRightArrow, "click", lang.hitch(this, function () {
+            on(this.divRightArrow, "click", lang.hitch(this, function () {
                 this._slideRight();
             }));
-            domAttr.set(esriCTRightArrow, "src", "js/library/themes/images/right.png");
-
         },
 
         _slideRight: function () {
             var difference = query(".divlegendContainer")[0].offsetWidth - query(".divlegendContent")[0].offsetWidth;
             if (this.newLeft > difference) {
-                domStyle.set(query(".divLeftArrow")[0], "display", "block");
-                domStyle.set(query(".divLeftArrow")[0], "cursor", "pointer");
+                domStyle.set(query(".esriCTLeftArrow")[0], "display", "block");
+                domStyle.set(query(".esriCTLeftArrow")[0], "cursor", "pointer");
                 this.newLeft = this.newLeft - (200 + 9);
                 domStyle.set(query(".divlegendContent")[0], "left", (this.newLeft) + "px");
                 this._resetSlideControls();
@@ -222,18 +219,18 @@ define([
 
         _resetSlideControls: function () {
             if (this.newLeft > query(".divlegendContainer")[0].offsetWidth - query(".divlegendContent")[0].offsetWidth) {
-                domStyle.set(query(".divRightArrow")[0], "display", "block");
-                domStyle.set(query(".divRightArrow")[0], "cursor", "pointer");
+                domStyle.set(query(".esriCTRightArrow")[0], "display", "block");
+                domStyle.set(query(".esriCTRightArrow")[0], "cursor", "pointer");
             } else {
-                domStyle.set(query(".divRightArrow")[0], "display", "none");
-                domStyle.set(query(".divRightArrow")[0], "cursor", "default");
+                domStyle.set(query(".esriCTRightArrow")[0], "display", "none");
+                domStyle.set(query(".esriCTRightArrow")[0], "cursor", "default");
             }
             if (this.newLeft === 0) {
-                domStyle.set(query(".divLeftArrow")[0], "display", "none");
-                domStyle.set(query(".divLeftArrow")[0], "cursor", "default");
+                domStyle.set(query(".esriCTLeftArrow")[0], "display", "none");
+                domStyle.set(query(".esriCTLeftArrow")[0], "cursor", "default");
             } else {
-                domStyle.set(query(".divLeftArrow")[0], "display", "block");
-                domStyle.set(query(".divLeftArrow")[0], "cursor", "pointer");
+                domStyle.set(query(".esriCTLeftArrow")[0], "display", "block");
+                domStyle.set(query(".esriCTLeftArrow")[0], "cursor", "pointer");
             }
         },
 
@@ -255,7 +252,7 @@ define([
         _executeQueryTask: function (layer, defQueryArray, queryParams) {
             var queryTask = new QueryTask(layer);
             defQueryArray.push(queryTask.executeForCount(queryParams, function (count) {
-                var queryDeferred = new dojo.Deferred();
+                var queryDeferred = new Deferred();
                 queryDeferred.resolve(count);
                 return queryDeferred.promise;
             }, function (error) {
@@ -263,73 +260,74 @@ define([
             }));
         },
 
-        _resolveUsingResponse: function (response) {
-            var deferred = new dojo.Deferred();
-            deferred.resolve(response);
-            return deferred.promise;
-        },
-
-        _logError: function (error) {
-            console.log("Error: ", error.message);
-        },
-
         /*
         * initiates the creation of legend
         */
         startup: function (layerArray) {
-            var mapServerArray, index, mapServerURL, defArray, i, params, layersRequest, deferredList;
-            mapServerArray = [];
+            var mapServerArray = [], mapServerURL, index, defArray = [], params, layersRequest, deferredList;
             for (index = 0; index < layerArray.length; index++) {
                 mapServerURL = layerArray[index].split("/");
-
                 mapServerURL.pop();
                 mapServerURL = mapServerURL.join("/");
                 mapServerArray.push(mapServerURL);
             }
 
             mapServerArray = this._removeDuplicate(mapServerArray);
-            defArray = [];
 
-            for (i = 0; i < mapServerArray.length; i++) {
+            for (index = 0; index < mapServerArray.length; index++) {
                 params = {
-                    url: mapServerArray[i] + "/legend",
+                    url: mapServerArray[index] + "/legend",
                     content: { f: "json" },
                     handleAs: "json",
                     callbackParamName: "callback"
                 };
                 layersRequest = esriRequest(params);
-                defArray.push(layersRequest.then(this._resolveUsingResponse, this._logError));
+                defArray.push(layersRequest.then(lang.hitch(this,
+                        function (response) {
+                            var deferred = new Deferred();
+                            deferred.resolve(response);
+                            return deferred.promise;
+                        }
+                    ),
+                    function (error) {
+                        console.log("Error: ", error.message);
+                    }));
             }
-            deferredList = new dojo.DeferredList(defArray);
+            deferredList = new DeferredList(defArray);
             deferredList.then(lang.hitch(this, function (result) {
                 domConstruct.empty(this.divlegendContainer);
-                for (i = 0; i < result.length; i++) {
-                    this._createLegendList(result[i][1], mapServerArray[i]);
+                for (index = 0; index < result.length; index++) {
+                    this._createLegendList(result[index][1], mapServerArray[index]);
                 }
             }));
         },
 
         _addFieldValue: function () {
-            var layer, params, layersRequest, deferredList, layerObject, i,
-                defArray = [],
-                layerTempArray = [];
+            var defArray = [], layerTempArray = [], params, layersRequest, deferredList, layerObject, i;
 
             for (layer in this._layerCollection) {
-                if (this._layerCollection.hasOwnProperty(layer)) {
-                    if (this._layerCollection[layer].legend && this._layerCollection[layer].legend.length > 1) {
-                        layerTempArray.push(layer);
-                        params = {
-                            url: layer,
-                            content: { f: "json" },
-                            handleAs: "json",
-                            callbackParamName: "callback"
-                        };
-                        layersRequest = esriRequest(params);
-                        defArray.push(layersRequest.then(this._resolveUsingResponse, this._logError));
-                    }
+                if (this._layerCollection[layer].legend && this._layerCollection[layer].legend.length > 1) {
+                    layerTempArray.push(layer);
+                    params = {
+                        url: layer,
+                        content: { f: "json" },
+                        handleAs: "json",
+                        callbackParamName: "callback"
+                    };
+                    layersRequest = esriRequest(params);
+                    defArray.push(layersRequest.then(lang.hitch(this,
+                            function (response) {
+                                var deferred = new Deferred();
+                                deferred.resolve(response);
+                                return deferred.promise;
+                            }
+                        ),
+                        function (error) {
+                            console.log("Error: ", error.message);
+                        }));
                 }
             }
-            deferredList = new dojo.DeferredList(defArray);
+            deferredList = new DeferredList(defArray);
             deferredList.then(lang.hitch(this, function (result) {
                 for (i = 0; i < result.length; i++) {
                     if (result[i][0]) {
@@ -349,7 +347,6 @@ define([
 
         _removeDuplicate: function (mapServerArray) {
             var filterArray = [];
-
             array.filter(mapServerArray, function (item) {
                 if (array.indexOf(filterArray, item) === -1) {
                     filterArray.push(item);
@@ -359,7 +356,8 @@ define([
         },
 
         _createLegendList: function (layerList, mapServerUrl) {
-            var i, j;
+            var legendListWidth = [], i, j;
+
             for (i = 0; i < layerList.layers.length; i++) {
                 this._layerCollection[mapServerUrl + '/' + layerList.layers[i].layerId] = layerList.layers[i];
 
@@ -369,14 +367,11 @@ define([
                 }
             }
             this._addlegendListWidth(legendListWidth);
-
             this._addFieldValue();
-
         },
 
         _addlegendListWidth: function (legendListWidth) {
-            var listWidth = legendListWidth;
-            var total = 0;
+            var listWidth = legendListWidth, total = 0, j;
             for (j = 0; j < listWidth.length - 1; j++) {
                 total += listWidth[j] << 0;
             }
@@ -385,20 +380,16 @@ define([
 
         _addLegendSymbol: function (legend, layerName) {
             var divLegendImage, image, divLegendLabel;
-
             if (legend) {
                 this.divLegendlist = domConstruct.create("div", { "class": "divLegendlist" }, this.divlegendContainer);
                 divLegendImage = domConstruct.create("div", { "class": "legend" }, null);
                 image = this._createImage("data:image/gif;base64," + legend.imageData, "", false, legend.width, legend.height);
                 domConstruct.place(image, divLegendImage);
                 this.divLegendlist.appendChild(divLegendImage);
-
-
                 if (legend.label) {
-                    divLegendLabel = dojo.create("div", { "class": "legendlbl", "innerHTML": legend.label }, null);
-
+                    divLegendLabel = domConstruct.create("div", { "class": "legendlbl", "innerHTML": legend.label }, null);
                 } else {
-                    divLegendLabel = dojo.create("div", { "class": "legendlbl", "innerHTML": layerName }, null);
+                    divLegendLabel = domConstruct.create("div", { "class": "legendlbl", "innerHTML": layerName }, null);
                 }
                 this.divLegendlist.appendChild(divLegendLabel);
             }
@@ -409,7 +400,6 @@ define([
         */
         _createImage: function (imageSrc, title, isCursorPointer, imageWidth, imageHeight) {
             var imgLocate, imageHeightWidth;
-
             imgLocate = domConstruct.create("img");
             imageHeightWidth = { width: imageWidth + 'px', height: imageHeight + 'px' };
             domAttr.set(imgLocate, "style", imageHeightWidth);
