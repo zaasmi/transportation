@@ -42,7 +42,6 @@ define({
     titles: {
         directionsDisplayText: "Directions",
         informationPanelTitle: "Information for current map view",
-        frequentRoute: "Frequently travelled route",
         webpageDisplayText: "Copy/paste HTML into your web page"
     },
     sentenceFragment: {

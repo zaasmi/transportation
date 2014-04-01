@@ -18,7 +18,8 @@
 define({
         titles: {
             informationDisplayText: "@fr@ 511 Information",
-            reRouteDisplayText: "@fr@ Traffic Incidents found on this road"
+            reRouteDisplayText: "@fr@ Traffic Incidents found on this road",
+            frequentRoute: "Frequently travelled route"
         },
         messages: {
             splashScreenContent: "Une application qui permet au public de trouver des informations sur l'état des routes, 511 alertes, les problèmes de circulation, et al."

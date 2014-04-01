@@ -89,7 +89,7 @@ function (declare, domConstruct, on, topic, lang, domStyle, domAttr, dom, query,
             var bufferGeometry;
             this.snapManager = null;
 
-            this.logoContainer = query(".map .logo-sm") && query(".map .logo-sm")[0] 
+            this.logoContainer = query(".map .logo-sm") && query(".map .logo-sm")[0]
             || query(".map .logo-med") && query(".map .logo-med")[0];
             topic.subscribe("toggleWidget", lang.hitch(this, function (widgetID) {
                 if (widgetID !== "route") {
@@ -154,7 +154,7 @@ function (declare, domConstruct, on, topic, lang, domStyle, domAttr, dom, query,
                     topic.subscribe("showInfoWindowContent", lang.hitch(this, function (bufferGeometry) {
                         this._showInfoWindowContent(bufferGeometry);
                     }));
-                } 
+                }
             } else if (this.logoContainer) {
                 domClass.remove(this.logoContainer, "mapLogo");
             }
@@ -286,7 +286,7 @@ function (declare, domConstruct, on, topic, lang, domStyle, domAttr, dom, query,
             domConstruct.place(this.divFrequentRouteContainerButton, query(".esriStopsContainer")[0], "after");
             this.divapplicationFrequentRoutes = domConstruct.create("div", { "class": "esriCTcontainerButtonHtml " }, this.divFrequentRouteContainerButton);
             this.containerButtonHtml = domConstruct.create("div", { "class": "esriCTFTRHeader esriCTCursorPointer" }, this.divapplicationFrequentRoutes);
-            domAttr.set(this.containerButtonHtml, "innerHTML", sharedNls.titles.frequentRoute);
+            domAttr.set(this.containerButtonHtml, "innerHTML", appNls.titles.frequentRoute);
             this.routeTopTiteArrow = domConstruct.create("div", { "class": "esriCTrouteUpTitleArrow esriCTCursorPointer" }, this.divapplicationFrequentRoutes);
         },
 
@@ -378,7 +378,7 @@ function (declare, domConstruct, on, topic, lang, domStyle, domAttr, dom, query,
              queryLayer.where = "1=1";
              queryLayer.returnGeometry = false;
              queryLayer.outSpatialReference = { wkid: this.map.spatialReference.wkid };
-           
+
             dojo.configData.FrequentRoutesLayer.UniqueRouteField.replace(/\$\{([^\s\:\}]+)(?:\:([^\s\:\}]+))?\}/g, function (match, key) {
                 routeId = key;
             });
@@ -495,7 +495,7 @@ function (declare, domConstruct, on, topic, lang, domStyle, domAttr, dom, query,
         },
 
         _showFrequentRouteOnMap: function (featureGeometry, frequentRouteName) {
-            var polyLine, routeSegments, roadArray = [], j; 
+            var polyLine, routeSegments, roadArray = [], j;
              polyLine = new Polyline(this.map.spatialReference);
              routeSegments = this.map.getLayer("frequentRoutesLayerID").graphics.length;
             if (0 < routeSegments) {
@@ -577,7 +577,7 @@ function (declare, domConstruct, on, topic, lang, domStyle, domAttr, dom, query,
                 domConstruct.destroy(this.esriCTInfoLayerTitle, this.esriCTRouteInformationContent, "first");
                 domConstruct.destroy(this.esriCTInfoLayerTitle);
             }
-           
+
             for ( index = 0; index < dojo.configData.SearchAnd511Settings.length; index++) {
                 if (dojo.configData.SearchAnd511Settings[index].InfoLayer === "true") {
                     layerData.push(dojo.configData.SearchAnd511Settings[index]);

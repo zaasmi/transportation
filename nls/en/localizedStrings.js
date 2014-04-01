@@ -18,7 +18,8 @@
 define({
         titles: {
             informationDisplayText: "511 Information",
-            reRouteDisplayText: "Traffic Incidents found on this road"
+            reRouteDisplayText: "Traffic incidents found on this road",
+            frequentRoute: "Frequently travelled route"
         },
         messages: {
             splashScreenContent: "An application that allows the public to find information about road conditions, 511 alerts, traffic incidents, et al."
