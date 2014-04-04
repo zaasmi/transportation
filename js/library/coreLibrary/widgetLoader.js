@@ -101,6 +101,7 @@ function (declare, _WidgetBase, Map, AppHeader, SplashScreen, array, domAttr, do
                     * create application header
                     */
                     this._createApplicationHeader(widgets);
+                    topic.publish("update511InfoOnLoad", mapInstance.extent);
                 } catch (ex) {
                     alert(sharedNls.errorMessages.widgetNotLoaded);
                 }

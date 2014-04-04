@@ -55,7 +55,7 @@ define([
         * @memberOf widgets/help/help
         */
         _showHelpPage: function () {
-            window.open();
+            window.open(dojo.configData.HelpURL);
         }
     });
 });

@@ -74,9 +74,6 @@ define([
                  topic.subscribe("createInfoWindowContent", lang.hitch(this, function (mapPoint, attributes, fields, infoIndex, featureArray, count, map) {
                      this.createInfoWindowContent(mapPoint, attributes, fields, infoIndex, featureArray, count, map);
                  }));
-                 topic.subscribe("locateAddressOnMap", lang.hitch(this, function (mapPoint) {
-                     this.locateAddressOnMap(mapPoint);
-                 }));
                  topic.subscribe("setMapTipPosition", this._onSetMapTipPosition);
                  this.domNode = domConstruct.create("div", { "title": sharedNls.tooltips.search, "class": "esriCTTdHeaderSearch" }, null);
                  domConstruct.place(this.divAddressContainer, dom.byId("esriCTParentDivContainer"));

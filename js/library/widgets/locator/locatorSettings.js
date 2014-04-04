@@ -273,19 +273,6 @@ define([
                  }
              },
 
-             locateAddressOnMap: function (mapPoint) {
-                 var geoLocationPushpin, locatorMarkupSymbol, graphic;
-                 this.map.setLevel(dojo.configData.ZoomLevel);
-                 this.map.centerAt(mapPoint);
-                 dojo.mapPoint = mapPoint;
-                 geoLocationPushpin = dojoConfig.baseURL + dojo.configData.LocatorSettings.DefaultLocatorSymbol;
-                 locatorMarkupSymbol = new esri.symbol.PictureMarkerSymbol(geoLocationPushpin, dojo.configData.LocatorSettings.MarkupSymbolSize.width, dojo.configData.LocatorSettings.MarkupSymbolSize.height);
-                 graphic = new esri.Graphic(mapPoint, locatorMarkupSymbol, {}, null);
-                 this.map.getLayer("esriGraphicsLayerMapSettings").clear();
-                 this.map.getLayer("esriGraphicsLayerMapSettings").add(graphic);
-                 topic.publish("hideProgressIndicator");
-             },
-
              _toggleAddressList: function (addressList, idx) {
                  var listStatusSymbol;
                  on(addressList[idx], "click", lang.hitch(this, function () {
@@ -345,7 +332,7 @@ define([
                      topic.publish("clearAllGraphics");
                      if (candidate.attributes.location) {
                          _this.mapPoint = new point(domAttr.get(this, "x"), domAttr.get(this, "y"), _this.map.spatialReference);
-                         _this.locateAddressOnMap(_this.mapPoint);
+                         topic.publish("locateAddressOnMap", _this.mapPoint);
                      } else {
                          if (candidateArray[domAttr.get(candidateDate, "index", index)]) {
                              layer = candidateArray[domAttr.get(candidateDate, "index", index)].layer.QueryURL;

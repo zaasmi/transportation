@@ -52,7 +52,7 @@ define([], function () {
         HelpURL: "help.htm",
 
         // Set application logo url
-        CustomLogoUrl: "",
+        CustomLogoUrl: "http://nddotfargo.com/uploads/media/nddotlogo.png",
 
         // Set splash window content - Message that appears when the application starts
         SplashScreen: {
@@ -565,7 +565,6 @@ define([], function () {
             FilterFieldName: 'Addr_Type',
             FilterFieldValues: ["StreetAddress", "StreetName", "PointAddress", "POI"],
             MaxResults: 200
-
         },
 
         // ------------------------------------------------------------------------------------------------------------------------

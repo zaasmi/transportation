@@ -244,7 +244,7 @@ html, body
     display: none;
 }
 
-.esriCTAddressPlaceHolderDiv 
+.esriCTAddressPlaceHolderDiv
 {
     float: left;
     width: 196px;
@@ -1712,11 +1712,13 @@ input
 {
     float: left;
     margin: 0 0 0;
-  
 }
-   .esriStopsContainer {
-        width: 100% !important;
-    }
+
+.esriStopsContainer
+{
+    width: 100% !important;
+}
+
 .esriDirectionsContainer .esriStopsAdd .esriStopsOptionsEnabled
 {
     overflow: hidden;
@@ -1948,8 +1950,10 @@ esriCTMobileCloseDiv
 .esriCTMapLogo
 {
     position: absolute;
-    bottom: 5px;
+    bottom: 35px;
     left: 5px;
+    height: 35px;
+    z-index: 1000;
 }
 
 .divInfoDetailsScroll

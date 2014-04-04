@@ -27,6 +27,7 @@ define([
     "dojo/dom-attr",
     "dojo/query",
     "dojo/dom-class",
+    "dojo/_base/array",
     "esri/tasks/FeatureSet",
     "esri/tasks/GeometryService",
     "dojo/string",
@@ -42,9 +43,10 @@ define([
     "dijit/layout/ContentPane",
     "esri/graphic",
     "dojo/_base/Color",
+    "esri/urlUtils",
     "esri/symbols/SimpleFillSymbol",
     "esri/symbols/SimpleMarkerSymbol",
-     "dojo/cookie",
+    "dojo/cookie",
     "esri/tasks/BufferParameters",
     "dijit/_WidgetBase",
     "dijit/_TemplatedMixin",
@@ -53,7 +55,7 @@ define([
     "dojo/i18n!application/nls/localizedStrings",
     "esri/geometry/Polyline"
   ],
-function (declare, domConstruct, on, topic, lang, domStyle, domAttr, query, domClass, FeatureSet, GeometryService, string, html, template, Query, Directions, QueryTask, Deferred, DeferredList, _BorderContainer, SimpleLineSymbol, _ContentPane, Graphic, Color, SimpleFillSymbol, SimpleMarkerSymbol, cookie, BufferParameters, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, sharedNls, appNls, Polyline) {
+function (declare, domConstruct, on, topic, lang, domStyle, domAttr, query, domClass, array, FeatureSet, GeometryService, string, html, template, Query, Directions, QueryTask, Deferred, DeferredList, _BorderContainer, SimpleLineSymbol, _ContentPane, Graphic, Color, urlUtils, SimpleFillSymbol, SimpleMarkerSymbol, cookie, BufferParameters, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, sharedNls, appNls, Polyline) {
 
     //========================================================================================================================//
 
@@ -82,13 +84,21 @@ function (declare, domConstruct, on, topic, lang, domStyle, domAttr, query, domC
         * @memberOf widgets/route/route
         */
         showRoute: function () {
-            esriConfig.defaults.io.alwaysUseProxy = true;
-            var directionsUnits = dojo.configData.RouteSymbology.DirectionUnits, divFrequentRoute, i;
-
-            if (!this._esriDirectionsWidget) {
+            var directionsUnits = dojo.configData.RouteSymbology.DirectionUnits, divFrequentRoute, i,
+            addressArray;
+            urlUtils.addProxyRule({
+                urlPrefix: dojo.configData.RouteTaskService,
+                proxyUrl: dojoConfig.baseURL + "/proxy.ashx"
+            });
+            urlUtils.addProxyRule({
+                urlPrefix: dojo.configData.GeometryService,
+                proxyUrl: dojoConfig.baseURL + "/proxy.ashx"
+            });
+            if (!this._esriDirectionsWidget && dojo.configData.RoutingEnabled === "true") {
                 this._esriDirectionsWidget = new Directions({
                     map: this.map,
                     directionsLengthUnits: directionsUnits,
+                    showTrafficOption: false,
                     routeTaskUrl: dojo.configData.RouteTaskService
                 }, domConstruct.create("div", {}, this.esriCTRouteContainer));
                 this._esriDirectionsWidget.options.geocoderOptions.autoComplete = true;
@@ -106,24 +116,21 @@ function (declare, domConstruct, on, topic, lang, domStyle, domAttr, query, domC
 
                 this._esriDirectionsWidget.options.routeSymbol.color = new Color([parseInt(dojo.configData.RouteSymbology.ColorRGB.split(",")[0]), parseInt(dojo.configData.RouteSymbology.ColorRGB.split(",")[1]), parseInt(dojo.configData.RouteSymbology.ColorRGB.split(",")[2]), parseFloat(dojo.configData.RouteSymbology.Transparency.split(",")[0])]);
                 this._esriDirectionsWidget.options.routeSymbol.width = parseInt(dojo.configData.RouteSymbology.Width);
-                if (dojo.configData.FrequentRoutesLayer.FrequentRoutesEnabled === "true" && lang.trim(dojo.configData.FrequentRoutesLayer.FrequentRoutesEnabled).length !== 0) {
-                    divFrequentRoute = domConstruct.create("div", { "class": "esriCTdivFrequentRoute" });
-                    domConstruct.place(divFrequentRoute, query(".esriRoutesContainer")[0], "first");
-                    this.routeLoader = domConstruct.create("img", { "class": "esriCTInfoLoader" }, divFrequentRoute);
-                    domAttr.set(this.routeLoader, "src", dojoConfig.baseURL + "/js/library/themes/images/blue-loader.gif");
-                }
                 this.own(on(this._esriDirectionsWidget, "directions-finish", lang.hitch(this, function () {
+                    this._clearTextBox();
+                    if (query(".esriRoutesError")[0]) {
+                        domStyle.set(query(".esriRoutesError")[0], "display", "none");
+                    }
                     dojo.stops = [];
                     for (i = 0; i < this._esriDirectionsWidget.stops.length; i++) {
-                        if (this._esriDirectionsWidget.stops[i].name) {
-                            dojo.stops.push(this._esriDirectionsWidget.stops[i].name);
-                        }
+                        dojo.stops.push(this._esriDirectionsWidget.stops[i].name);
                     }
                     topic.publish("hideInfoWindowOnMap");
                     topic.publish("showProgressIndicator");
                     if (this._esriDirectionsWidget.directions !== null) {
                         this._onDirectionFinish();
                     } else {
+                        this._validateAddress();
                         this._routeGeocodersResult();
                         if (!this.resultLength) {
                             this._showErrorResult();
@@ -143,6 +150,42 @@ function (declare, domConstruct, on, topic, lang, domStyle, domAttr, query, domC
                     }
                 })));
                 this._persistRouteAddress();
+
+            }
+            if (!this.routeLoader && dojo.configData.FrequentRoutesLayer.FrequentRoutesEnabled === "true" && lang.trim(dojo.configData.FrequentRoutesLayer.FrequentRoutesEnabled).length !== 0) {
+                divFrequentRoute = domConstruct.create("div", { "class": "esriCTdivFrequentRoute" });
+                if (query(".esriRoutesContainer")[0]) {
+                    domConstruct.place(divFrequentRoute, query(".esriRoutesContainer")[0], "first");
+                } else {
+                    domConstruct.place(divFrequentRoute, this.esriCTRouteContainer);
+                }
+                this.routeLoader = domConstruct.create("img", { "class": "esriCTInfoLoader" }, divFrequentRoute);
+                domAttr.set(this.routeLoader, "src", dojoConfig.baseURL + "/js/library/themes/images/blue-loader.gif");
+            }
+        },
+
+        _clearTextBox: function () {
+            var addressArray = query(".esriGeocoder");
+            array.forEach(addressArray, lang.hitch(this, function (inputBox) {
+                this.own(on(inputBox.getElementsByTagName("input")[0], "dblclick", lang.hitch(this, function (evt) {
+                    evt.currentTarget.value = "";
+                    var stops = [];
+                    array.forEach(addressArray, lang.hitch(this, function (directionTextBox) {
+                        stops.push(directionTextBox.getElementsByTagName("input")[0]? directionTextBox.getElementsByTagName("input")[0].value: "");
+                    }));
+                    this._esriDirectionsWidget.updateStops(stops);
+                })));
+            }));
+
+        },
+
+        _validateAddress: function() {
+            if (dojo.stops[0] === "" && dojo.stops[dojo.stops.length - 1] !== "") {
+                alert("Enter correct source.");
+            } else if (dojo.stops[0] !== "" && dojo.stops[dojo.stops.length - 1] === "") {
+                alert("Enter correct destination.");
+            } else if (dojo.stops[0] === "" && dojo.stops[dojo.stops.length - 1] === "") {
+                alert("Enter correct source and destination.");
             }
         },
 
@@ -214,10 +257,12 @@ function (declare, domConstruct, on, topic, lang, domStyle, domAttr, query, domC
         _onDirectionFinish: function () {
             var esriRoutesHeight, esriRoutesStyle;
             this.esriRoute = false;
-            domStyle.set(this.divFrequentRoutePanel, "display", "none");
             this.infoPanelHeight = false;
             domStyle.set(query(".esriRoutesContainer")[0], "display", "block");
-            this._showHideFrequentRouteContainer();
+            if (dojo.configData.FrequentRoutesLayer.FrequentRoutesEnabled === "true") {
+                domStyle.set(this.divFrequentRoutePanel, "display", "none");
+                this._showHideFrequentRouteContainer();
+            }
             this.inforesult = true;
             this._clearAllGraphics();
             this._addBufferGeometry();
@@ -268,7 +313,7 @@ function (declare, domConstruct, on, topic, lang, domStyle, domAttr, query, domC
                     new Color(dojo.configData.RouteSymbology.RouteCircleColor), dojo.configData.RouteSymbology.RouteCirclewidth
                 ),
                 new Color(dojo.configData.RouteSymbology.RouteFillCircleColor)
-				);
+            );
 
             this.routeGraphics_onMouseMove = on(routeGraphics, "mouse-over", lang.hitch(this, function (evt) {
                 //snapping to active directions geometry on hovering
@@ -276,7 +321,9 @@ function (declare, domConstruct, on, topic, lang, domStyle, domAttr, query, domC
                 handle.setSymbol(dragSymbol);
                 clearTimeout(handle.hideTimer);
                 this.map.setMapCursor("pointer");
-                this.map.snappingManager.getSnappingPoint(evt.screenPoint).then(this._moveHandle);
+                setTimeout(lang.hitch(this, function() {
+                    this.map.snappingManager.getSnappingPoint(evt.screenPoint).then(this._moveHandle);
+                }), 0);
             }));
             this.routeGraphics_onMouseOut = on(routeGraphics, "mouse-out", lang.hitch(this, function () {
                 //hide the handle
@@ -333,10 +380,18 @@ function (declare, domConstruct, on, topic, lang, domStyle, domAttr, query, domC
             this.countBuffer = false;
             geometryService.union(geometry).then(lang.hitch(this, function (geometries) {
                 var params = new BufferParameters();
-                params.distances = [parseInt(dojo.configData.BufferMilesForProximityAnalysis) * this.buffercount];
+                if (dojo.configData.BufferMilesForProximityAnalysis && parseInt(dojo.configData.BufferMilesForProximityAnalysis) !== 0) {
+                    params.distances = [parseInt(dojo.configData.BufferMilesForProximityAnalysis) * this.buffercount];
+                    params.unit = GeometryService.UNIT_STATUTE_MILE;
+                } else if (parseInt(dojo.configData.BufferMetersForFindingBarriers) !== 0) {
+                    params.distances = [parseInt(dojo.configData.BufferMetersForFindingBarriers)];
+                    params.unit = GeometryService.UNIT_METER;
+                } else {
+                    this._onRouteIncidentCount(geometries);
+                    return;
+                }
                 params.bufferSpatialReference = new esri.SpatialReference({ wkid: this.map.spatialReference.wkid });
                 params.outSpatialReference = this.map.spatialReference;
-                params.unit = GeometryService.UNIT_STATUTE_MILE;
                 params.geometries = [geometries];
                 geometryService.buffer(params, lang.hitch(this, function (bufferedRouteGeometries) {
                     this._onRouteIncidentCount(bufferedRouteGeometries[0]);
@@ -375,7 +430,6 @@ function (declare, domConstruct, on, topic, lang, domStyle, domAttr, query, domC
 
         _showBufferDistance: function (geometry, geometryService) {
             var routeLength, routeFirstName, routeLastName, routeName;
-            esriConfig.defaults.io.alwaysUseProxy = true;
             routeLength = this._esriDirectionsWidget.stops.length;
             routeFirstName = this._esriDirectionsWidget.stops[0].name;
             routeLastName = this._esriDirectionsWidget.stops[routeLength - 1].name;
@@ -390,10 +444,19 @@ function (declare, domConstruct, on, topic, lang, domStyle, domAttr, query, domC
 
         executeBufferQuery: function (geometry, geometryService, featureLayer, routeName) {
             var params = new BufferParameters();
-            params.distances = [parseInt(dojo.configData.BufferMilesForProximityAnalysis)];
+            if (parseInt(dojo.configData.BufferMilesForProximityAnalysis) !== 0) {
+                params.distances = [parseInt(dojo.configData.BufferMilesForProximityAnalysis)];
+                params.unit = GeometryService.UNIT_STATUTE_MILE;
+            } else if (parseInt(dojo.configData.BufferMetersForFindingBarriers) !== 0) {
+                params.distances = [parseInt(dojo.configData.BufferMetersForFindingBarriers)];
+                params.unit = GeometryService.UNIT_METER;
+            } else {
+                this.showBufferRoute(featureLayer, [geometry]);
+                this.onBufferInfoResult(geometry, routeName);
+                return;
+            }
             params.bufferSpatialReference = new esri.SpatialReference({ wkid: this.map.spatialReference.wkid });
             params.outSpatialReference = this.map.spatialReference;
-            params.unit = GeometryService.UNIT_STATUTE_MILE;
             params.geometries = [geometry];
             geometryService.buffer(params, lang.hitch(this, function (bufferedGeometries) {
                 this.showBufferRoute(featureLayer, bufferedGeometries);
@@ -417,19 +480,22 @@ function (declare, domConstruct, on, topic, lang, domStyle, domAttr, query, domC
         },
 
         _showBufferOnRoute: function (geometry, geometryService) {
-            esriConfig.defaults.io.alwaysUseProxy = true;
             geometryService.union(geometry).then(lang.hitch(this, function (geometries) {
-                var params = new BufferParameters();
-                params.distances = [parseInt(dojo.configData.BufferMetersForFindingBarriers)];
-                params.bufferSpatialReference = new esri.SpatialReference({ wkid: this.map.spatialReference.wkid });
-                params.outSpatialReference = this.map.spatialReference;
-                params.unit = GeometryService.UNIT_METER;
-                params.geometries = [geometries];
-                geometryService.buffer(params, lang.hitch(this, function (bufferedRouteGeometries) {
-                    if (bufferedRouteGeometries.length > 0) {
-                        this._onRouteFeatureCount(geometries);
-                    }
-                }));
+                if (parseInt(dojo.configData.BufferMetersForFindingBarriers) !== 0) {
+                    var params = new BufferParameters();
+                    params.distances = [parseInt(dojo.configData.BufferMetersForFindingBarriers)];
+                    params.bufferSpatialReference = new esri.SpatialReference({ wkid: this.map.spatialReference.wkid });
+                    params.outSpatialReference = this.map.spatialReference;
+                    params.unit = GeometryService.UNIT_METER;
+                    params.geometries = [geometries];
+                    geometryService.buffer(params, lang.hitch(this, function (bufferedRouteGeometries) {
+                        if (bufferedRouteGeometries.length > 0) {
+                            this._onRouteFeatureCount(bufferedRouteGeometries[0]);
+                        }
+                    }));
+                } else {
+                    this._onRouteFeatureCount(geometries);
+                }
             }), function (err) {
                 alert(err.message);
                 topic.publish("hideProgressIndicator");
