@@ -173,22 +173,22 @@ define([], function () {
 
         // Configure search and 511 settings below.
         // Title: In case of webmap implementations, it must match layer name specified in webmap and in case of operational layers
-        // 		  it should be the name of Map/Feature Service.
+        //        it should be the name of Map/Feature Service.
         // QueryLayerId: This is the layer index in the webmap or ArcGIS Map/Feature Service and is used for performing queries.
         // SearchDisplayTitle: This text is displayed in search results as the title to group results.
         // SearchDisplayFields: Attribute that will be displayed in the search box when user performs a search.
         // SearchExpression: Configure the query expression to be used for search.
         // BarrierLayer: Configure "true" or "false" to treat this as a barrier layer to be used for routing and re-routing.
         // BarrierSearchExpression: Configure the query expression to search barriers in the layer.
-        //							Set this to emtpy "", if all features in the layer should be considered as barriers.
+        //                          Set this to emtpy "", if all features in the layer should be considered as barriers.
         // InfoLayer: Allowed values are "true" or "false". Configure this to "true" to consider this as 511 Information layer
-        //			  and display in 511 Information panels.
+        //            and display in 511 Information panels.
         // InfoSearchExpression: Configure the query expression to search features and display in 511 Information panels.
-        //						 Set this to empty "", if all features in the layer should be considered.
+        //                       Set this to empty "", if all features in the layer should be considered.
         // InfoListText: This text is displayed in 511 Information Summary panel.
-        //				 If empty "", then SearchDisplayTitle is used (if configured), else layer name in the webmap/mapservice is used.
+        //               If empty "", then SearchDisplayTitle is used (if configured), else layer name in the webmap/mapservice is used.
         // InfoDetailFields: Attributes that will be displayed in the 511 Information Details panel.
-        //					 If empty "", then SearchDisplayFields will be used (if configured), else displayField property of layer in mapservice will be used.
+        //                   If empty "", then SearchDisplayFields will be used (if configured), else displayField property of layer in mapservice will be used.
 
         SearchAnd511Settings: [
             {
@@ -343,12 +343,12 @@ define([], function () {
         // ------------------------------------------------------------------------------------------------------------------------
         // Configure info-popup settings. The Title and QueryLayerId fields should be the same as configured in "Title" and "QueryLayerId" fields in SearchAnd511Settings.
         // Title: In case of webmap implementations, it must match layer name specified in webmap and in case of operational layers
-        // 		  it should be the name of Map/Feature Service.
+        //        it should be the name of Map/Feature Service.
         // QueryLayerId: Layer index used for performing queries.
         // InfoWindowHeader: Specify field for the info window header
         // InfoWindowContent: Specify field to be displayed in callout bubble for mobile devices
         // ShowAllFields: When set to true, infowindow will display all fields from layer and InfoWindowData section is ignored
-        //				  When set to false, only fields configured in InfoWindowData section will be displayed
+        //                When set to false, only fields configured in InfoWindowData section will be displayed
         // InfoWindowData: Set the content to be displayed in the info-Popup. Define labels and field values.
         //                    These fields should be present in the layer referenced by 'QueryLayerId' specified under section 'SearchSettings'
         // DisplayText: Caption to be displayed instead of field alias names. Set this to empty string ("") if you wish to display field alias names as captions.
@@ -587,7 +587,7 @@ define([], function () {
         // ------------------------------------------------------------------------------------------------------------------------
 
         // Set geometry service URL
-        GeometryService: "http://tasks.arcgisonline.com/ArcGIS/rest/services/Geometry/GeometryServer",
+        GeometryService: "http://tasks.arcgisonline.com/arcgis/rest/services/Geometry/GeometryServer",
         // ------------------------------------------------------------------------------------------------------------------------
 
         // ------------------------------------------------------------------------------------------------------------------------
