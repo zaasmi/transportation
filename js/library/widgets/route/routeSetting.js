@@ -88,11 +88,11 @@ function (declare, domConstruct, on, topic, lang, domStyle, domAttr, query, domC
             addressArray;
             urlUtils.addProxyRule({
                 urlPrefix: dojo.configData.RouteTaskService,
-                proxyUrl: dojoConfig.baseURL + "/proxy.ashx"
+                proxyUrl: dojoConfig.baseURL + "/proxy/proxy.ashx"
             });
             urlUtils.addProxyRule({
                 urlPrefix: dojo.configData.GeometryService,
-                proxyUrl: dojoConfig.baseURL + "/proxy.ashx"
+                proxyUrl: dojoConfig.baseURL + "/proxy/proxy.ashx"
             });
             if (!this._esriDirectionsWidget && dojo.configData.RoutingEnabled === "true") {
                 this._esriDirectionsWidget = new Directions({

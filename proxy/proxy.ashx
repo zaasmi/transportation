@@ -1,7 +1,11 @@
 <%@ WebHandler Language="C#" Class="proxy" %>
 
 /*
- * See https://github.com/Esri/resource-proxy for more information
+ * DotNet proxy client.
+ *
+ * Version 1.0 beta
+ * See https://github.com/Esri/resource-proxy for more information.
+ *
  */
 
 #define TRACE
@@ -60,18 +64,33 @@ public class proxy : IHttpHandler {
         {
             string errorMsg = "No url specified";
             log(TraceLevel.Error, errorMsg);
-            sendErrorResponse(context.Response, null, errorMsg, System.Net.HttpStatusCode.Forbidden);
+            sendErrorResponse(context.Response, null, errorMsg, System.Net.HttpStatusCode.BadRequest);
             return;
         }
 
         string uri = context.Request.Url.Query.Substring(1);
+
+        //if url is encoded, decode it.
+        if (uri.StartsWith("http%3a%2f%2f") || uri.StartsWith("https%3a%2f%2f"))
+            uri = HttpUtility.UrlDecode(uri);
+        
         log(TraceLevel.Info, uri);
         ServerUrl serverUrl;
         bool passThrough = false;
         try {
             serverUrl = getConfig().GetConfigServerUrl(uri);
             passThrough = serverUrl == null;
-        } catch (InvalidOperationException ex) {
+        } 
+        //if XML couldn't be parsed
+        catch (InvalidOperationException ex) {
+
+            string errorMsg = ex.InnerException.Message + " " + uri;
+            log(TraceLevel.Error, errorMsg);
+            sendErrorResponse(context.Response, null, errorMsg, System.Net.HttpStatusCode.InternalServerError);
+            return;
+        }  
+        //if mustMatch was set to true and url wasn't in the list
+        catch (ArgumentException ex) {
             string errorMsg = ex.Message + " " + uri;
             log(TraceLevel.Error, errorMsg);
             sendErrorResponse(context.Response, null, errorMsg, System.Net.HttpStatusCode.Forbidden);
@@ -187,10 +206,14 @@ public class proxy : IHttpHandler {
         try {
             serverResponse = forwardToServer(context, addTokenToUri(uri, token, tokenParamName), postBody);
         } catch (System.Net.WebException webExc) {
-            response.StatusCode = 500;
-            response.StatusDescription = webExc.Status.ToString();
-            response.Write(webExc.Response);
-            response.End();
+            string errorMsg = webExc.Message + " " + uri;
+            log(TraceLevel.Error, errorMsg);
+
+            //if there is a response then set the response's statusCode else set HttpStatusCode.InternalServerError
+            var statusCode = webExc.Response != null ? (webExc.Response as System.Net.HttpWebResponse).StatusCode
+                                                     : System.Net.HttpStatusCode.InternalServerError;
+            
+            sendErrorResponse(context.Response, null, errorMsg, statusCode);
             return;
         }
 
@@ -307,7 +330,6 @@ public class proxy : IHttpHandler {
     private System.Net.WebResponse doHTTPRequest(string uri, byte[] bytes, string method, string referer, string contentType) {
         System.Net.HttpWebRequest req = (System.Net.HttpWebRequest)System.Net.HttpWebRequest.Create(uri);
         req.ServicePoint.Expect100Continue = false;
-        //is this just localhost?
         req.Referer = referer;
         req.Method = method;
         if (bytes != null && bytes.Length > 0 || method == "POST") {
@@ -354,21 +376,19 @@ public class proxy : IHttpHandler {
             } else {
                 //standalone ArcGIS Server/ArcGIS Online token-based authentication
 
-                //if a request already includes 'generateToken', we're ready to get a token
+                //if a request is already being made to generate a token, just let it go
                 if (reqUrl.ToLower().Contains("/generatetoken"))
-                {
-                    string strippedReqUrl = reqUrl.Substring(0, reqUrl.IndexOf("?"));
-                    string uri = strippedReqUrl + "?f=json&request=getToken&referer=" + PROXY_REFERER + "&expiration=60&username=" + su.Username + "&password=" + su.Password;
-                    string tokenResponse = webResponseToString(doHTTPRequest(uri, "POST"));
+                {                    
+                    string tokenResponse = webResponseToString(doHTTPRequest(reqUrl, "POST"));
                     token = extractToken(tokenResponse, "token");
                     return token;
                 }
                 //if the url in the proxy.config contains 'rest', we can determine the url of the token generator dynamically
                 if (su.Url.ToLower().Contains("/rest"))
                     infoUrl = su.Url.Substring(0, su.Url.IndexOf("/rest", StringComparison.OrdinalIgnoreCase));
-                //if it doesn't lets look for 'rest' in the request url itself
+                //if it doesn't lets look for 'rest/services' in the request url itself
                 else
-                    infoUrl = reqUrl.Substring(0, reqUrl.IndexOf("/rest", StringComparison.OrdinalIgnoreCase));
+                    infoUrl = reqUrl.Substring(0, reqUrl.IndexOf("/rest/services", StringComparison.OrdinalIgnoreCase));
 
                 if (infoUrl != "") {
                     log(TraceLevel.Info," Querying security endpoint...");
@@ -406,6 +426,8 @@ public class proxy : IHttpHandler {
             message += string.Format(",details:[message:\"{0}\"]", errorDetails);
         message += "}}";
         response.StatusCode = (int)errorCode;
+        //this displays our customized error messages instead of IIS's custom errors
+        response.TrySkipIisCustomErrors = true;
         response.Write(message);
         response.Flush();
     }
@@ -518,7 +540,7 @@ public class ProxyConfig
     public static ProxyConfig GetCurrentConfig() {
         ProxyConfig config = HttpRuntime.Cache["proxyConfig"] as ProxyConfig;
         if (config == null) {
-            string fileName = HttpContext.Current.Server.MapPath("~/proxy.config");
+            string fileName = HttpContext.Current.Server.MapPath("proxy.config");
             config = LoadProxyConfig(fileName);
             if (config != null) {
                 CacheDependency dep = new CacheDependency(fileName);
@@ -580,20 +602,36 @@ public class ProxyConfig
         }
     }
 
-    public ServerUrl GetConfigServerUrl(string uri) {
-
+    public ServerUrl GetConfigServerUrl(string uri) {                       
+        //split both request and proxy.config urls and compare them
+        string[] uriParts = uri.Split(new char[] {'/','?'}, StringSplitOptions.RemoveEmptyEntries); 
+        string[] configUriParts = new string[] {};
+                
         foreach (ServerUrl su in serverUrls) {
-            //lets add a slash to the proxy.config url if not present before comparing to the request itself to fend off subdomain attacks (ie: gooddomain.org.baddomain.com)
-            if (!su.Url.Substring(su.Url.Length - 1, 1).Equals("/"))
-                su.Url = su.Url + "/";
-            if (
-                su.MatchAll && uri.StartsWith(su.Url, StringComparison.InvariantCultureIgnoreCase)
-                || String.Compare(uri, su.Url, StringComparison.InvariantCultureIgnoreCase) == 0
-             )
-                return su;
-        }
+            //if a relative path is specified in the proxy.config, append what's in the request itself
+            if (!su.Url.StartsWith("http"))
+                su.Url = su.Url.Insert(0, uriParts[0]);
+
+            configUriParts = su.Url.Split(new char[] { '/','?' }, StringSplitOptions.RemoveEmptyEntries);
+            
+            //if the request has less parts than the config, don't allow
+            if (configUriParts.Length > uriParts.Length) continue;
+            
+            int i = 0;
+            for (i = 0; i < configUriParts.Length; i++) {
+                
+                if (!configUriParts[i].Equals(uriParts[i])) break;
+            }
+            if (i == configUriParts.Length) {
+                //if the urls don't match exactly, and the individual matchAll tag is 'false', don't allow
+                if (configUriParts.Length == uriParts.Length || su.MatchAll)
+                    return su;
+            }                  
+        }       
+        
         if (mustMatch)
-            throw new InvalidOperationException("Proxy is being used for an unsupported service (proxy.config has mustMatch=\"true\"):");
+            throw new ArgumentException(" Proxy is being used for an unsupported service (proxy.config has mustMatch=\"true\"):");
+        
         return null;
     }
 
@@ -612,7 +650,7 @@ public class ServerUrl {
     string tokenParamName;
     string rateLimit;
     string rateLimitPeriod;
-
+    
     [XmlAttribute("url")]
     public string Url {
         get { return url; }

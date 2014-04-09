@@ -1,9 +1,0 @@
-Copy of repository https://github.com/Esri/resource-proxy
-commit 27d8e619f7c61d54ee47747e531c03aa2378827b
-Merge: f1db95d 3a5bd93
-Author: Kelly Hutchins <khutchins@esri.com>
-Date:   Fri Feb 14 17:05:23 2014 -0800
-
-    Merge pull request #6 from esoekianto/master
-    
-    Java: update mustMatch=false to allow any site
