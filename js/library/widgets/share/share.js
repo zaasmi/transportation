@@ -116,7 +116,7 @@ function (declare, domConstruct, domStyle, lang, domAttr, on, dom, domClass, str
             domAttr.set(this.esriCTDivshareCodeContainer, "innerHTML", sharedNls.titles.webpageDisplayText);
              mapExtent = this._getMapExtent();
              url = esri.urlToObject(window.location.toString());
-           
+
             if (dojo.mapPoint) {
                  urlStr = encodeURI(url.path) + "?extent=" + mapExtent + "$point=" + dojo.mapPoint.x + "," + dojo.mapPoint.y + "$selectedDirection=" + dojo.selectedDirection;
             } else if (dojo.featurePoint) {
@@ -222,9 +222,9 @@ function (declare, domConstruct, domStyle, lang, domAttr, on, dom, domClass, str
                 if (tinyUrl) {
                     this._shareOptions(site, tinyUrl);
                 } else {
-                    domClass.replace(this.domNode, "esriCTImgSocialMedia", "esriCTImgSocialMedia-select");
                     this._shareOptions(site, urlStr);
                 }
+                domClass.replace(this.domNode, "esriCTImgSocialMedia", "esriCTImgSocialMedia-select");
             } catch (err) {
                 alert(sharedNls.errorMessages.shareFailed);
             }

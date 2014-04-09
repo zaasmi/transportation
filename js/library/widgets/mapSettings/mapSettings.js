@@ -89,6 +89,10 @@ define([
                  graphicsLayer = new GraphicsLayer();
                  graphicsLayer.id = this.tempGraphicsLayerId;
 
+                 topic.subscribe("locateAddressOnMap", lang.hitch(this, function (mapPoint) {
+                     this._addPushpinOnMap(mapPoint);
+                 }));
+
                  /**
                  * load map
                  * @param {string} dojo.configData.BaseMapLayers Basemap settings specified in configuration file
@@ -113,6 +117,16 @@ define([
                          this._addFrequentRoutesLayer();
                          topic.publish("showInfoWindowContent", geometry);
                          this._addMapEvents();
+                         this._shareInfoWindow(this.map);
+                         this._sharePointOnMap();
+                         if (dojo.configData.WebMapId && lang.trim(dojo.configData.WebMapId).length != 0) {
+                             if (window.location.toString().split("$frequentRouteId=").length > 1 || window.location.toString().split("$selectedInfo=")[1] == "true") {
+                                 dojo.share = true;
+                                 topic.publish("showDirection");
+                             }
+                         }
+                     }), lang.hitch(this, function(error) {
+                         alert(error.message);
                      }));
                  } else {
                      this._generateLayerURL(dojo.configData.OperationalLayers);
@@ -142,12 +156,7 @@ define([
                      }
                      this.map.setExtent(mapDefaultExtent);
                      this._initializeMapSettings(graphicsLayer, mapDefaultExtent);
-                     if (window.location.toString().split("$point=").length > 1) {
-                         dojo.share = true;
-                         mapPoint = new Point(Number(window.location.toString().split("$point=")[1].split("$selectedDirection")[0].split(",")[0]), Number(window.location.toString().split("$point=")[1].split("$selectedDirection")[0].split(",")[1]), this.map.spatialReference);
-                         topic.publish("locateAddressOnMap", mapPoint);
-                         topic.publish("setMaxLegendLength");
-                     }
+                     this._sharePointOnMap();
                      for (i in dojo.configData.OperationalLayers) {
                          this._addOperationalLayerToMap(i, dojo.configData.OperationalLayers[i]);
                      }
@@ -157,16 +166,41 @@ define([
                      this._addMapEvents();
                  }));
                  aspect.after(this.map.on("load", lang.hitch(this, function () {
-                     if (window.location.toString().split("$featurepoint=").length > 1) {
-                         dojo.share = true;
-                         this._executeFeatureQueryTask(this.map);
-                     }
+                     this._shareInfoWindow(this.map);
                  })));
+             },
 
+             _shareInfoWindow: function (map) {
+                 if (window.location.toString().split("$featurepoint=").length > 1) {
+                     dojo.share = true;
+                     this._executeFeatureQueryTask(map);
+                 }
+             },
+
+             _sharePointOnMap: function () {
+                 if (window.location.toString().split("$point=").length > 1) {
+                     dojo.share = true;
+                     var mapPoint = new Point(Number(window.location.toString().split("$point=")[1].split("$selectedDirection")[0].split(",")[0]), Number(window.location.toString().split("$point=")[1].split("$selectedDirection")[0].split(",")[1]), this.map.spatialReference);
+                     topic.publish("locateAddressOnMap", mapPoint);
+                     topic.publish("setMaxLegendLength");
+                 }
+             },
+
+             _addPushpinOnMap: function (mapPoint) {
+                 var geoLocationPushpin, locatorMarkupSymbol, graphic;
+                 this.map.setLevel(dojo.configData.ZoomLevel);
+                 this.map.centerAt(mapPoint);
+                 dojo.mapPoint = mapPoint;
+                 geoLocationPushpin = dojoConfig.baseURL + dojo.configData.LocatorSettings.DefaultLocatorSymbol;
+                 locatorMarkupSymbol = new esri.symbol.PictureMarkerSymbol(geoLocationPushpin, dojo.configData.LocatorSettings.MarkupSymbolSize.width, dojo.configData.LocatorSettings.MarkupSymbolSize.height);
+                 graphic = new esri.Graphic(mapPoint, locatorMarkupSymbol, {}, null);
+                 this.map.getLayer("esriGraphicsLayerMapSettings").clear();
+                 this.map.getLayer("esriGraphicsLayerMapSettings").add(graphic);
+                 topic.publish("hideProgressIndicator");
              },
 
              _initializeMapSettings: function (graphicsLayer, mapDefaultExtent) {
-                 var home;
+                 var home, imgSource, CustomLogoUrl = dojo.configData.CustomLogoUrl;
                  this.map.addLayer(graphicsLayer);
                  /**
                  * load esri 'Home Button' widget
@@ -177,14 +211,19 @@ define([
                      home.extent = mapDefaultExtent;
                  }
                  home.startup();
-                 if (dojo.configData.CustomLogoUrl && lang.trim(dojo.configData.CustomLogoUrl).length !== 0) {
-                     domConstruct.create("img", { "src": dojoConfig.baseURL + dojo.configData.CustomLogoUrl, "class": "esriCTMapLogo" }, dom.byId("esriCTParentDivContainer"));
+                 if (CustomLogoUrl && lang.trim(CustomLogoUrl).length !== 0) {
+                     if (CustomLogoUrl.match("http:") || CustomLogoUrl.match("https:")) {
+                         imgSource = CustomLogoUrl;
+                     } else {
+                         imgSource = dojoConfig.baseURL + CustomLogoUrl;
+                     }
+                     domConstruct.create("img", { "src": imgSource, "class": "esriCTMapLogo" }, dom.byId("esriCTParentDivContainer"));
                  }
 
                  topic.subscribe("setInfoWindowHeightWidth", lang.hitch(this, function (infoPopupWidth, infoPopupHeight) {
                      this._setInfoWindowHeightWidth(infoPopupWidth, infoPopupHeight);
                  }));
-                 this.map.on("extent-change", lang.hitch(this, function () {
+                 this.map.on("extent-change", lang.hitch(this, function (evt) {
                      var infoPopupHeight, infoPopupWidth;
                      infoPopupHeight = dojo.configData.InfoPopupHeight;
                      infoPopupWidth = dojo.configData.InfoPopupWidth;
@@ -196,15 +235,7 @@ define([
                          topic.publish("setMapTipPosition", dojo.selectedMapPoint, this.map, this.infoWindowPanel);
                      }
                      if (dojo.configData.WebMapId && lang.trim(dojo.configData.WebMapId).length !== 0) {
-                         topic.publish("showInfoWindowContent", mapDefaultExtent);
-                     } else {
-                         topic.publish("show511InfoResult", mapDefaultExtent);
-                         if (!this.setCustomMapExtent) {
-                             this.setCustomMapExtent = true;
-                             setTimeout(lang.hitch(this, function () {
-                                 this.map.setExtent(this.map.extent);
-                             }), 2000);
-                         }
+                         topic.publish("showInfoWindowContent", evt.extent);
                      }
                  }));
                  if (!dojo.configData.WebMapId && lang.trim(dojo.configData.WebMapId).length === 0) {
@@ -549,7 +580,6 @@ define([
                          };
                      }
                  } else {
-                     alert(sharedNls.errorMessages.invalidSearch);
                      topic.publish("hideProgressIndicator");
                  }
              },
