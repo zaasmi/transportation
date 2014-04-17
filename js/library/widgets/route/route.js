@@ -1,4 +1,4 @@
-﻿/*global define,dojo,esri,alert,window,setTimeout,handle:true,graphicsLayerHandle:true,symbolEventPaddingMouseCursor:true */
+﻿/*global define,dojo,esri,alert,handle:true,graphicsLayerHandle:true,symbolEventPaddingMouseCursor:true */
 /*jslint browser:true,sloppy:true,nomen:true,unparam:true,plusplus:true */
 /*
  | Copyright 2013 Esri
