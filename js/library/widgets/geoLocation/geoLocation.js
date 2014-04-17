@@ -1,4 +1,4 @@
-﻿/*global define,dojo,dojoConfig,Modernizr,alert */
+﻿/*global define,dojo,dojoConfig,Modernizr,navigator,alert */
 /*jslint browser:true,sloppy:true,nomen:true,unparam:true,plusplus:true */
 /*
  | Copyright 2013 Esri
@@ -28,15 +28,13 @@ define([
     "esri/symbols/PictureMarkerSymbol",
     "esri/SpatialReference",
     "esri/graphic",
-    "dojo/i18n!application/js/library/nls/localizedStrings",
-    "dojo/i18n!application/nls/localizedStrings"
-], function (declare, lang, domConstruct, on, topic, _WidgetBase, GeometryService, Point, PictureMarkerSymbol, SpatialReference, Graphic, sharedNls, appNls) {
+    "dojo/i18n!application/js/library/nls/localizedStrings"
+], function (declare, lang, domConstruct, on, topic, _WidgetBase, GeometryService, Point, PictureMarkerSymbol, SpatialReference, Graphic, sharedNls) {
 
     //========================================================================================================================//
 
     return declare([_WidgetBase], {
         sharedNls: sharedNls,
-        appNls: appNls,
 
         /**
         * create geolocation widget

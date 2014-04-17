@@ -1,4 +1,4 @@
-﻿/*global define,dojo,dojoConfig */
+﻿/*global define,dojo,document,dojoConfig */
 /*jslint browser:true,sloppy:true,nomen:true,unparam:true,plusplus:true */
 /*
  | Copyright 2013 Esri
@@ -27,18 +27,16 @@ define([
     "dijit/_TemplatedMixin",
     "dijit/_WidgetsInTemplateMixin",
     "dojo/i18n!application/js/library/nls/localizedStrings",
-    "dojo/i18n!application/nls/localizedStrings",
     "dojo/dom-class",
     "dojo/topic"
     ],
-     function (declare, domConstruct, lang, domAttr, dom, template, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, sharedNls, appNls, domClass, topic) {
+     function (declare, domConstruct, lang, domAttr, dom, template, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, sharedNls, domClass, topic) {
 
          //========================================================================================================================//
 
          return declare([_WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin], {
              templateString: template,
              sharedNls: sharedNls,
-             appNls: appNls,
 
              /**
              * create header panel
@@ -92,8 +90,10 @@ define([
                  * @memberOf widgets/appHeader/appHeader
                  */
                  for (i in widgets) {
-                     if (widgets[i].domNode) {
-                         domConstruct.place(widgets[i].domNode, this.applicationHeaderWidgetsContainer);
+                     if (widgets.hasOwnProperty(i)) {
+                         if (widgets[i].domNode) {
+                             domConstruct.place(widgets[i].domNode, this.applicationHeaderWidgetsContainer);
+                         }
                      }
                  }
              },
@@ -105,10 +105,10 @@ define([
              _loadApplicationHeaderIcon: function () {
                  if (dojo.configData.ApplicationFavicon && lang.trim(dojo.configData.ApplicationFavicon).length !== 0) {
                      this._loadIcons("shortcut icon", dojo.configData.ApplicationFavicon);
+                     this._loadIcons("apple-touch-icon-precomposed", dojo.configData.ApplicationFavicon);
+                     this._loadIcons("apple-touch-icon", dojo.configData.ApplicationFavicon);
                  }
                  if (dojo.configData.ApplicationIcon && lang.trim(dojo.configData.ApplicationIcon).length !== 0) {
-                     this._loadIcons("apple-touch-icon-precomposed", dojo.configData.ApplicationIcon);
-                     this._loadIcons("apple-touch-icon", dojo.configData.ApplicationIcon);
                      domConstruct.create("img", { "src": dojoConfig.baseURL + dojo.configData.ApplicationIcon }, this.divImgApplicationHeaderIcon);
                  }
              },

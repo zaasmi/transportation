@@ -42,6 +42,7 @@ define({
         },
         titles: {
             directionsDisplayText: "Directions",
+            frequentRouteText: "Frequent Routes",
             informationPanelTitle: "Information for current map view",
             webpageDisplayText: "Copy/paste HTML into your web page"
         },

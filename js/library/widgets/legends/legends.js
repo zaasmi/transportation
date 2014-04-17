@@ -35,19 +35,18 @@ define([
     "dijit/_TemplatedMixin",
     "dijit/_WidgetsInTemplateMixin",
     "dojo/i18n!application/js/library/nls/localizedStrings",
-    "dojo/i18n!application/nls/localizedStrings",
     "esri/request",
     "esri/tasks/query",
+     "esri/geometry/Extent",
     "esri/tasks/QueryTask"
   ],
-function (declare, domConstruct, domStyle, lang, array, query, domAttr, on, dom, domClass, template, topic, Deferred, DeferredList, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, sharedNls, appNls, esriRequest, Query, QueryTask) {
+function (declare, domConstruct, domStyle, lang, array, query, domAttr, on, dom, domClass, template, topic, Deferred, DeferredList, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, sharedNls, esriRequest, Query, GeometryExtent, QueryTask) {
 
     //========================================================================================================================//
 
     return declare([_WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin], {
         templateString: template,
         sharedNls: sharedNls,
-        appNls: appNls,
         divLegendList: null,
         layerObject: null,
         logoContainer: null,
@@ -62,6 +61,7 @@ function (declare, domConstruct, domStyle, lang, array, query, domAttr, on, dom,
         */
         postCreate: function () {
             this._createLegendContainerUI();
+            var currentExtentLegend, legendDefaultExtent;
             this.logoContainer = (query(".map .logo-sm") && query(".map .logo-sm")[0])
                 || (query(".map .logo-med") && query(".map .logo-med")[0]);
             topic.subscribe("setMaxLegendLength", lang.hitch(this, function () {
@@ -72,10 +72,16 @@ function (declare, domConstruct, domStyle, lang, array, query, domAttr, on, dom,
                 this._setMinLegendLengthResult();
             }));
 
+            if (window.location.toString().split("?extent=").length > 1) {
+                this.shareLegendExtent = true;
+                currentExtentLegend = this._getQueryString('extent');
+                legendDefaultExtent = currentExtentLegend.split(',');
+                legendDefaultExtent = new GeometryExtent({ "xmin": parseFloat(legendDefaultExtent[0]), "ymin": parseFloat(legendDefaultExtent[1]), "xmax": parseFloat(legendDefaultExtent[2]), "ymax": parseFloat(legendDefaultExtent[3]), "spatialReference": { "wkid": this.map.spatialReference.wkid} });
+            }
             if (this.isExtentBasedLegend) {
                 this.map.on("extent-change", lang.hitch(this, function (evt) {
                     var defQueryArray = [], queryResult, layerObject, rendererObject, index, resultListArray = [], legendListWidth = [],
-                    queryDefList, arryList = 0, boxWidth, i;
+                    queryDefList, arryList = 0, boxWidth, i, layer;
 
                     this._resetLegendContainer();
                     this._rendererArray.length = 0;
@@ -87,8 +93,11 @@ function (declare, domConstruct, domStyle, lang, array, query, domAttr, on, dom,
                                 for (index = 0; index < rendererObject.length; index++) {
                                     rendererObject[index].layerUrl = layer;
                                     this._rendererArray.push(rendererObject[index]);
-                                    queryResult = this._fireQueryOnExtentChange(evt.extent);
-
+                                    if (this.shareLegendExtent) {
+                                        queryResult = this._fireQueryOnExtentChange(legendDefaultExtent);
+                                    } else {
+                                        queryResult = this._fireQueryOnExtentChange(evt.extent);
+                                    }
                                     if (layerObject.rendererType === "uniqueValue") {
                                         if (rendererObject[index].values) {
                                             queryResult.where = layerObject.fieldName + " = " + "'" + rendererObject[index].values[0] + "'";
@@ -122,7 +131,7 @@ function (declare, domConstruct, domStyle, lang, array, query, domAttr, on, dom,
                             }
 
                             for (i = 0; i < resultListArray.length; i++) {
-                                arryList += resultListArray[i] << 0;
+                                arryList += resultListArray[i];
                             }
                             this._addlegendListWidth(legendListWidth);
                             boxWidth = this.legendbox.offsetWidth - query(".esriCTHeaderRouteContainer")[0].offsetWidth + 200;
@@ -135,6 +144,16 @@ function (declare, domConstruct, domStyle, lang, array, query, domAttr, on, dom,
                     }
                 }));
             }
+        },
+
+        _getQueryString: function (key) {
+            var extentValue = "", regex, qs;
+            regex = new RegExp("[\\?&]" + key + "=([^&#]*)");
+            qs = regex.exec(window.location.href);
+            if (qs && qs.length > 0) {
+                extentValue = qs[1];
+            }
+            return extentValue;
         },
 
         _setMaxLegendLengthResult: function () {
@@ -281,16 +300,7 @@ function (declare, domConstruct, domStyle, lang, array, query, domAttr, on, dom,
                     callbackParamName: "callback"
                 };
                 layersRequest = esriRequest(params);
-                defArray.push(layersRequest.then(lang.hitch(this,
-                        function (response) {
-                            var deferred = new Deferred();
-                            deferred.resolve(response);
-                            return deferred.promise;
-                        }
-                    ),
-                    function (error) {
-                        console.log("Error: ", error.message);
-                    }));
+                defArray.push(layersRequest.then(this._getLayerDetail, this._displayError));
             }
             deferredList = new DeferredList(defArray);
             deferredList.then(lang.hitch(this, function (result) {
@@ -301,29 +311,32 @@ function (declare, domConstruct, domStyle, lang, array, query, domAttr, on, dom,
             }));
         },
 
+        _getLayerDetail: function (response) {
+            var deferred = new Deferred();
+            deferred.resolve(response);
+            return deferred.promise;
+        },
+
+        _displayError: function (error) {
+            console.log("Error: ", error.message);
+        },
+
         _addFieldValue: function () {
-            var defArray = [], layerTempArray = [], params, layersRequest, deferredList, layerObject, i;
+            var defArray = [], layerTempArray = [], params, layersRequest, deferredList, layerObject, i, layer;
 
             for (layer in this._layerCollection) {
-                if (this._layerCollection[layer].legend && this._layerCollection[layer].legend.length > 1) {
-                    layerTempArray.push(layer);
-                    params = {
-                        url: layer,
-                        content: { f: "json" },
-                        handleAs: "json",
-                        callbackParamName: "callback"
-                    };
-                    layersRequest = esriRequest(params);
-                    defArray.push(layersRequest.then(lang.hitch(this,
-                            function (response) {
-                                var deferred = new Deferred();
-                                deferred.resolve(response);
-                                return deferred.promise;
-                            }
-                        ),
-                        function (error) {
-                            console.log("Error: ", error.message);
-                        }));
+                if (this._layerCollection.hasOwnProperty(layer)) {
+                    if (this._layerCollection[layer].legend && this._layerCollection[layer].legend.length > 1) {
+                        layerTempArray.push(layer);
+                        params = {
+                            url: layer,
+                            content: { f: "json" },
+                            handleAs: "json",
+                            callbackParamName: "callback"
+                        };
+                        layersRequest = esriRequest(params);
+                        defArray.push(layersRequest.then(this._getLayerDetail, this._displayError));
+                    }
                 }
             }
             deferredList = new DeferredList(defArray);
@@ -370,11 +383,12 @@ function (declare, domConstruct, domStyle, lang, array, query, domAttr, on, dom,
         },
 
         _addlegendListWidth: function (legendListWidth) {
-            var listWidth = legendListWidth, total = 0, j;
+            var listWidth = legendListWidth, total = 0, totalWidth, j;
             for (j = 0; j < listWidth.length - 1; j++) {
-                total += listWidth[j] << 0;
+                total += listWidth[j];
             }
-            domStyle.set(query(".divlegendContent")[0], "width", total + "px");
+            totalWidth = total - query(".esriCTHeaderRouteContainer")[0].offsetWidth + 200;
+            domStyle.set(query(".divlegendContent")[0], "width", totalWidth + "px");
         },
 
         _addLegendSymbol: function (legend, layerName) {

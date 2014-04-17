@@ -1,4 +1,4 @@
-﻿/*global define,dojo,event */
+﻿/*global define,dojo,document,window,event,setTimeout,clearTimeout */
 /*jslint browser:true,sloppy:true,nomen:true,unparam:true,plusplus:true */
 /*
  | Copyright 2013 Esri
@@ -112,16 +112,16 @@ define([
 
          _registerScrollbar: function () {
              if (this._scrollBarContent.scrollHeight <= this._scrollBarContent.offsetHeight) {
-                 this._scrollBarHandle.style.display = 'none';
-                 this._scrollBarTrack.style.display = 'none';
+                 this._scrollBarHandle.style.display = "none";
+                 this._scrollBarTrack.style.display = "none";
              } else {
-                 this._scrollBarHandle.style.display = 'block';
-                 this._scrollBarTrack.style.display = 'block';
-                 this._scrollBarHandle.style.height = Math.max(this._scrollBarContent.offsetHeight * (this._scrollBarContent.offsetHeight / this._scrollBarContent.scrollHeight), 25) + 'px';
+                 this._scrollBarHandle.style.display = "block";
+                 this._scrollBarTrack.style.display = "block";
+                 this._scrollBarHandle.style.height = Math.max(this._scrollBarContent.offsetHeight * (this._scrollBarContent.offsetHeight / this._scrollBarContent.scrollHeight), 25) + "px";
                  this._yMax = this._scrollBarContent.offsetHeight - this._scrollBarHandle.offsetHeight;
 
                  if (window.addEventListener) {
-                     this._scrollBarContent.addEventListener('DOMMouseScroll', dojo.hitch(this, "_scrollContent"), false);
+                     this._scrollBarContent.addEventListener("DOMMouseScroll", dojo.hitch(this, "_scrollContent"), false);
                  }
                  dojo.connect(this._scrollBarContent, "onmousewheel", this, "_scrollContent");
                  this._scrollBarTrack.onclick = dojo.hitch(this, "_setScroll");
@@ -225,8 +225,8 @@ define([
 
              this._topPosition = this._scrollBarHandle.offsetTop; // Sliders vertical position at start of slide.
              this._currentYCoordinate = evt.screenY; // Vertical mouse position at start of slide.
-             document.body.style.MozUserSelect = 'none';
-             document.body.style.userSelect = 'none';
+             document.body.style.MozUserSelect = "none";
+             document.body.style.userSelect = "none";
              document.onselectstart = function () {
                  return false;
              };
@@ -256,8 +256,9 @@ define([
              //code stop propogation of event while wheel Scrolling in Container
              evt = evt || event;
              evt.cancelBubble = true;
-             if (evt.stopPropagation)
+             if (evt.stopPropagation) {
                  evt.stopPropagation();
+             }
              dojo.stopEvent(evt);
              delta = evt.detail ? evt.detail * (-120) : evt.wheelDelta; //delta returns +120 when wheel is scrolled up, -120 when scrolled down
              this._topPosition = this._scrollBarHandle.offsetTop;

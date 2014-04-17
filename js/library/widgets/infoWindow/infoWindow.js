@@ -34,14 +34,12 @@ define([
         "dijit/_TemplatedMixin",
         "dojo/query",
         "dojo/i18n!application/js/library/nls/localizedStrings",
-        "dojo/i18n!application/nls/localizedStrings",
         "dijit/_WidgetsInTemplateMixin"
 ],
- function (declare, domConstruct, domStyle, domAttr, lang, on, ScrollBar, dom, domClass, topic, domUtils, InfoWindowBase, template, _WidgetBase, _TemplatedMixin, query, sharedNls, appNls, _WidgetsInTemplateMixin) {
+ function (declare, domConstruct, domStyle, domAttr, lang, on, ScrollBar, dom, domClass, topic, domUtils, InfoWindowBase, template, _WidgetBase, _TemplatedMixin, query, sharedNls, _WidgetsInTemplateMixin) {
      return declare([InfoWindowBase, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin], {
          templateString: template,
          sharedNls: sharedNls,
-         appNls: appNls,
          InfoShow: null,
 
          postCreate: function () {
@@ -137,8 +135,8 @@ define([
                  this.infoWindowWidth = width;
                  this.infoWindowHeight = height;
                  domStyle.set(this.domNode, { width: width + "px", height: height + "px" });
-                 var divInfoContentHeight = this.infoWindowHeight - 50;
-                 var esriInfoStyle = { height: divInfoContentHeight + 'px' };
+                 var divInfoContentHeight = this.infoWindowHeight - 50,
+                     esriInfoStyle = { height: divInfoContentHeight + 'px' };
                  domAttr.set(this.divInfoScrollContent, "style", esriInfoStyle);
              }
          },
@@ -162,7 +160,7 @@ define([
                  }
                  domStyle.set(this.domNode, {
                      left: (location.x - (this.infoWindowWidth / 2)) + "px",
-                     bottom: (location.y + 25) + "px"
+                     bottom: (location.y + 20) + "px"
                  });
                  if (!this.InfoShow) {
                      domUtils.show(this.domNode);
@@ -200,8 +198,8 @@ define([
              domClass.add(query(".esriCTdivTriangle")[0], "esriCThidedivTriangle");
              domClass.add(query(".esriCTinfoWindow")[0], "esriCTinfoWindowHeightWidth");
              if (dojo.window.getBox().w <= 680) {
-                 var divInfoContentHeight = window.innerHeight - 60;
-                 var esriInfoStyle = { height: divInfoContentHeight + 'px' };
+                 var divInfoContentHeight = window.innerHeight - 60,
+                     esriInfoStyle = { height: divInfoContentHeight + 'px' };
                  domAttr.set(this.divInfoScrollContent, "style", esriInfoStyle);
                  if (this.infoContainerScrollbar) {
                      domClass.add(this.infoContainerScrollbar._scrollBarContent, "esriCTZeroHeight");

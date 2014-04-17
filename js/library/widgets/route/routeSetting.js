@@ -1,4 +1,4 @@
-﻿/*global dojo,define */
+﻿/*global dojo,define,dojoConfig,alert,esri,handle,graphicsLayerHandle */
 /*jslint browser:true,sloppy:true,nomen:true,unparam:true,plusplus:true */
 /*
  | Copyright 2013 Esri
@@ -43,6 +43,8 @@ define([
     "esri/graphic",
     "dojo/_base/Color",
     "esri/urlUtils",
+    "esri/geometry/Extent",
+    "../scrollBar/scrollBar",
     "esri/symbols/SimpleFillSymbol",
     "esri/symbols/SimpleMarkerSymbol",
     "dojo/cookie",
@@ -51,17 +53,15 @@ define([
     "dijit/_TemplatedMixin",
     "dijit/_WidgetsInTemplateMixin",
     "dojo/i18n!application/js/library/nls/localizedStrings",
-    "dojo/i18n!application/nls/localizedStrings",
     "esri/geometry/Polyline"
   ],
-function (declare, domConstruct, on, topic, lang, domStyle, domAttr, query, domClass, array, FeatureSet, GeometryService, string, html, template, Query, Directions, QueryTask, Deferred, DeferredList, _BorderContainer, SimpleLineSymbol, _ContentPane, Graphic, Color, urlUtils, SimpleFillSymbol, SimpleMarkerSymbol, cookie, BufferParameters, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, sharedNls, appNls, Polyline) {
+function (declare, domConstruct, on, topic, lang, domStyle, domAttr, query, domClass, array, FeatureSet, GeometryService, string, html, template, Query, Directions, QueryTask, Deferred, DeferredList, _BorderContainer, SimpleLineSymbol, _ContentPane, Graphic, Color, urlUtils, geometryExtent, ScrollBar, SimpleFillSymbol, SimpleMarkerSymbol, cookie, BufferParameters, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, sharedNls, Polyline) {
 
     //========================================================================================================================//
 
     return declare([_BorderContainer, _ContentPane, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin], {
         templateString: template,
         sharedNls: sharedNls,
-        appNls: appNls,
         _esriDirectionsWidget: null,
         esriCTrouteScrollbar: null,
         esriCTInfoLayerFeatureList: null,
@@ -83,15 +83,14 @@ function (declare, domConstruct, on, topic, lang, domStyle, domAttr, query, domC
         * @memberOf widgets/route/route
         */
         showRoute: function () {
-            var directionsUnits = dojo.configData.RouteSymbology.DirectionUnits, divFrequentRoute, i,
-            addressArray;
+            var directionsUnits = dojo.configData.RouteSymbology.DirectionUnits, divFrequentRoute, i, _self = this;
             urlUtils.addProxyRule({
                 urlPrefix: dojo.configData.RouteTaskService,
-                proxyUrl: dojoConfig.baseURL + "/proxy/proxy.ashx"
+                proxyUrl: dojoConfig.baseURL + dojo.configData.ProxyUrl
             });
             urlUtils.addProxyRule({
                 urlPrefix: dojo.configData.GeometryService,
-                proxyUrl: dojoConfig.baseURL + "/proxy/proxy.ashx"
+                proxyUrl: dojoConfig.baseURL + dojo.configData.ProxyUrl
             });
             if (!this._esriDirectionsWidget && dojo.configData.RoutingEnabled === "true") {
                 this._esriDirectionsWidget = new Directions({
@@ -110,11 +109,26 @@ function (declare, domConstruct, on, topic, lang, domStyle, domAttr, query, domC
                     this._esriDirectionsWidget.routeParams.polygonBarriers = new FeatureSet();
                 }
                 this._esriDirectionsWidget.zoomToFullRoute = function () {
-                    this.options.map && (this._clearInfoWindow(), this.unhighlightSegment(), this.options.map.setExtent(this.directions.extent.expand(2)));
+                    if (this.options.map) {
+                        this._clearInfoWindow();
+                        this.unhighlightSegment();
+                        this.options.map.setExtent(this.directions.extent, true).then(lang.hitch(this, function () {
+                            if (dojo.window.getBox().w >= 680) {
+                                var width = _self.map.extent.getWidth(),
+                                ratioWidth = width / _self.map.width,
+                                totalXPoint = 145 * ratioWidth;
+                                if (this.options.map) {
+                                    this._clearInfoWindow();
+                                    this.unhighlightSegment();
+                                    this.options.map.setExtent(this.directions.extent.offset(totalXPoint, 0), true);
+                                }
+                            }
+                        }));
+                    }
                 };
 
-                this._esriDirectionsWidget.options.routeSymbol.color = new Color([parseInt(dojo.configData.RouteSymbology.ColorRGB.split(",")[0]), parseInt(dojo.configData.RouteSymbology.ColorRGB.split(",")[1]), parseInt(dojo.configData.RouteSymbology.ColorRGB.split(",")[2]), parseFloat(dojo.configData.RouteSymbology.Transparency.split(",")[0])]);
-                this._esriDirectionsWidget.options.routeSymbol.width = parseInt(dojo.configData.RouteSymbology.Width);
+                this._esriDirectionsWidget.options.routeSymbol.color = new Color([parseInt(dojo.configData.RouteSymbology.ColorRGB.split(",")[0], 10), parseInt(dojo.configData.RouteSymbology.ColorRGB.split(",")[1], 10), parseInt(dojo.configData.RouteSymbology.ColorRGB.split(",")[2], 10), parseFloat(dojo.configData.RouteSymbology.Transparency.split(",")[0], 10)]);
+                this._esriDirectionsWidget.options.routeSymbol.width = parseInt(dojo.configData.RouteSymbology.Width, 10);
                 this.own(on(this._esriDirectionsWidget, "directions-finish", lang.hitch(this, function () {
                     this._clearTextBox();
                     if (query(".esriRoutesError")[0]) {
@@ -133,7 +147,7 @@ function (declare, domConstruct, on, topic, lang, domStyle, domAttr, query, domC
                         this._routeGeocodersResult();
                         if (!this.resultLength) {
                             this._showErrorResult();
-                            this._clearAllGraphics();
+                            this.clearAllGraphics(false);
                         }
                         topic.publish("hideProgressIndicator");
                     }
@@ -149,7 +163,6 @@ function (declare, domConstruct, on, topic, lang, domStyle, domAttr, query, domC
                     }
                 })));
                 this._persistRouteAddress();
-
             }
             if (!this.routeLoader && dojo.configData.FrequentRoutesLayer.FrequentRoutesEnabled === "true" && lang.trim(dojo.configData.FrequentRoutesLayer.FrequentRoutesEnabled).length !== 0) {
                 divFrequentRoute = domConstruct.create("div", { "class": "esriCTdivFrequentRoute" });
@@ -163,6 +176,32 @@ function (declare, domConstruct, on, topic, lang, domStyle, domAttr, query, domC
             }
         },
 
+        clearDirection: function () {
+            var graphicsLength, graphicsBufferLength, _this = this;
+            dojo.featurePoint = null;
+            dojo.frequentRouteId = null;
+            this.refreshButton = true;
+            graphicsLength = this.map.getLayer("esriGraphicsLayerMapSettings").graphics.length;
+            graphicsBufferLength = this.map.getLayer("frequentRoutesLayerID").graphics.length;
+            if (graphicsLength > 0) {
+                if (this.map.getLayer("esriGraphicsLayerMapSettings").visible) {
+                    domStyle.set(this.esriCTDirectionRefreshButton, "display", "block");
+                }
+            }
+            if (graphicsBufferLength > 0) {
+                if (this.map.getLayer("frequentRoutesLayerID").visible) {
+                    domStyle.set(this.esriCTDirectionRefreshButton, "display", "block");
+                }
+            }
+            if (domStyle.get(this.esriCTDirectionRefreshButton, "display") === "block") {
+                this.esriCTDirectionRefreshButton.onclick = function () {
+                    _this.clearAllGraphics(_this.refreshButton);
+                    domStyle.set(_this.esriCTDirectionRefreshButton, "display", "none");
+                };
+            }
+        },
+
+
         _clearTextBox: function () {
             var addressArray = query(".esriGeocoder");
             array.forEach(addressArray, lang.hitch(this, function (inputBox) {
@@ -170,15 +209,14 @@ function (declare, domConstruct, on, topic, lang, domStyle, domAttr, query, domC
                     evt.currentTarget.value = "";
                     var stops = [];
                     array.forEach(addressArray, lang.hitch(this, function (directionTextBox) {
-                        stops.push(directionTextBox.getElementsByTagName("input")[0]? directionTextBox.getElementsByTagName("input")[0].value: "");
+                        stops.push(directionTextBox.getElementsByTagName("input")[0] ? directionTextBox.getElementsByTagName("input")[0].value : "");
                     }));
                     this._esriDirectionsWidget.updateStops(stops);
                 })));
             }));
-
         },
 
-        _validateAddress: function() {
+        _validateAddress: function () {
             if (dojo.stops[0] === "" && dojo.stops[dojo.stops.length - 1] !== "") {
                 alert("Enter correct source.");
             } else if (dojo.stops[0] !== "" && dojo.stops[dojo.stops.length - 1] === "") {
@@ -189,16 +227,17 @@ function (declare, domConstruct, on, topic, lang, domStyle, domAttr, query, domC
         },
 
         _showErrorResult: function () {
-            var featureLength = this._esriDirectionsWidget.stops;
-            for (var result = 0; result < featureLength.length; result++) {
+            var featureLength = this._esriDirectionsWidget.stops, result;
+            for (result = 0; result < featureLength.length; result++) {
                 if (!featureLength[result].feature) {
                     alert(featureLength[result].name + " " + sharedNls.errorMessages.noDirection);
                 }
             }
         },
         _routeGeocodersResult: function () {
+            var j;
             this.resultLength = false;
-            for (var j = 0; j < this._esriDirectionsWidget.geocoders.length; j++) {
+            for (j = 0; j < this._esriDirectionsWidget.geocoders.length; j++) {
                 if (this._esriDirectionsWidget.geocoders[j].results.length === 0 && this._esriDirectionsWidget.stops[j].name === "") {
                     this.resultLength = true;
                     break;
@@ -207,21 +246,22 @@ function (declare, domConstruct, on, topic, lang, domStyle, domAttr, query, domC
         },
 
         _onRouteHandle: function (evt) {
+            var r, pl;
             dojo.stopEvent(evt);
             this._moveHandle(evt.mapPoint);
             //using the handle.eventPadding 1px length line with a 512px-width symbol around the handle
             //so if user moves cursor too fast, graphicsLayterHandle will still produce onMouseMove events
             //while draggin the Handle
-            var r = Math.max(this.map.toMap(new esri.geometry.Point(0, 0)).y - this.map.toMap(new esri.geometry.Point(0, 1)).y, 1);
-            var pl = new Polyline({ paths: [[[evt.mapPoint.x, evt.mapPoint.y - r], [evt.mapPoint.x, evt.mapPoint.y + r]]] });
-            pl.setSpatialReference(graphicsHandleEvent.spatialReference);
+            r = Math.max(this.map.toMap(new esri.geometry.Point(0, 0)).y - this.map.toMap(new esri.geometry.Point(0, 1)).y, 1);
+            pl = new Polyline({ paths: [[[evt.mapPoint.x, evt.mapPoint.y - r], [evt.mapPoint.x, evt.mapPoint.y + r]]] });
+            pl.setSpatialReference(this.graphicsHandleEvent.spatialReference);
             if (!handle.eventPadding) {
                 handle.eventPadding = new Graphic(pl);
             }
             handle.eventPadding.setGeometry(pl);
-            graphicsHandleEvent.clear();
-            graphicsHandleEvent.add(handle.eventPadding);
-            this.map.addLayer(graphicsHandleEvent);
+            this.graphicsHandleEvent.clear();
+            this.graphicsHandleEvent.add(handle.eventPadding);
+            this.map.addLayer(this.graphicsHandleEvent);
         },
 
         _onMoveWaypoint: function (evt) {
@@ -231,7 +271,7 @@ function (declare, domConstruct, on, topic, lang, domStyle, domAttr, query, domC
         },
 
         _moveHandle: function (point) {
-            //moving handle
+            //moving this.handle
             handle.geometry = point;
             graphicsLayerHandle.clear();
             graphicsLayerHandle.add(handle);
@@ -246,14 +286,15 @@ function (declare, domConstruct, on, topic, lang, domStyle, domAttr, query, domC
                 stops.push((storage.getItem("DestAddress") !== null) ? storage.getItem("DestAddress") : "");
             } else {
                 if (cookie.isSupported()) {
-                    stops.push((cookie("SourceAddress") != undefined) ? cookie("SourceAddress") : "");
-                    stops.push((cookie("DestAddress") != undefined) ? cookie("DestAddress") : "");
+                    stops.push((cookie("SourceAddress") !== undefined) ? cookie("SourceAddress") : "");
+                    stops.push((cookie("DestAddress") !== undefined) ? cookie("DestAddress") : "");
                 }
             }
             this._esriDirectionsWidget.updateStops(stops);
         },
 
         _onDirectionFinish: function () {
+            this.clearDirection();
             var esriRoutesHeight, esriRoutesStyle;
             this.esriRoute = false;
             this.infoPanelHeight = false;
@@ -263,14 +304,20 @@ function (declare, domConstruct, on, topic, lang, domStyle, domAttr, query, domC
                 this._showHideFrequentRouteContainer();
             }
             this.inforesult = true;
-            this._clearAllGraphics();
+            this.clearAllGraphics(false);
             this._addBufferGeometry();
             this._enableMouseEvents();
             esriRoutesHeight = window.innerHeight - query(".esriCTApplicationHeader")[0].offsetHeight - html.coords(query(".simpleDirections .esriStopsContainer")[0]).h - 100;
-            esriRoutesStyle = { height: esriRoutesHeight + 'px' };
+            esriRoutesStyle = { height: esriRoutesHeight + "px" };
             domAttr.set(query(".esriRoutes")[0], "style", esriRoutesStyle);
             domAttr.set(query(".esriResultsPrint")[0], "innerHTML", sharedNls.buttons.print);
-            this.esriCTrouteDirectionScrollbar.rePositionScrollBar();
+            if (!this.esriCTrouteDirectionScrollbar) {
+                this.esriCTrouteDirectionScrollbar = new ScrollBar({ domNode: this.esriCTRouteContainer });
+                this.esriCTrouteDirectionScrollbar.setContent(query(".simpleDirections")[0]);
+                this.esriCTrouteDirectionScrollbar.createScrollBar();
+            } else {
+                this.esriCTrouteDirectionScrollbar.rePositionScrollBar();
+            }
         },
 
         _showHideFrequentRouteContainer: function () {
@@ -286,14 +333,12 @@ function (declare, domConstruct, on, topic, lang, domStyle, domAttr, query, domC
                                 domClass.replace(_this.routeTopTiteArrow, "esriCTrouteDownTitleArrow", "esriCTrouteUpTitleArrow");
                                 domStyle.set(query(".esriRoutesContainer")[0], "display", "block");
                                 domStyle.set(_this.divFrequentRoutePanel, "display", "none");
-
                             } else {
                                 domClass.replace(_this.routeTopTiteArrow, "esriCTrouteUpTitleArrow", "esriCTrouteDownTitleArrow");
                                 domClass.replace(_this.divFrequentRouteContainerButton, "esriCTFrequentRouteContainerButton", "esriCTFrequentRouteContainerTopButton");
                                 domStyle.set(query(".esriRoutesContainer")[0], "display", "none");
                                 domStyle.set(_this.divFrequentRoutePanel, "display", "block");
                             }
-
                         }
                     }
                 };
@@ -320,14 +365,17 @@ function (declare, domConstruct, on, topic, lang, domStyle, domAttr, query, domC
                 handle.setSymbol(dragSymbol);
                 clearTimeout(handle.hideTimer);
                 this.map.setMapCursor("pointer");
-                setTimeout(lang.hitch(this, function() {
-                    this.map.snappingManager.getSnappingPoint(evt.screenPoint).then(this._moveHandle);
+                setTimeout(lang.hitch(this, function () {
+                    this.map.snappingManager.getSnappingPoint(evt.screenPoint).then(
+                        this._moveHandle);
                 }), 0);
             }));
             this.routeGraphics_onMouseOut = on(routeGraphics, "mouse-out", lang.hitch(this, function () {
                 //hide the handle
                 clearTimeout(handle.hideTimer);
-                handle.hideTimer = setTimeout("graphicsLayerHandle.clear();", 500);
+                handle.hideTimer = setTimeout(function () {
+                    graphicsLayerHandle.clear();
+                }, 500);
                 this.map.setMapCursor("default");
             }));
 
@@ -336,18 +384,18 @@ function (declare, domConstruct, on, topic, lang, domStyle, domAttr, query, domC
                 this._onRouteHandle(evt);
             }));
 
-            this.graphicsLayerHandleEventPadding_onMouseDrag = on(graphicsHandleEvent, "mouse-move", lang.hitch(this, function (evt) {
+            this.graphicsLayerHandleEventPadding_onMouseDrag = on(this.graphicsHandleEvent, "mouse-move", lang.hitch(this, function (evt) {
                 this._onRouteHandle(evt);
             }));
-            this.graphicsLayerHandleEventPadding_onMouseUp = on(graphicsHandleEvent, "mouse-up", lang.hitch(this, function (evt) {
-                graphicsHandleEvent.clear(); //hiding circular geometry around mouse cursor which helped to deal with mouse events
+            this.graphicsLayerHandleEventPadding_onMouseUp = on(this.graphicsHandleEvent, "mouse-up", lang.hitch(this, function (evt) {
+                this.graphicsHandleEvent.clear(); //hiding circular geometry around mouse cursor which helped to deal with mouse events
                 this._onMoveWaypoint(evt); //permanently moving waypoint, rebuilding directions
             }));
         },
 
         _initSnappingManager: function (tolerance) {
             if (this.snapManager === null || this.snapManager === undefined) {
-                if (!tolerance) tolerance = 15;
+                if (!tolerance) { tolerance = 15; }
                 this.snapManager = this.map.enableSnapping({
                     layerInfos: [{
                         layer: this.map.getLayer("esriCTParentDivContainer_graphics"),
@@ -379,11 +427,11 @@ function (declare, domConstruct, on, topic, lang, domStyle, domAttr, query, domC
             this.countBuffer = false;
             geometryService.union(geometry).then(lang.hitch(this, function (geometries) {
                 var params = new BufferParameters();
-                if (dojo.configData.BufferMilesForProximityAnalysis && parseInt(dojo.configData.BufferMilesForProximityAnalysis) !== 0) {
-                    params.distances = [parseInt(dojo.configData.BufferMilesForProximityAnalysis) * this.buffercount];
+                if (dojo.configData.BufferMilesForProximityAnalysis && parseInt(dojo.configData.BufferMilesForProximityAnalysis, 10) !== 0) {
+                    params.distances = [parseInt(dojo.configData.BufferMilesForProximityAnalysis, 10) * this.buffercount];
                     params.unit = GeometryService.UNIT_STATUTE_MILE;
-                } else if (parseInt(dojo.configData.BufferMetersForFindingBarriers) !== 0) {
-                    params.distances = [parseInt(dojo.configData.BufferMetersForFindingBarriers)];
+                } else if (parseInt(dojo.configData.BufferMetersForFindingBarriers, 10) !== 0) {
+                    params.distances = [parseInt(dojo.configData.BufferMetersForFindingBarriers, 10)];
                     params.unit = GeometryService.UNIT_METER;
                 } else {
                     this._onRouteIncidentCount(geometries);
@@ -403,7 +451,7 @@ function (declare, domConstruct, on, topic, lang, domStyle, domAttr, query, domC
 
         _onRouteIncidentCount: function (onBuffergeometry) {
             var onRouteFeaturArray = [], onRouteFeatureData = [], barrierArray = [],
-             countOfFeatures = 0, index, deferredListResult, count;
+             countOfFeatures = 0, index, deferredListResult, count, i;
 
             for (index = 0; index < dojo.configData.SearchAnd511Settings.length; index++) {
                 if (dojo.configData.SearchAnd511Settings[index].BarrierLayer === "true") {
@@ -416,10 +464,10 @@ function (declare, domConstruct, on, topic, lang, domStyle, domAttr, query, domC
                 for (count = 0; count < result.length; count++) {
                     if (result[count][1].features) {
                         if (result[count][1].features.length > 0) {
-                            dojo.forEach(result[count][1].features, lang.hitch(this, function (feature) {
+                            for (i = 0; i < result[count][1].features.length; i++) {
                                 countOfFeatures++;
-                                barrierArray.push(feature);
-                            }));
+                                barrierArray.push(result[count][1].features[i]);
+                            }
                         }
                     }
                 }
@@ -443,11 +491,11 @@ function (declare, domConstruct, on, topic, lang, domStyle, domAttr, query, domC
 
         executeBufferQuery: function (geometry, geometryService, featureLayer, routeName) {
             var params = new BufferParameters();
-            if (parseInt(dojo.configData.BufferMilesForProximityAnalysis) !== 0) {
-                params.distances = [parseInt(dojo.configData.BufferMilesForProximityAnalysis)];
+            if (parseInt(dojo.configData.BufferMilesForProximityAnalysis, 10) !== 0) {
+                params.distances = [parseInt(dojo.configData.BufferMilesForProximityAnalysis, 10)];
                 params.unit = GeometryService.UNIT_STATUTE_MILE;
-            } else if (parseInt(dojo.configData.BufferMetersForFindingBarriers) !== 0) {
-                params.distances = [parseInt(dojo.configData.BufferMetersForFindingBarriers)];
+            } else if (parseInt(dojo.configData.BufferMetersForFindingBarriers, 10) !== 0) {
+                params.distances = [parseInt(dojo.configData.BufferMetersForFindingBarriers, 10)];
                 params.unit = GeometryService.UNIT_METER;
             } else {
                 this.showBufferRoute(featureLayer, [geometry]);
@@ -480,9 +528,9 @@ function (declare, domConstruct, on, topic, lang, domStyle, domAttr, query, domC
 
         _showBufferOnRoute: function (geometry, geometryService) {
             geometryService.union(geometry).then(lang.hitch(this, function (geometries) {
-                if (parseInt(dojo.configData.BufferMetersForFindingBarriers) !== 0) {
+                if (parseInt(dojo.configData.BufferMetersForFindingBarriers, 10) !== 0) {
                     var params = new BufferParameters();
-                    params.distances = [parseInt(dojo.configData.BufferMetersForFindingBarriers)];
+                    params.distances = [parseInt(dojo.configData.BufferMetersForFindingBarriers, 10)];
                     params.bufferSpatialReference = new esri.SpatialReference({ wkid: this.map.spatialReference.wkid });
                     params.outSpatialReference = this.map.spatialReference;
                     params.unit = GeometryService.UNIT_METER;
@@ -503,7 +551,7 @@ function (declare, domConstruct, on, topic, lang, domStyle, domAttr, query, domC
 
         _onRouteFeatureCount: function (onRoutegeometry) {
             var onRouteFeaturArray = [], onRouteFeatureData = [], countOfFeatures = 0, index,
-            deferredListResult, barrierArray = [];
+            deferredListResult, barrierArray = [], count, i, feature;
             this.divSearchLoader = domConstruct.create("div", { "class": "esriCTRouteLoader" });
             domConstruct.place(this.divSearchLoader, query(".esriRoutesContainer")[0], "first");
             for (index = 0; index < dojo.configData.SearchAnd511Settings.length; index++) {
@@ -517,17 +565,18 @@ function (declare, domConstruct, on, topic, lang, domStyle, domAttr, query, domC
                 for (count = 0; count < result.length; count++) {
                     if (result[count][1].features) {
                         if (result[count][1].features.length > 0) {
-                            dojo.forEach(result[count][1].features, lang.hitch(this, function (feature) {
+                            for (i = 0; i < result[count][1].features.length; i++) {
+                                feature = result[count][1].features[i];
                                 countOfFeatures++;
                                 barrierArray.push(feature);
-                                if (feature.geometry && feature.geometry.type && feature.geometry.type.toLowerCase() == "polygon") {
+                                if (feature.geometry && feature.geometry.type && feature.geometry.type.toLowerCase() === "polygon") {
                                     this._esriDirectionsWidget.routeParams.polygonBarriers.features.push(new Graphic(feature.geometry));
-                                } else if (feature.geometry && feature.geometry.type && feature.geometry.type.toLowerCase() == "polyline") {
+                                } else if (feature.geometry && feature.geometry.type && feature.geometry.type.toLowerCase() === "polyline") {
                                     this._esriDirectionsWidget.routeParams.polylineBarriers.features.push(new Graphic(feature.geometry));
-                                } else if (feature.geometry && feature.geometry.type && feature.geometry.type.toLowerCase() == "point") {
+                                } else if (feature.geometry && feature.geometry.type && feature.geometry.type.toLowerCase() === "point") {
                                     this._esriDirectionsWidget.routeParams.barriers.features.push(new Graphic(feature.geometry));
                                 }
-                            }));
+                            }
                         }
                     }
                 }
@@ -545,7 +594,7 @@ function (declare, domConstruct, on, topic, lang, domStyle, domAttr, query, domC
             this.divShowReRouteContainer = domConstruct.create("div", { "class": "esriCTdivShowReRouteContainer" });
             domConstruct.place(this.divShowReRouteContainer, query(".esriRoutesContainer")[0], "first");
             showRouteInfoContent = domConstruct.create("div", { "class": "esriCTshowRouteInfoContent" }, this.divShowReRouteContainer);
-            domAttr.set(showRouteInfoContent, "innerHTML", countOfFeatures + " " + appNls.titles.reRouteDisplayText);
+            domAttr.set(showRouteInfoContent, "innerHTML", countOfFeatures + " " + dojo.configData.ReRouteDisplayText);
             showRouteImgContent = domConstruct.create("div", { "class": "showRouteImgContent esriCTCursorPointer" }, this.divShowReRouteContainer);
             this.own(on(showRouteImgContent, "click", lang.hitch(this, function () {
                 topic.publish("showProgressIndicator");
@@ -557,8 +606,8 @@ function (declare, domConstruct, on, topic, lang, domStyle, domAttr, query, domC
         },
 
         _showfeatureCountResult: function (onRouteFeaturArray, index, geometry) {
-            var layerobject = dojo.configData.SearchAnd511Settings[index], queryTask, queryLayer, newDate,
-            newTime, fullDate, queryOnRouteTask, deferred;
+            var layerobject = dojo.configData.SearchAnd511Settings[index], newDate, queryLayer, queryTask,
+            newTime, fullDate, queryOnRouteTask;
             if (layerobject.QueryURL) {
                 queryTask = new QueryTask(layerobject.QueryURL);
                 queryLayer = new Query();
@@ -576,8 +625,8 @@ function (declare, domConstruct, on, topic, lang, domStyle, domAttr, query, domC
                 queryLayer.outFields = ["*"];
                 queryLayer.geometry = geometry;
                 queryLayer.spatialRelationship = Query.SPATIAL_REL_INTERSECTS;
-                queryOnRouteTask = queryTask.execute(query, lang.hitch(this, function (featureSet) {
-                    deferred = new Deferred();
+                queryOnRouteTask = queryTask.execute(queryLayer, lang.hitch(this, function (featureSet) {
+                    var deferred = new Deferred();
                     deferred.resolve(featureSet);
                     return deferred.promise;
                 }), function (err) {
@@ -595,9 +644,9 @@ function (declare, domConstruct, on, topic, lang, domStyle, domAttr, query, domC
                     SimpleFillSymbol.STYLE_SOLID,
                     new SimpleLineSymbol(
                       SimpleLineSymbol.STYLE_SOLID,
-                      new Color([parseInt(dojo.configData.BufferSymbology.LineSymbolColor.split(",")[0]), parseInt(dojo.configData.BufferSymbology.LineSymbolColor.split(",")[1]), parseInt(dojo.configData.BufferSymbology.LineSymbolColor.split(",")[2]), parseFloat(dojo.configData.BufferSymbology.LineSymbolTransparency.split(",")[0])]), 2
+                      new Color([parseInt(dojo.configData.BufferSymbology.LineSymbolColor.split(",")[0], 10), parseInt(dojo.configData.BufferSymbology.LineSymbolColor.split(",")[1], 10), parseInt(dojo.configData.BufferSymbology.LineSymbolColor.split(",")[2], 10), parseFloat(dojo.configData.BufferSymbology.LineSymbolTransparency.split(",")[0], 10)]), 2
                     ),
-                    new Color([parseInt(dojo.configData.BufferSymbology.FillSymbolColor.split(",")[0]), parseInt(dojo.configData.BufferSymbology.FillSymbolColor.split(",")[1]), parseInt(dojo.configData.BufferSymbology.FillSymbolColor.split(",")[2]), parseFloat(dojo.configData.BufferSymbology.FillSymbolTransparency.split(",")[0])])
+                    new Color([parseInt(dojo.configData.BufferSymbology.FillSymbolColor.split(",")[0], 10), parseInt(dojo.configData.BufferSymbology.FillSymbolColor.split(",")[1], 10), parseInt(dojo.configData.BufferSymbology.FillSymbolColor.split(",")[2], 10), parseFloat(dojo.configData.BufferSymbology.FillSymbolTransparency.split(",")[0], 10)])
                   );
             dojo.forEach(geometries, lang.hitch(this, function (geometry) {
                 graphic = new Graphic(geometry, symbol);
@@ -607,6 +656,7 @@ function (declare, domConstruct, on, topic, lang, domStyle, domAttr, query, domC
                 featureSet.features = features;
                 layer.add(featureSet.features[0]);
             }));
+            this.clearDirection();
         }
     });
 });

@@ -1,7 +1,8 @@
 ﻿<div class="esriCTHeaderRouteContainer" data-dojo-attach-point="applicationHeaderRouteContainer">
     <div class="esriCTRightPanel">
         <div class="esriCTDirectionContainer" data-dojo-attach-point="esriCTDirectionContainer">
-            <span>${sharedNls.titles.directionsDisplayText}</span>
+            <span data-dojo-attach-point="directionTabContent"></span><span data-dojo-attach-point="esriCTDirectionRefreshButton"
+                class="esriCTDirectionRefreshButton"></span>
         </div>
         <div class="esriCTRouteInformationTitle" data-dojo-attach-point="esriCTRouteInformationTitle">
         </div>
@@ -15,7 +16,7 @@
             </div>
         </div>
         <div class="esriCTRouteInformationContainer" data-dojo-attach-point="esriCTRouteInformationContainer">
-            <span>${appNls.titles.informationDisplayText}</span>
+            <span data-dojo-attach-point="esriCTRouteInformationText"></span>
         </div>
         <div class="esriCTRouteInformationContent" data-dojo-attach-point="esriCTRouteInformationContent">
         </div>
