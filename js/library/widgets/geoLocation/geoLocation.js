@@ -28,15 +28,13 @@ define([
     "esri/symbols/PictureMarkerSymbol",
     "esri/SpatialReference",
     "esri/graphic",
-    "dojo/i18n!application/js/library/nls/localizedStrings",
-    "dojo/i18n!application/nls/localizedStrings"
-], function (declare, lang, domConstruct, on, topic, _WidgetBase, GeometryService, Point, PictureMarkerSymbol, SpatialReference, Graphic, sharedNls, appNls) {
+    "dojo/i18n!application/js/library/nls/localizedStrings"
+], function (declare, lang, domConstruct, on, topic, _WidgetBase, GeometryService, Point, PictureMarkerSymbol, SpatialReference, Graphic, sharedNls) {
 
     //========================================================================================================================//
 
     return declare([_WidgetBase], {
         sharedNls: sharedNls,
-        appNls: appNls,
 
         /**
         * create geolocation widget

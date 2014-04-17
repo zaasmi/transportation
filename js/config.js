@@ -53,11 +53,20 @@ define([], function () {
         // Set application logo url
         CustomLogoUrl: "http://nddotfargo.com/uploads/media/nddotlogo.png",
 
+        // Set proxy url
+        ProxyUrl: "/proxy/proxy.ashx",
+
         // Set splash window content - Message that appears when the application starts
         SplashScreen: {
-            // splash screen Message is set in locale file in nls dirctory
+            SplashScreenContent: "An application that allows the public to find information about road conditions, 511 alerts, traffic incidents, et al.",
             IsVisible: true
         },
+
+        InformationDisplayText: "511 Information",
+
+        ReRouteDisplayText: "Traffic incidents found on this road",
+
+        FrequentRoute: "Frequently travelled route",
         //------------------------------------------------------------------------------------------------------------------------
         // Header Widget Settings
         //------------------------------------------------------------------------------------------------------------------------
@@ -107,6 +116,14 @@ define([], function () {
             }
         ],
 
+        GroupURL: "http://www.arcgis.com/sharing/rest/",
+        SearchURL: "http://www.arcgis.com/sharing/rest/search?q=group:",
+
+        BasemapGroupTitle: "EsriLocalGovernment", //CyberTech Systems and Software Limited
+
+        BasemapGroupOwner: "sagarnair_cssl", //cybertechagol
+
+        WebmapThumbnail: "js/library/themes/images/not-available.png",
 
         // Initial map extent. Use comma (,) to separate values and dont delete the last comma
         // The coordinates must be specified in the basemap's coordinate system, usually WKID:102100, unless a custom basemap is used
@@ -179,15 +196,15 @@ define([], function () {
         // SearchExpression: Configure the query expression to be used for search.
         // BarrierLayer: Configure "true" or "false" to treat this as a barrier layer to be used for routing and re-routing.
         // BarrierSearchExpression: Configure the query expression to search barriers in the layer.
-        //                          Set this to emtpy "", if all features in the layer should be considered as barriers.
+        //							Set this to emtpy "", if all features in the layer should be considered as barriers.
         // InfoLayer: Allowed values are "true" or "false". Configure this to "true" to consider this as 511 Information layer
-        //            and display in 511 Information panels.
+        //			  and display in 511 Information panels.
         // InfoSearchExpression: Configure the query expression to search features and display in 511 Information panels.
-        //                       Set this to empty "", if all features in the layer should be considered.
+        //						 Set this to empty "", if all features in the layer should be considered.
         // InfoListText: This text is displayed in 511 Information Summary panel.
-        //               If empty "", then SearchDisplayTitle is used (if configured), else layer name in the webmap/mapservice is used.
+        //				 If empty "", then SearchDisplayTitle is used (if configured), else layer name in the webmap/mapservice is used.
         // InfoDetailFields: Attributes that will be displayed in the 511 Information Details panel.
-        //                   If empty "", then SearchDisplayFields will be used (if configured), else displayField property of layer in mapservice will be used.
+        //					 If empty "", then SearchDisplayFields will be used (if configured), else displayField property of layer in mapservice will be used.
 
         SearchAnd511Settings: [
             {
@@ -342,12 +359,12 @@ define([], function () {
         // ------------------------------------------------------------------------------------------------------------------------
         // Configure info-popup settings. The Title and QueryLayerId fields should be the same as configured in "Title" and "QueryLayerId" fields in SearchAnd511Settings.
         // Title: In case of webmap implementations, it must match layer name specified in webmap and in case of operational layers
-        //        it should be the name of Map/Feature Service.
+        // it should be the name of Map/Feature Service.
         // QueryLayerId: Layer index used for performing queries.
         // InfoWindowHeader: Specify field for the info window header
         // InfoWindowContent: Specify field to be displayed in callout bubble for mobile devices
         // ShowAllFields: When set to true, infowindow will display all fields from layer and InfoWindowData section is ignored
-        //                When set to false, only fields configured in InfoWindowData section will be displayed
+        //				  When set to false, only fields configured in InfoWindowData section will be displayed
         // InfoWindowData: Set the content to be displayed in the info-Popup. Define labels and field values.
         //                    These fields should be present in the layer referenced by 'QueryLayerId' specified under section 'SearchSettings'
         // DisplayText: Caption to be displayed instead of field alias names. Set this to empty string ("") if you wish to display field alias names as captions.
@@ -576,7 +593,7 @@ define([], function () {
 
         FrequentRoutesLayer: {
             LayerURL: "http://50.18.115.76:6080/arcgis/rest/services/RoadConditions/MapServer/10",
-            UniqueRouteField: "${ROUTE_ID}",
+            UniqueRouteField: "ROUTE_ID",
             DisplayField: "${ROUTE_ID} / ${HWY_NUM} - ${DIRECTION}",
             FrequentRoutesEnabled: "true"
         },
@@ -586,7 +603,7 @@ define([], function () {
         // ------------------------------------------------------------------------------------------------------------------------
 
         // Set geometry service URL
-        GeometryService: "http://tasks.arcgisonline.com/arcgis/rest/services/Geometry/GeometryServer",
+        GeometryService: "http://tasks.arcgisonline.com/ArcGIS/rest/services/Geometry/GeometryServer",
         // ------------------------------------------------------------------------------------------------------------------------
 
         // ------------------------------------------------------------------------------------------------------------------------
@@ -639,7 +656,7 @@ define([], function () {
 
         // Set URL for TinyURL service, and URLs for social media
         MapSharingOptions: {
-            TinyURLServiceURL: "http://api.bit.ly/v3/shorten?login=esri&apiKey=R_65fd9891cd882e2a96b99d4bda1be00e&uri=${0}&format=json",
+            TinyURLServiceURL: "https://api-ssl.bitly.com/v3/shorten?longUrl=${0}",
             TinyURLResponseAttribute: "data.url",
             FacebookShareURL: "http://www.facebook.com/sharer.php?u=${0}&t=Transportation%20511",
             TwitterShareURL: "http://mobile.twitter.com/compose/tweet?status=Transportation%20511 ${0}",

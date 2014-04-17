@@ -1,69 +1,170 @@
-﻿
-.esriCTApplicationHeader
+﻿@media only screen and (min-device-width : 768px) and (max-device-width : 1024px) and (-webkit-min-device-pixel-ratio: 2)
 {
-    border-bottom: 1px solid #d15706;
-    background: #fff;
+
+    .esriCTTdHeaderSearch
+    {
+        background-image: url("../images/img2X/search@2X.png") !important;
+    }
+    .esriCTTdHeaderSearch-select
+    {
+        background-image: url("../images/img2X/search-select@2X-orange.png") !important;
+    }
+
+    .esriCTHelpImg
+    {
+        background-image: url("../images/img2X/help@2X.png") !important;
+    }
+    .esriCTTdGeolocation
+    {
+        background-image: url("../images/img2X/geo-location@2x.png") !important;
+    }
+    .esriCTImgSocialMedia
+    {
+        background-image: url("../images/img2X/share@2X.png") !important;
+    }
+
+    .esriCTImgSocialMedia-select
+    {
+        background-image: url("../images/img2X/share-select@2X-orange.png") !important;
+    }
+    .esriCTRouteImg
+    {
+        background-image: url("../images/img2X/get-route@2x.png") !important;
+    }
+
+    .esriCTRouteImg-select
+    {
+        background-image: url("../images/img2X/get-route-select@2x-orange.png") !important;
+    }
+
+
+    .facebook
+    {
+        background-image: url("../images/img2X/img_twitter@2x-orange.png") !important;
+    }
+
+    .twitter
+    {
+        background-image: url("../images/img2X/img_twitter@2x-orange.png") !important;
+    }
+
+    .email
+    {
+        background-image: url("../images/img2X/img-email@2x-orange.png") !important;
+    }
+
 }
-.esriCTApplicationHeaderTextTD
+
+
+@media screen and (max-width: 1024px)
 {
-    color: #d15706;
-    text-shadow: 0 0 1px #AAAAAA;
+    .esriCTTdHeaderSearch
+    {
+        background-image: url("../images/img44x44/search.png") !important;
+    }
+    .esriCTTdHeaderSearch-select
+    {
+        background-image: url("../images/img44x44/search-select-orange.png") !important;
+    }
+    .esriCTHelpImg
+    {
+        background-image: url("../images/img44x44/Help.png") !important;
+    }
+
+    .esriCTTdGeolocation
+    {
+        background-image: url("../images/img44x44/imgGeolocation.png") !important;
+    }
+
+    .esriCTImgSocialMedia
+    {
+        background-image: url("../images/img44x44/imgSocialMedia.png") !important;
+    }
+    .esriCTImgSocialMedia-select
+    {
+        background-image: url("../images/img44x44/imgSocialMedia_orange.png") !important;
+    }
+    .esriCTRouteImg
+    {
+        background-image: url("../images/img44x44/get-route.png") !important;
+    }
+    .esriCTRouteImg-select
+    {
+        background-image: url("../images/img44x44/get-route-select-orange.png") !important;
+    }
+    .facebook
+    {
+        background-image: url("../images/img44x44/img_facebook_orange.png") !important;
+    }
+
+    .twitter
+    {
+        background-image: url("../images/img44x44/img_twitter_orange.png") !important;
+    }
+
+    .email
+    {
+        background-image: url("../images/img44x44/img_email_orange.png") !important;
+    }
+    .embedding
+    {
+        background-image: url("../images/img44x44/embedding_orange.png") !important;
+    }
 }
-.esriCTRightTab
-{
-    background-color: #fff;
-}
+
+/*main browser theme*/
 .esriCTTdHeaderSearch
 {
-    background-image: url("../images/locate.png");
+    background-image: url("../images/img24x24/search-24.png");
 }
 .esriCTHelpImg
 {
-    background-image: url("../images/Help.png");
+    background-image: url("../images/img24x24/Help-24.png");
 }
 
 .esriCTTdHeaderSearch-select
 {
-    background-image: url("../images/search-select.png");
+    background-image: url("../images/img24x24/search-select-orange-24.png");
 }
 .esriCTTdGeolocation
 {
-    background-image: url("../images/imgGeolocation.png");
+    background-image: url("../images/img24x24/imgGeolocation-24.png");
 }
 .esriCTImgSocialMedia-select
 {
-    background-image: url("../images/share-orange-select.png");
+    background-image: url("../images/img24x24/imgSocialMedia_orange-24.png");
 }
 .esriCTImgSocialMedia
 {
-    background-image: url("../images/imgSocialMedia.png");
+    background-image: url("../images/img24x24/imgSocialMedia-24.png");
 }
 .esriCTRouteImg
 {
-    background-image: url("../images/get-route.png");
+    background-image: url("../images/img24x24/get-route-24.png");
 }
-
 .esriCTRouteImg-select
 {
-    background-image: url("../images/get-route-select-orange.png");
+    background-image: url("../images/img24x24/get-route-orange-24.png");
 }
 .facebook
 {
-    background-image: url("../images/img_facebook_orange.png") !important;
+    background-image: url("../images/img24x24/img_facebook_orange-24.png");
 }
+
 .twitter
 {
-    background-image: url("../images/img_twitter_orange.png") !important;
-}
-.embedding
-{
-    background-image: url("../images/embedding-select-orange.png") !important;
+    background-image: url("../images/img24x24/img_twitter_orange-24.png");
 }
 
 .email
 {
-    background-image: url("../images/img_email_orange.png") !important;
+    background-image: url("../images/img24x24/img_email_orange-24.png");
 }
+.embedding
+{
+    background-image: url("../images/img24x24/embedding_orange-24.png");
+}
+
 .locateSearchicon
 {
     background-image: url("../images/search-orange.png") !important;
@@ -104,6 +205,21 @@
     background-image: url('../images/left-orange_Legend-arrow.png');
     background-repeat: no-repeat;
     background-position: center center;
+}
+
+.esriCTApplicationHeader
+{
+    border-bottom: 1px solid #d15706;
+    background: #fff;
+}
+.esriCTApplicationHeaderTextTD
+{
+    color: #d15706;
+    text-shadow: 0 0 1px #AAAAAA;
+}
+.esriCTRightTab
+{
+    background-color: #fff;
 }
 /* End of Application Header */
 
@@ -265,7 +381,6 @@ input
 }
 .esriCTFrequentRouteContainerButton
 {
-
     border-right: 1px solid #d15706;
     border-bottom: 1px solid #d15706;
     color: #d15706;
@@ -273,7 +388,6 @@ input
 
 .esriCTFrequentRouteContainerTopButton
 {
-
     border-top: 1px solid #d15706;
     color: #d15706;
 }
@@ -292,14 +406,21 @@ input
     border-left: 1px solid #FFFFFF;
     border-right: 1px solid #FFFFFF;
 }
+.esriCTRouteInformationContainerTab
+{
+    color: #d15706;
+    border-bottom: 1px solid #FFFFFF;
+    border-top: 1px solid #FFFFFF;
+    border-left: 1px solid #FFFFFF;
+    border-right: 1px solid #FFFFFF;
+}
 .esriCTRouteInformationContent
 {
     color: Black;
- }
+}
 .esriCTRouteInformationDetails
 {
     color: Black !important;
-
 }
 .esriCTRouteInformationTitle
 {
@@ -343,13 +464,13 @@ input
 .esriCTrouteUpTitleArrow
 {
     background-image: url("../images/arrow-gray-down.png");
-     background-color:#d15706;
+    background-color: #d15706;
 }
 
 .esriCTrouteDownTitleArrow
 {
     background-image: url("../images/arrow-gray-up.png");
-     background-color:#d15706;
+    background-color: #d15706;
 }
 /* End of Route */
 
@@ -375,7 +496,10 @@ input
     box-shadow: 0 0 10px #fff;
     behavior: url("styles/PIE.htc");
 }
-.divSplashScreenContent{   background-color: black;}
+.divSplashScreenContent
+{
+    background-color: black;
+}
 .divSplashContent
 {
     color: #fff;
@@ -712,5 +836,5 @@ input
 }
 .esriCTRouteInformation511ttile
 {
-   color: #6e6e6e;
+    color: #6e6e6e;
 }

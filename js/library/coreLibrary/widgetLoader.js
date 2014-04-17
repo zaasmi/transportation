@@ -29,17 +29,15 @@ define([
     "dojo/Deferred",
     "dojo/promise/all",
     "dojo/i18n!application/js/library/nls/localizedStrings",
-    "dojo/i18n!application/nls/localizedStrings",
     "dojo/topic",
     "dojo/domReady!"
     ],
-function (declare, _WidgetBase, Map, AppHeader, SplashScreen, array, domAttr, dom, lang, Deferred, all, sharedNls, appNls, topic) {
+function (declare, _WidgetBase, Map, AppHeader, SplashScreen, array, domAttr, dom, lang, Deferred, all, sharedNls, topic) {
 
     //========================================================================================================================//
 
     return declare([_WidgetBase], {
         sharedNls: sharedNls,
-        appNls: appNls,
 
         /**
         * load widgets specified in Header Widget Settings of configuration file
@@ -48,12 +46,12 @@ function (declare, _WidgetBase, Map, AppHeader, SplashScreen, array, domAttr, do
         * @name coreLibrary/widgetLoader
         */
         startup: function () {
-            var mapInstance;
+            var mapInstance, splashScreen;
             if (dojo.configData.SplashScreen && dojo.configData.SplashScreen.IsVisible) {
-                var splashScreen = new SplashScreen();
+                splashScreen = new SplashScreen();
                 splashScreen.showSplashScreenDialog();
             }
-             mapInstance = this._initializeMap();
+            mapInstance = this._initializeMap();
 
             /**
             * create an object with widgets specified in Header Widget Settings of configuration file
@@ -85,9 +83,9 @@ function (declare, _WidgetBase, Map, AppHeader, SplashScreen, array, domAttr, do
             array.forEach(dojo.configData.AppHeaderWidgets, function (widgetConfig) {
                 var deferred = new Deferred();
                 widgets[widgetConfig.WidgetPath] = null;
-                require([widgetConfig.WidgetPath], function (widget) {
+                require([widgetConfig.WidgetPath], function (Widget) {
 
-                    widgets[widgetConfig.WidgetPath] = new widget({ map: widgetConfig.MapInstanceRequired ? mapInstance : null });
+                    widgets[widgetConfig.WidgetPath] = new Widget({ map: widgetConfig.MapInstanceRequired ? mapInstance : null });
 
                     deferred.resolve(widgetConfig.WidgetPath);
                 });

@@ -1,4 +1,4 @@
-﻿/*global define,Modernizr */
+﻿/*global define,dojo,esri,alert */
 /*jslint browser:true,sloppy:true,nomen:true,unparam:true,plusplus:true */
 /*
  | Copyright 2013 Esri
@@ -39,16 +39,14 @@ define([
     "dijit/_TemplatedMixin",
     "dijit/_WidgetsInTemplateMixin",
     "dojo/i18n!application/js/library/nls/localizedStrings",
-    "dojo/i18n!application/nls/localizedStrings",
     "dojo/topic"
     ],
-     function (declare, domConstruct, domStyle, domAttr, lang, on, dom, domClass, query, string, Locator, Query, scrollBar, Deferred, DeferredList, QueryTask, point, template, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, sharedNls, appNls, topic) {
+     function (declare, domConstruct, domStyle, domAttr, lang, on, dom, domClass, query, string, Locator, Query, ScrollBar, Deferred, DeferredList, QueryTask, Point, template, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, sharedNls, topic) {
          //========================================================================================================================//
 
          return declare([_WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin], {
              templateString: template,
              sharedNls: sharedNls,
-             appNls: appNls,
              lastSearchString: null,
              stagedSearch: null,
              locatorScrollbar: null,
@@ -72,7 +70,7 @@ define([
              searchLocation: function () {
                  var nameArray, locatorSettings, locator, searchFieldName, addressField, baseMapExtent,
                  options, searchFields, addressFieldValues, addressFieldName, deferredArray, index, locatorDef,
-                 resultLength, deferredListResult;
+                 resultLength, deferredListResult, value;
 
                  nameArray = { Address: [] };
                  domStyle.set(this.imgSearchLoader, "display", "block");
@@ -88,14 +86,14 @@ define([
                  searchFieldName = locatorSettings.LocatorParameters.SearchField;
                  addressField = {};
                  addressField[searchFieldName] = lang.trim(this.txtAddress.value);
-                 if (dojo.configData.WebMapId && lang.trim(dojo.configData.WebMapId).length != 0) {
+                 if (dojo.configData.WebMapId && lang.trim(dojo.configData.WebMapId).length !== 0) {
                      baseMapExtent = this.map.getLayer(this.map.layerIds[0]).fullExtent;
                  } else {
                      baseMapExtent = this.map.getLayer("esriCTbasemap").fullExtent;
                  }
                  options = {};
-                 options["address"] = addressField;
-                 options["outFields"] = locatorSettings.LocatorOutFields;
+                 options.address = addressField;
+                 options.outFields = locatorSettings.LocatorOutFields;
                  options[locatorSettings.LocatorParameters.SearchBoundaryField] = baseMapExtent;
                  locator.outSpatialReference = this.map.spatialReference;
                  searchFields = [];
@@ -178,7 +176,7 @@ define([
                      if (candidates[order].attributes[dojo.configData.LocatorSettings.AddressMatchScore.Field] > dojo.configData.LocatorSettings.AddressMatchScore.Value) {
                          for (j in searchFields) {
                              if (searchFields.hasOwnProperty(j)) {
-                                 if (candidates[order].attributes[addressFieldName] == searchFields[j]) {
+                                 if (candidates[order].attributes[addressFieldName].toString() === searchFields[j].toString()) {
                                      if (nameArray.Address.length < dojo.configData.LocatorSettings.MaxResults) {
                                          nameArray.Address.push({
                                              name: string.substitute(dojo.configData.LocatorSettings.DisplayField, candidates[order].attributes),
@@ -223,7 +221,7 @@ define([
                  if (lang.trim(this.txtAddress.value) === "") {
                      this.txtAddress.focus();
                      domConstruct.empty(this.divAddressResults);
-                     this.locatorScrollbar = new scrollBar({ domNode: this.divAddressScrollContent });
+                     this.locatorScrollbar = new ScrollBar({ domNode: this.divAddressScrollContent });
                      this.locatorScrollbar.setContent(this.divAddressResults);
                      this.locatorScrollbar.createScrollBar();
                      domStyle.set(this.imgSearchLoader, "display", "none");
@@ -240,7 +238,7 @@ define([
                      domClass.add(this.locatorScrollbar._scrollBarContent, "esriCTZeroHeight");
                      this.locatorScrollbar.removeScrollBar();
                  }
-                 this.locatorScrollbar = new scrollBar({ domNode: this.divAddressScrollContent });
+                 this.locatorScrollbar = new ScrollBar({ domNode: this.divAddressScrollContent });
                  this.locatorScrollbar.setContent(this.divAddressResults);
                  this.locatorScrollbar.createScrollBar();
                  if (resultLength > 0) {
@@ -277,7 +275,7 @@ define([
                  on(addressList[idx], "click", lang.hitch(this, function () {
                      if (domClass.contains(query(".listContainer")[idx], "showAddressList")) {
                          domClass.toggle(query(".listContainer")[idx], "showAddressList");
-                         listStatusSymbol = (domAttr.get(query(".plus-minus")[idx], "innerHTML") == "+") ? "-" : "+";
+                         listStatusSymbol = (domAttr.get(query(".plus-minus")[idx], "innerHTML") === "+") ? "-" : "+";
                          domAttr.set(query(".plus-minus")[idx], "innerHTML", listStatusSymbol);
                      } else {
                          domClass.add(query(".listContainer")[idx], "showAddressList");
@@ -320,7 +318,6 @@ define([
 
                  candidateDate.onclick = function () {
                      var layer, infoIndex;
-                     dojo.setMapTipPosition = false;
                      topic.publish("showProgressIndicator");
                      if (_this.map.infoWindow) {
                          _this.map.infoWindow.hide();
@@ -330,13 +327,15 @@ define([
                      _this._hideAddressContainer();
                      topic.publish("clearAllGraphics");
                      if (candidate.attributes.location) {
-                         _this.mapPoint = new point(domAttr.get(this, "x"), domAttr.get(this, "y"), _this.map.spatialReference);
+                         dojo.setMapTipPosition = true;
+                         _this.mapPoint = new Point(domAttr.get(this, "x"), domAttr.get(this, "y"), _this.map.spatialReference);
                          topic.publish("locateAddressOnMap", _this.mapPoint);
                      } else {
                          if (candidateArray[domAttr.get(candidateDate, "index", index)]) {
+                             dojo.setMapTipPosition = false;
                              layer = candidateArray[domAttr.get(candidateDate, "index", index)].layer.QueryURL;
                              for (infoIndex = 0; infoIndex < dojo.configData.SearchAnd511Settings.length; infoIndex++) {
-                                 if (dojo.configData.InfoWindowSettings[infoIndex] && dojo.configData.InfoWindowSettings[infoIndex].InfoQueryURL == layer) {
+                                 if (dojo.configData.InfoWindowSettings[infoIndex] && dojo.configData.InfoWindowSettings[infoIndex].InfoQueryURL.toString() === layer.toString()) {
                                      _this._showFeatureResultsOnMap(candidateArray, candidate, infoIndex, index);
                                  } else if (dojo.configData.SearchAnd511Settings[infoIndex].QueryURL === layer) {
                                      if (candidate.geometry.type === "polyline") {
@@ -366,8 +365,10 @@ define([
                  domStyle.set(this.close, "display", "none");
                  this.txtAddress.value = candidate.name;
                  if (candidateArray[index].geometry.type === "point") {
+                     dojo.ispolyline = false;
                      this.createInfoWindowContent(candidateArray[index].geometry, candidateArray[index].attributes, candidateArray[index].fields, infoIndex, null, null, this.map);
                  } else if (candidateArray[index].geometry.type === "polyline") {
+                     dojo.ispolyline = true;
                      featurePoint = candidateArray[index].geometry.getPoint(0, 0);
                      this.createInfoWindowContent(featurePoint, candidateArray[index].attributes, candidateArray[index].fields, infoIndex, null, null, this.map);
                  }
@@ -379,7 +380,7 @@ define([
                  infoTitle, mobTitle, extentChanged;
 
                  if (featureArray) {
-                     if (featureArray.length > 1 && count != featureArray.length - 1) {
+                     if (featureArray.length > 1 && parseInt(count, 10) !== featureArray.length - 1) {
                          domClass.add(query(".esriCTdivInfoRightArrow")[0], "esriCTShowInfoRightArrow");
                          domAttr.set(query(".esriCTdivInfoFeatureCount")[0], "innerHTML", count);
                      } else {
@@ -400,7 +401,7 @@ define([
                      domAttr.set(query(".esriCTdivInfoTotalFeatureCount")[0], "innerHTML", "");
                  }
                  for (i = 0; i < fields.length; i++) {
-                     if (fields[i].type == "esriFieldTypeOID") {
+                     if (fields[i].type === "esriFieldTypeOID") {
                          objID = fields[i].name;
                          break;
                      }
@@ -426,7 +427,7 @@ define([
                          }
                      }
                      for (j = 0; j < fields.length; j++) {
-                         if (fields[j].type == "esriFieldTypeDate") {
+                         if (fields[j].type === "esriFieldTypeDate") {
                              if (attributes[fields[j].name]) {
                                  if (Number(attributes[fields[j].name])) {
                                      utcMilliseconds = Number(attributes[fields[j].name]);

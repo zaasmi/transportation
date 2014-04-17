@@ -32,17 +32,15 @@ define([
     "dijit/_TemplatedMixin",
     "dijit/_WidgetsInTemplateMixin",
     "dojo/i18n!application/js/library/nls/localizedStrings",
-    "dojo/i18n!application/nls/localizedStrings",
     "dojo/topic",
     "./locatorSettings"
     ],
-     function (declare, domConstruct, domStyle, domAttr, lang, on, domGeom, dom, domClass, cookie, template, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, sharedNls, appNls, topic, locatorSettings) {
+     function (declare, domConstruct, domStyle, domAttr, lang, on, domGeom, dom, domClass, cookie, template, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, sharedNls, topic, locatorSettings) {
          //========================================================================================================================//
 
          return declare([_WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, locatorSettings], {
              templateString: template,
              sharedNls: sharedNls,
-             appNls: appNls,
              lastSearchString: null,
              stagedSearch: null,
              locatorScrollbar: null,
@@ -108,8 +106,7 @@ define([
              * @memberOf widgets/locator/locator
              */
              _setDefaultTextboxValue: function () {
-                 var locatorSettings, storage;
-                 locatorSettings = dojo.configData.LocatorSettings;
+                 var storage, locatorConfigSettings = dojo.configData.LocatorSettings;
                  storage = window.localStorage;
 
                  /**
@@ -119,13 +116,13 @@ define([
                  * @memberOf widgets/locator/locator
                  */
                  if (storage) {
-                     this.txtAddress.value = (storage.getItem("LocatorAddress") !== null) ? storage.getItem("LocatorAddress") : locatorSettings.LocatorDefaultAddress;
+                     this.txtAddress.value = (storage.getItem("LocatorAddress") !== null) ? storage.getItem("LocatorAddress") : locatorConfigSettings.LocatorDefaultAddress;
                      domAttr.set(this.txtAddress, "defaultAddress", this.txtAddress.value);
                  } else if (cookie.isSupported()) {
-                     this.txtAddress.value = (cookie("LocatorAddress") !== undefined) ? cookie("LocatorAddress") : locatorSettings.LocatorDefaultAddress;
+                     this.txtAddress.value = (cookie("LocatorAddress") !== undefined) ? cookie("LocatorAddress") : locatorConfigSettings.LocatorDefaultAddress;
                      domAttr.set(this.txtAddress, "defaultAddress", this.txtAddress.value);
                  } else {
-                     domAttr.set(this.txtAddress, "defaultAddress", locatorSettings.LocatorDefaultAddress);
+                     domAttr.set(this.txtAddress, "defaultAddress", locatorConfigSettings.LocatorDefaultAddress);
                  }
              },
 
@@ -150,7 +147,7 @@ define([
                      this._replaceDefaultText(evt);
                  })));
                  this.own(on(this.txtAddress, "focus", lang.hitch(this, function () {
-                     if (domStyle.get(this.imgSearchLoader, "display") == "none") {
+                     if (domStyle.get(this.imgSearchLoader, "display") === "none") {
                          domStyle.set(this.close, "display", "block");
                      }
                      domClass.add(this.txtAddress, "esriCTColorChange");
@@ -303,15 +300,14 @@ define([
              * @memberOf widgets/locator/locator
              */
              _setHeightAddressResults: function () {
-
                  /**
                  * divAddressContent Container for search results
                  * @member {div} divAddressContent
                  * @private
                  * @memberOf widgets/locator/locator
                  */
-                 var height = domGeom.getMarginBox(this.divAddressContent).h;
-                 if (height > 0) {
+                 var contentHeight, addressContentHeight = domGeom.getMarginBox(this.divAddressContent).h;
+                 if (addressContentHeight > 0) {
 
                      /**
                      * divAddressScrollContent Scrollbar container for search results
@@ -319,7 +315,8 @@ define([
                      * @private
                      * @memberOf widgets/locator/locator
                      */
-                     domStyle.set(this.divAddressScrollContent, "height", (height - 120) + "px");
+                     contentHeight = { height: addressContentHeight - 120 + 'px' };
+                     domStyle.set(this.divAddressScrollContent, "style", contentHeight + "px");
                  }
              },
 
@@ -358,7 +355,9 @@ define([
              */
              _clearDefaultText: function (evt) {
                  var target = window.event ? window.event.srcElement : evt ? evt.target : null;
-                 if (!target) return;
+                 if (!target) {
+                     return;
+                 }
                  target.style.color = "#FFF";
                  target.value = '';
                  this.txtAddress.value = "";
@@ -372,7 +371,9 @@ define([
              */
              _replaceDefaultText: function (evt) {
                  var target = window.event ? window.event.srcElement : evt ? evt.target : null;
-                 if (!target) return;
+                 if (!target) {
+                     return;
+                 }
                  this._resetTargetValue(target, "defaultAddress");
              },
 
@@ -384,9 +385,9 @@ define([
              * @memberOf widgets/locator/locator
              */
              _resetTargetValue: function (target, title) {
-                 if (target.value == '' && domAttr.get(target, title)) {
+                 if (target.value === '' && domAttr.get(target, title)) {
                      target.value = target.title;
-                     if (target.title == "") {
+                     if (target.title === "") {
                          target.value = domAttr.get(target, title);
                      }
                  }
