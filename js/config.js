@@ -1,5 +1,5 @@
 ﻿/*global define */
-/*jslint browser:true,sloppy:true,nomen:true,unparam:true,plusplus:true */
+/*jslint browser:true,sloppy:true,nomen:true,unparam:true,plusplus:true,indent:4 */
 /*
  | Copyright 2013 Esri
  |
@@ -26,14 +26,39 @@ define([], function () {
         // 2.  Set path for application icon                 - [ Tag(s) to look for: ApplicationIcon ]
         // 3.  Set path for application favicon              - [ Tag(s) to look for: ApplicationFavicon ]
         // 4.  Set URL for help page                         - [ Tag(s) to look for: HelpURL ]
+        // 5.  Set URL for Custom logo                       - [ Tag(s) to look for: CustomLogoUrl ]
         // 5.  Specify header widget settings                - [ Tag(s) to look for: AppHeaderWidgets ]
-        // 6.  Specify URLs for base maps                    - [ Tag(s) to look for: BaseMapLayers ]
-        // 7.  Set initial map extent                        - [ Tag(s) to look for: DefaultExtent ]
-        // 8.  Specify URLs for operational layers           - [ Tag(s) to look for: OperationalLayers]
-        // 9.  Customize zoom level for address search       - [ Tag(s) to look for: ZoomLevel ]
-        // 10.  Customize address search settings            - [ Tag(s) to look for: LocatorSettings]
-        // 11.  Set URL for geometry service                 - [ Tag(s) to look for: GeometryService ]
-        // 12. Specify URLs for map sharing                  - [ Tag(s) to look for: MapSharingOptions,TinyURLServiceURL, TinyURLResponseAttribute, FacebookShareURL, TwitterShareURL, ShareByMailLink ]
+        // 6.  Set proxy url                                 - [ Tag(s) to look for: ProxyUrl ]
+        // 7.  Set settings  for splash screen               - [ Tag(s) to look for: SplashScreen ]
+        // 8.  Set Information Tab DisplayText               - [ Tag(s) to look for: InformationDisplayText ]
+        // 9.  Set Re Route Display Text                     - [ Tag(s) to look for: ReRouteDisplayText ]
+        // 10. Set Frequently route Tab DisplayText          - [ Tag(s) to look for: FrequentRoute ]
+        // 11. Specify header widget settings                - [ Tag(s) to look for: AppHeaderWidgets ]
+        // 12. Specify URL to ArcGIS Portal REST API         - [ Tag(s) to look for: PortalAPIURL ]
+        // 13. Specify URL to Search                         - [ Tag(s) to look for: SearchURL ]
+        // 14. Specify the group title that contains basemaps- [ Tag(s) to look for: BasemapGroupTitle ]
+        // 15. Specify the group name that contains basemaps - [ Tag(s) to look for: BasemapGroupOwner ]
+        // 16. Specify path to display the thumbnail for a   - [ Tag(s) to look for: NoThumbnail ]
+        //     basemap when portal does not provide it
+        // 17. Specify WebMap Id                             - [ Tag(s) to look for: WebMapId ]
+        // 18. Specify Theme                                 - [ Tag(s) to look for: ThemeColor ]
+        // 19. Specify URLs for operational layers           - [ Tag(s) to look for: OperationalLayers]
+        // 19. Specify search and 511 settings               - [ Tag(s) to look for: SearchAnd511Settings]
+        // 20. Customize zoom level for address search       - [ Tag(s) to look for: ZoomLevel ]
+        // 21. Set Time interval to refresh all layers on ma - [ Tag(s) to look for: LayersRefreshInterval  ]
+        // 22. Customize Info-popup Height                   - [ Tag(s) to look for: InfoPopupHeight ]
+        // 23. Customize Info-popup width                    - [ Tag(s) to look for: InfoPopupWidth ]
+        // 24. Specify info-popup settings                   - [ Tag(s) to look for: InfoWindowSettings ]
+        // 25. Customize address search settings             - [ Tag(s) to look for: LocatorSettings]
+        // 26. Specify info-popup settings                   - [ Tag(s) to look for: FrequentRoutesSettings ]
+        // 27. Set URL for geometry service                  - [ Tag(s) to look for: GeometryService ]
+        // 28. Specify routing service URL                   - [ Tag(s) to look for: RouteTaskService ]
+        // 29. Set routing Enable/Disable flag               - [ Tag(s) to look for: RoutingEnabled ]
+        // 30. Specify the buffer distance                   - [ Tag(s) to look for: BufferMilesForProximityAnalysis ]
+        // 31. Specify a distance to find barriers           - [ Tag(s) to look for: BufferMetersForFindingBarriers ]
+        // 32. Specify Buffer Symbology                      - [ Tag(s) to look for: BufferSymbology ]
+        // 33. Specify route Symbology                       - [ Tag(s) to look for: RouteSymbology ]
+        // 34. Specify URLs for map sharing                  - [ Tag(s) to look for: MapSharingOptions,TinyURLServiceURL, TinyURLResponseAttribute, FacebookShareURL, TwitterShareURL, ShareByMailLink ]
 
         // ------------------------------------------------------------------------------------------------------------------------
         // GENERAL SETTINGS
@@ -62,11 +87,15 @@ define([], function () {
             IsVisible: true
         },
 
+        // Set Information Tab DisplayText
         InformationDisplayText: "511 Information",
 
+        // Set Re Route Display Text
         ReRouteDisplayText: "Traffic incidents found on this road",
 
+        // Set Frequently travelled route Tab DisplayText
         FrequentRoute: "Frequently travelled route",
+
         //------------------------------------------------------------------------------------------------------------------------
         // Header Widget Settings
         //------------------------------------------------------------------------------------------------------------------------
@@ -74,7 +103,6 @@ define([], function () {
         // Title: Name of the widget, will displayed as title of widget in header panel
         // WidgetPath: path of the widget respective to the widgets package.
         // MapInstanceRequired: true if widget is dependent on the map instance.
-
         AppHeaderWidgets: [
             {
                 WidgetPath: "widgets/locator/locator",
@@ -94,36 +122,16 @@ define([], function () {
             }
         ],
 
-        // ------------------------------------------------------------------------------------------------------------------------
-        // BASEMAP SETTINGS
-        // ------------------------------------------------------------------------------------------------------------------------
-        // Set baseMap layers
-        // Please note: All base-maps need to use the same spatial reference. By default, on application start the first base-map will be loaded
-
-        BaseMapLayers: [
-            {
-                ThumbnailSource: "js/library/themes/images/Topographic.jpg",
-                Name: "Topographic Map",
-                MapURL: "http://services.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer"
-            }, {
-                ThumbnailSource: "js/library/themes/images/streets.png",
-                Name: "Street Map",
-                MapURL: "http://services.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer"
-            }, {
-                ThumbnailSource: "js/library/themes/images/imagery.png",
-                Name: "Imagery Map",
-                MapURL: "http://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer"
-            }
-        ],
-
-        GroupURL: "http://www.arcgis.com/sharing/rest/",
+        // Specify URL to ArcGIS Portal REST API
+        PortalAPIURL: "http://www.arcgis.com/sharing/rest/",
+        // Specify URL to Search
         SearchURL: "http://www.arcgis.com/sharing/rest/search?q=group:",
-
-        BasemapGroupTitle: "EsriLocalGovernment", //CyberTech Systems and Software Limited
-
-        BasemapGroupOwner: "sagarnair_cssl", //cybertechagol
-
-        WebmapThumbnail: "js/library/themes/images/not-available.png",
+        // Specify the title of group that contains basemaps
+        BasemapGroupTitle: "Basemaps", //CyberTech Systems and Software Limited
+        // Specify the user name of owner of the group that contains basemaps
+        BasemapGroupOwner: "GISITAdmin", //cybertechagol
+        // Specify path to image used to display the thumbnail for a basemap when portal does not provide it
+        NoThumbnail: "js/library/themes/images/not-available.png",
 
         // Initial map extent. Use comma (,) to separate values and dont delete the last comma
         // The coordinates must be specified in the basemap's coordinate system, usually WKID:102100, unless a custom basemap is used
@@ -196,15 +204,15 @@ define([], function () {
         // SearchExpression: Configure the query expression to be used for search.
         // BarrierLayer: Configure "true" or "false" to treat this as a barrier layer to be used for routing and re-routing.
         // BarrierSearchExpression: Configure the query expression to search barriers in the layer.
-        //							Set this to emtpy "", if all features in the layer should be considered as barriers.
+        //                          Set this to emtpy "", if all features in the layer should be considered as barriers.
         // InfoLayer: Allowed values are "true" or "false". Configure this to "true" to consider this as 511 Information layer
-        //			  and display in 511 Information panels.
+        //            and display in 511 Information panels.
         // InfoSearchExpression: Configure the query expression to search features and display in 511 Information panels.
-        //						 Set this to empty "", if all features in the layer should be considered.
+        //                       Set this to empty "", if all features in the layer should be considered.
         // InfoListText: This text is displayed in 511 Information Summary panel.
-        //				 If empty "", then SearchDisplayTitle is used (if configured), else layer name in the webmap/mapservice is used.
+        //               If empty "", then SearchDisplayTitle is used (if configured), else layer name in the webmap/mapservice is used.
         // InfoDetailFields: Attributes that will be displayed in the 511 Information Details panel.
-        //					 If empty "", then SearchDisplayFields will be used (if configured), else displayField property of layer in mapservice will be used.
+        //                   If empty "", then SearchDisplayFields will be used (if configured), else displayField property of layer in mapservice will be used.
 
         SearchAnd511Settings: [
             {
@@ -348,10 +356,10 @@ define([], function () {
         // Time interval to refresh all layers on map
         LayersRefreshInterval: 5, // in minutes
 
-        //minimum height should be 310 for the info-popup in pixels
+        //minimum height should be 250 for the info-popup in pixels
         InfoPopupHeight: 250,
 
-        // Minimum width should be 330 for the info-popup in pixels
+        // Minimum width should be 300 for the info-popup in pixels
         InfoPopupWidth: 300,
 
         // ------------------------------------------------------------------------------------------------------------------------
@@ -364,9 +372,9 @@ define([], function () {
         // InfoWindowHeader: Specify field for the info window header
         // InfoWindowContent: Specify field to be displayed in callout bubble for mobile devices
         // ShowAllFields: When set to true, infowindow will display all fields from layer and InfoWindowData section is ignored
-        //				  When set to false, only fields configured in InfoWindowData section will be displayed
+        //                When set to false, only fields configured in InfoWindowData section will be displayed
         // InfoWindowData: Set the content to be displayed in the info-Popup. Define labels and field values.
-        //                    These fields should be present in the layer referenced by 'QueryLayerId' specified under section 'SearchSettings'
+        //                 These fields should be present in the layer referenced by 'QueryLayerId' specified under section 'SearchSettings'
         // DisplayText: Caption to be displayed instead of field alias names. Set this to empty string ("") if you wish to display field alias names as captions.
         // FieldName: Field used for displaying the value
         InfoWindowSettings: [
@@ -590,9 +598,9 @@ define([], function () {
         // LayerURL: URL for the layer (should include the layer id)
         // UniqueRouteField: Specify the field that contains values which uniquely identify routes
         // DisplayField: Attributes to be displayed in list of frequently travelled routes
-
-        FrequentRoutesLayer: {
-            LayerURL: "http://50.18.115.76:6080/arcgis/rest/services/RoadConditions/MapServer/10",
+        FrequentRoutesSettings: {
+            Title: "RoadConditions",
+            QueryLayerId: "10",
             UniqueRouteField: "ROUTE_ID",
             DisplayField: "${ROUTE_ID} / ${HWY_NUM} - ${DIRECTION}",
             FrequentRoutesEnabled: "true"
@@ -624,13 +632,13 @@ define([], function () {
         // considered as occuring on the route. This should typically be set between 1 to 3 meters.
         BufferMetersForFindingBarriers: "2",
 
+        // Set symbology for Buffer
         BufferSymbology: {
             FillSymbolColor: "0,0,255",
             FillSymbolTransparency: "0.10",
             LineSymbolColor: "0,0,255",
             LineSymbolTransparency: "0.30"
         },
-
 
         // Set symbology for route
         // ColorRGB: Specify the color as comma separated R,G,B values
@@ -643,7 +651,7 @@ define([], function () {
             DirectionUnits: "MILES",
             RouteCircleColor: "007AC2",
             RouteCircleFillColor: "FFFFFF",
-            RouteCirclewidth: 2,
+            RouteCircleWidth: 2,
             CartographicLineColor: "0,0,225",
             CartographicTransparency: "0",
             CartographicLineWidth: 512

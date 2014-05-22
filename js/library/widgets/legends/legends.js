@@ -1,5 +1,5 @@
 ﻿/*global define,dojo,console */
-/*jslint browser:true,sloppy:true,nomen:true,unparam:true,plusplus:true */
+/*jslint browser:true,sloppy:true,nomen:true,unparam:true,plusplus:true,indent:4 */
 /*
  | Copyright 2013 Esri
  |
@@ -37,10 +37,10 @@ define([
     "dojo/i18n!application/js/library/nls/localizedStrings",
     "esri/request",
     "esri/tasks/query",
-     "esri/geometry/Extent",
+    "esri/geometry/Extent",
+    "dojo/dom-geometry",
     "esri/tasks/QueryTask"
-  ],
-function (declare, domConstruct, domStyle, lang, array, query, domAttr, on, dom, domClass, template, topic, Deferred, DeferredList, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, sharedNls, esriRequest, Query, GeometryExtent, QueryTask) {
+], function (declare, domConstruct, domStyle, lang, array, query, domAttr, on, dom, domClass, template, topic, Deferred, DeferredList, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, sharedNls, esriRequest, Query, GeometryExtent, domGeom, QueryTask) {
 
     //========================================================================================================================//
 
@@ -81,8 +81,7 @@ function (declare, domConstruct, domStyle, lang, array, query, domAttr, on, dom,
             if (this.isExtentBasedLegend) {
                 this.map.on("extent-change", lang.hitch(this, function (evt) {
                     var defQueryArray = [], queryResult, layerObject, rendererObject, index, resultListArray = [], legendListWidth = [],
-                    queryDefList, arryList = 0, boxWidth, i, layer;
-
+                        queryDefList, arryList = 0, boxWidth, i, layer;
                     this._resetLegendContainer();
                     this._rendererArray.length = 0;
                     for (layer in this._layerCollection) {
@@ -159,9 +158,9 @@ function (declare, domConstruct, domStyle, lang, array, query, domAttr, on, dom,
         _setMaxLegendLengthResult: function () {
             domClass.add(this.logoContainer, "mapLogoUrl");
             if (this.legendrightbox) {
-                domClass.replace(this.legendrightbox, "legendrightboxTest", query(".legendrightbox")[0]);
+                domClass.replace(this.legendrightbox, "legendrightboxTest", "legendrightbox");
             } else if (query(".legendrightbox")[0]) {
-                domClass.replace(this.legendrightbox, query(".legendrightbox")[0], "legendrightboxTest");
+                domClass.replace(this.legendrightbox, "legendrightbox", "legendrightboxTest");
             }
             if (this.divRightArrow) {
                 domClass.replace(this.divRightArrow, "divRightArrowRightMargin", query(".esriCTRightArrow")[0]);
@@ -192,7 +191,6 @@ function (declare, domConstruct, domStyle, lang, array, query, domAttr, on, dom,
 
         _createLegendContainerUI: function () {
             var divlegendContainer, divLeftArrow;
-
             this.esriCTLegendContainer = domConstruct.create("div", {}, dom.byId("esriCTParentDivContainer"));
             this.esriCTLegendContainer.appendChild(this.esriCTdivLegendbox);
             divlegendContainer = domConstruct.create("div", { "class": "divlegendContainer" }, this.divlegendList);
@@ -323,7 +321,6 @@ function (declare, domConstruct, domStyle, lang, array, query, domAttr, on, dom,
 
         _addFieldValue: function () {
             var defArray = [], layerTempArray = [], params, layersRequest, deferredList, layerObject, i, layer;
-
             for (layer in this._layerCollection) {
                 if (this._layerCollection.hasOwnProperty(layer)) {
                     if (this._layerCollection[layer].legend && this._layerCollection[layer].legend.length > 1) {
@@ -383,12 +380,11 @@ function (declare, domConstruct, domStyle, lang, array, query, domAttr, on, dom,
         },
 
         _addlegendListWidth: function (legendListWidth) {
-            var listWidth = legendListWidth, total = 0, totalWidth, j;
+            var listWidth = legendListWidth, total = 0, j;
             for (j = 0; j < listWidth.length - 1; j++) {
                 total += listWidth[j];
             }
-            totalWidth = total - query(".esriCTHeaderRouteContainer")[0].offsetWidth + 200;
-            domStyle.set(query(".divlegendContent")[0], "width", totalWidth + "px");
+            domStyle.set(query(".divlegendContent")[0], "width", total + 520 + "px");
         },
 
         _addLegendSymbol: function (legend, layerName) {

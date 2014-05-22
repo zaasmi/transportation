@@ -1,5 +1,5 @@
 ﻿/*global define,dojo,dojoConfig */
-/*jslint browser:true,sloppy:true,nomen:true,unparam:true,plusplus:true */
+/*jslint browser:true,sloppy:true,nomen:true,unparam:true,plusplus:true,indent:4 */
 /*
  | Copyright 2013 Esri
  |
@@ -29,104 +29,107 @@ define([
     "dojo/i18n!application/js/library/nls/localizedStrings",
     "dojo/dom-class",
     "dojo/topic"
-    ],
-     function (declare, domConstruct, lang, domAttr, dom, template, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, sharedNls, domClass, topic) {
+], function (declare, domConstruct, lang, domAttr, dom, template, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, sharedNls, domClass, topic) {
 
-         //========================================================================================================================//
+    //========================================================================================================================//
 
-         return declare([_WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin], {
-             templateString: template,
-             sharedNls: sharedNls,
+    return declare([_WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin], {
+        templateString: template,
+        sharedNls: sharedNls,
 
-             /**
-             * create header panel
-             *
-             * @param {string} dojo.configData.ApplicationName Applicaton name specified in configuration file
-             *
-             * @class
-             * @name widgets/appHeader/appHeader
-             */
-             postCreate: function () {
+        /**
+        * create header panel
+        *
+        * @param {string} dojo.configData.ApplicationName Applicaton name specified in configuration file
+        *
+        * @class
+        * @name widgets/appHeader/appHeader
+        */
+        postCreate: function () {
 
-                 /**
-                 * add applicationHeaderParentContainer to div for header panel and append to esriCTParentDivContainer container
-                 *
-                 * applicationHeaderParentContainer container for application header
-                 * @member {div} applicationHeaderParentContainer
-                 * @private
-                 * @memberOf widgets/appHeader/appHeader
-                 */
+            /**
+            * add applicationHeaderParentContainer to div for header panel and append to esriCTParentDivContainer container
+            *
+            * applicationHeaderParentContainer container for application header
+            * @member {div} applicationHeaderParentContainer
+            * @private
+            * @memberOf widgets/appHeader/appHeader
+            */
+            var applicationHeaderDiv;
+            topic.subscribe("showProgressIndicator", lang.hitch(this, this.showProgressIndicator));
+            topic.subscribe("hideProgressIndicator", lang.hitch(this, this.hideProgressIndicator));
 
-                 topic.subscribe("showProgressIndicator", lang.hitch(this, this.showProgressIndicator));
-                 topic.subscribe("hideProgressIndicator", lang.hitch(this, this.hideProgressIndicator));
+            applicationHeaderDiv = domConstruct.create("div", {}, dom.byId("esriCTParentDivContainer"));
+            domConstruct.place(this.applicationHeaderParentContainer, applicationHeaderDiv);
+            this._loadApplicationHeaderIcon();
+            /**
+            * set browser header and application header to application name
+            *
+            * applicationHeaderName container for application name
+            * @member {div} applicationHeaderName
+            * @private
+            * @memberOf widgets/appHeader/appHeader
+            */
+            document.title = dojo.configData.ApplicationName;
+            domAttr.set(this.applicationHeaderName, "innerHTML", dojo.configData.ApplicationName);
+        },
 
-                 var applicationHeaderDiv = domConstruct.create("div", {}, dom.byId("esriCTParentDivContainer"));
-                 domConstruct.place(this.applicationHeaderParentContainer, applicationHeaderDiv);
-                 this._loadApplicationHeaderIcon();
-                 /**
-                 * set browser header and application header to application name
-                 *
-                 * applicationHeaderName container for application name
-                 * @member {div} applicationHeaderName
-                 * @private
-                 * @memberOf widgets/appHeader/appHeader
-                 */
-                 document.title = dojo.configData.ApplicationName;
-                 domAttr.set(this.applicationHeaderName, "innerHTML", dojo.configData.ApplicationName);
-             },
+        /**
+        * append widgets to header panel
+        * @param {object} widgets Contain widgets to be displayed in header panel
+        * @memberOf widgets/appHeader/appHeader
+        */
 
-             /**
-             * append widgets to header panel
-             * @param {object} widgets Contain widgets to be displayed in header panel
-             * @memberOf widgets/appHeader/appHeader
-             */
+        loadHeaderWidgets: function (widgets) {
+            var i;
+            /**
+            * applicationHeaderWidgetsContainer container for header panel widgets
+            * @member {div} applicationHeaderWidgetsContainer
+            * @private
+            * @memberOf widgets/appHeader/appHeader
+            */
+            for (i in widgets) {
+                if (widgets.hasOwnProperty(i)) {
+                    if (widgets[i].domNode) {
+                        domConstruct.place(widgets[i].domNode, this.applicationHeaderWidgetsContainer);
+                    }
+                }
+            }
+        },
 
-             loadHeaderWidgets: function (widgets) {
-                 var i;
-                 /**
-                 * applicationHeaderWidgetsContainer container for header panel widgets
-                 * @member {div} applicationHeaderWidgetsContainer
-                 * @private
-                 * @memberOf widgets/appHeader/appHeader
-                 */
-                 for (i in widgets) {
-                     if (widgets.hasOwnProperty(i)) {
-                         if (widgets[i].domNode) {
-                             domConstruct.place(widgets[i].domNode, this.applicationHeaderWidgetsContainer);
-                         }
-                     }
-                 }
-             },
+        /**
+        * load Application Header Icon
+        * @memberOf widgets/appHeader/appHeader
+        */
+        _loadApplicationHeaderIcon: function () {
+            if (dojo.configData.ApplicationFavicon && lang.trim(dojo.configData.ApplicationFavicon).length !== 0) {
+                this._loadIcons("shortcut icon", dojo.configData.ApplicationFavicon);
+            }
+            if (dojo.configData.ApplicationIcon && lang.trim(dojo.configData.ApplicationIcon).length !== 0) {
+                this._loadIcons("apple-touch-icon-precomposed", dojo.configData.ApplicationIcon);
+                this._loadIcons("apple-touch-icon", dojo.configData.ApplicationIcon);
+                domConstruct.create("img", { "class": "", "src": dojoConfig.baseURL + dojo.configData.ApplicationIcon }, this.divImgApplicationHeaderIcon);
+            }
+        },
 
-             /**
-             * load Application Header Icon
-             * @memberOf widgets/appHeader/appHeader
-             */
-             _loadApplicationHeaderIcon: function () {
-                 if (dojo.configData.ApplicationFavicon && lang.trim(dojo.configData.ApplicationFavicon).length !== 0) {
-                     this._loadIcons("shortcut icon", dojo.configData.ApplicationFavicon);
-                     this._loadIcons("apple-touch-icon-precomposed", dojo.configData.ApplicationFavicon);
-                     this._loadIcons("apple-touch-icon", dojo.configData.ApplicationFavicon);
-                 }
-                 if (dojo.configData.ApplicationIcon && lang.trim(dojo.configData.ApplicationIcon).length !== 0) {
-                     domConstruct.create("img", { "src": dojoConfig.baseURL + dojo.configData.ApplicationIcon }, this.divImgApplicationHeaderIcon);
-                 }
-             },
+        _loadIcons: function (rel, iconPath) {
+            var icon;
+            icon = domConstruct.create("link");
+            icon.rel = rel;
+            icon.type = "image/x-icon";
+            icon.href = dojoConfig.baseURL + iconPath;
+            document.getElementsByTagName('head')[0].appendChild(icon);
+        },
 
-             _loadIcons: function (rel, iconPath) {
-                 var icon = domConstruct.create("link");
-                 icon.rel = rel;
-                 icon.type = "image/x-icon";
-                 icon.href = dojoConfig.baseURL + iconPath;
-                 document.getElementsByTagName('head')[0].appendChild(icon);
-             },
+        showProgressIndicator: function () {
+            domClass.replace(this.divLoadingIndicator, "displayBlockAll", "displayNoneAll");
+            this.divLoadingIndicator.onclick = function (evt) {
+                evt.stopPropagation();
+            };
+        },
 
-             showProgressIndicator: function () {
-                 domClass.replace(this.divLoadingIndicator, "displayBlockAll", "displayNoneAll");
-             },
-
-             hideProgressIndicator: function () {
-                 domClass.replace(this.divLoadingIndicator, "displayNoneAll", "displayBlockAll");
-             }
-         });
-     });
+        hideProgressIndicator: function () {
+            domClass.replace(this.divLoadingIndicator, "displayNoneAll", "displayBlockAll");
+        }
+    });
+});

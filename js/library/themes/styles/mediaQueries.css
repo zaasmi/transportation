@@ -218,6 +218,10 @@
         z-index: 1000;
         top: 92px;
     }
+    .esriRoutes
+    {
+        padding-bottom: 65px !important;
+    }
 }
 
 @media screen and (min-width: 681px) and (max-width: 767px)
@@ -319,6 +323,10 @@
         width: 100%;
         z-index: 1000;
         top: 92px;
+    }
+    .esriRoutes
+    {
+        padding-bottom: 65px !important;
     }
 }
 
@@ -472,10 +480,6 @@
     {
         width: 100% !important;
     }
-    .esriCTAddressScrollContent
-    {
-        height: 80px;
-    }
     /* End of Splash Screen */
 
     .esriCTlayerList
@@ -619,6 +623,14 @@
     .esriCTFrequentRouteContainerTopButton
     {
         width: 100% !important;
+    }
+    .esriRoutes
+    {
+        padding-bottom: 65px !important;
+    }
+    .esriCTRouteContainer
+    {
+        min-height: 100px !important;
     }
 }
 
@@ -882,6 +894,15 @@
     {
         width: 100% !important;
     }
+    .esriRoutes
+    {
+        padding-bottom: 65px !important;
+    }
+    .esriCTRouteContainer
+    {
+        min-height: 150px !important;
+    }
+
 }
 
 /* Landscape */
