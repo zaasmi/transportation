@@ -56,7 +56,7 @@ html, body
     height: 48px;
     width: 100%;
     position: absolute;
-    z-index: 999;
+    z-index: 1001;
     overflow: hidden;
     background: #fff;
 }
@@ -578,7 +578,10 @@ input
     margin: 0 25px 0 0;
 }
 
-
+.simpleDirections .esriStopsRemovable .esriStop .esriStopIconRemove
+{
+    margin-right: 4px;
+}
 .simpleDirections .esriResultsSummary
 {
     float: left !important;
@@ -605,6 +608,9 @@ input
     left: 50%;
     border-left: none;
     border-bottom: none;
+    text-shadow: 0 0 1px #AAAAAA;
+    text-overflow: ellipsis;
+    overflow: hidden;
 }
 
 .esriCTDirectionContainer
@@ -616,11 +622,14 @@ input
     float: left;
     width: 49% !important;
     left: 50%;
+    text-shadow: 0 0 1px #AAAAAA;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
 }
 
 .esriCTDirectionRefreshButton
 {
-    background-image: url("../images/refresh-route.png") !important;
     background-repeat: no-repeat;
     background-position: center;
     text-align: center;
@@ -667,7 +676,7 @@ input
 .esriCTFrequentRouteContainerTopButton
 {
     background: #fff;
-    position: fixed;
+    position: absolute;
     padding: 0 0 0 10px;
     z-index: 1010;
     right: 0px;
@@ -676,7 +685,6 @@ input
     text-align: center;
     bottom: 0px;
 }
-
 .esriCTcontainerButtonHtml
 {
     width: 100%;
@@ -697,6 +705,10 @@ input
     width: 50% !important;
     left: 50%;
     border-top: none !important;
+    text-shadow: 0 0 1px #AAAAAA;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
 }
 
 .esriCTRouteInformationContainer
@@ -710,6 +722,10 @@ input
     float: right;
     width: 50% !important;
     left: 50%;
+    text-shadow: 0 0 1px #AAAAAA;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
 }
 
 .esriCTRouteInformationContainerTab
@@ -721,6 +737,10 @@ input
     cursor: default;
     float: right;
     width: 100% !important;
+    text-shadow: 0 0 1px #AAAAAA;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
 }
 
 .esriCTRouteInformationContent
@@ -738,9 +758,9 @@ input
     line-height: 20px;
     text-align: center;
     font-weight: bold;
-    width: 100%;
+    width: 99%;
     float: left;
-    padding: 5px 20px 5px 2px;
+    padding: 5px 0px 5px 2px;
 }
 
 .esriCTRouteInformationTitleTab
@@ -766,7 +786,6 @@ input
 {
     line-height: 20px;
     float: left;
-    width: 100%;
     padding: 5px 0 !important;
 }
 
@@ -845,7 +864,10 @@ input
     padding: 3px;
     height: 88px;
 }
-
+.simpleDirections .esriResultsContainer
+{
+    margin-bottom: 22px !important;
+}
 .esriCTRouteContainer
 {
     position: absolute;
@@ -854,7 +876,12 @@ input
     width: 286px;
     border-right: none !important;
     overflow: hidden;
-    min-height: 300px;
+    min-height: 400px;
+    bottom: 0px;
+}
+.esriCTRouteContainerScroll
+{
+    height: 575px !important;
 }
 .simpleDirections .esriStopOrigin .esriStopIcon
 {
@@ -881,7 +908,12 @@ input
 {
     position: relative;
 }
-
+.esriCTdivFrequentRoutePanel
+{
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+}
 .esriCTrouteUpTitleArrow
 {
     float: right;
@@ -912,10 +944,19 @@ input
 .esriCTSplashScreenDialog
 {
     text-align: left;
-    z-index: 10007;
-    padding: 5px;
+    background: #FFF;
     width: 350px;
     height: 290px;
+    position: relative;
+    z-index: 10002;
+}
+.esriGovtLoadSpashScreen
+{
+    top: 0px;
+    left: 0px;
+    position: absolute;
+    width: 100%;
+    height: 100%;
 }
 
 .esriGovtSplashContent
@@ -960,7 +1001,6 @@ input
 {
     overflow: hidden;
     position: relative;
-    margin-top: 10px;
     height: 100%;
 }
 
@@ -1188,7 +1228,7 @@ input
 .esriCTdivLegendbox
 {
     height: 31px;
-    position: fixed;
+    position: absolute;
     z-index: 998;
     overflow: hidden;
     width: 100%;
@@ -1467,7 +1507,11 @@ input
 {
     margin-left: 15px !important;
 }
-
+.esriCTRouteBlankPanel
+{
+    height: 36px;
+    width: 100%;
+}
 .simpleDirections
 {
     width: 100% !important;
@@ -1501,7 +1545,7 @@ input
     background-position: left center;
     background-repeat: no-repeat;
     display: table-cell;
-    width: 69px;
+    width: 71px;
     height: 30px;
     padding-right: 10px;
 }
@@ -1664,7 +1708,7 @@ input
 
 .esriCTinfoWindow
 {
-    z-index: 998;
+    z-index: 1000;
     visibility: visible !important;
     height: 300px;
     width: 350px;
@@ -1812,7 +1856,13 @@ esriCTMobileCloseDiv
     height: 170px;
     margin: 0 auto;
 }
-
+.esriCTInfoLink
+{
+    color: blue;
+    text-decoration: underline;
+    margin: 0 auto;
+    cursor: pointer;
+}
 /* Loading indicator Styles */
 
 .esriCTLoadingIndicator
@@ -1863,7 +1913,7 @@ esriCTMobileCloseDiv
     bottom: 35px;
     left: 5px;
     height: 35px;
-    z-index: 1000;
+    z-index: 29;
     width: auto;
 }
 
@@ -2035,3 +2085,5 @@ esriCTMobileCloseDiv
 {
     padding-right: 5px;
 }
+
+

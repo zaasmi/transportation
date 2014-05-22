@@ -1,5 +1,5 @@
 ﻿/*global define,dojo,dojoConfig,Modernizr,alert */
-/*jslint browser:true,sloppy:true,nomen:true,unparam:true,plusplus:true */
+/*jslint browser:true,sloppy:true,nomen:true,unparam:true,plusplus:true,indent:4 */
 /*
  | Copyright 2013 Esri
  |
@@ -68,8 +68,8 @@ define([
         */
 
         _showCurrentLocation: function () {
-            var mapPoint, self = this, currentBaseMap,
-            geometryServiceUrl = dojo.configData.GeometryService,
+            var mapPoint, self = this, currentBaseMap, geometryServiceUrl, geometryService;
+            geometryServiceUrl = dojo.configData.GeometryService;
             geometryService = new GeometryService(geometryServiceUrl);
 
             /**
@@ -112,8 +112,9 @@ define([
         * @memberOf widgets/geoLocation/geoLocation
         */
         _addGraphic: function (mapPoint) {
-            var geoLocationPushpin = dojoConfig.baseURL + dojo.configData.LocatorSettings.DefaultLocatorSymbol,
-            locatorMarkupSymbol = new PictureMarkerSymbol(geoLocationPushpin, "35", "35"),
+            var locatorMarkupSymbol, geoLocationPushpin, graphic;
+            geoLocationPushpin = dojoConfig.baseURL + dojo.configData.LocatorSettings.DefaultLocatorSymbol;
+            locatorMarkupSymbol = new PictureMarkerSymbol(geoLocationPushpin, "35", "35");
             graphic = new Graphic(mapPoint, locatorMarkupSymbol, null, null);
             this.map.getLayer("esriGraphicsLayerMapSettings").clear();
             this.map.getLayer("esriGraphicsLayerMapSettings").add(graphic);

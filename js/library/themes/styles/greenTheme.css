@@ -37,7 +37,10 @@
         background-image: url("../images/img2X/get-route-select@2x-green.png") !important;
     }
 
-
+    .esriCTDirectionRefreshButton
+    {
+        background-image: url("../images/refresh-route-green.png") !important;
+    }
     .facebook
     {
         background-image: url("../images/img2X/img_twitter@2x-green.png") !important;
@@ -434,7 +437,6 @@ input
     color: #028D6A !important;
 }
 
-
 .esriCTRouteContainer
 {
     background-color: #FFFFFF;
@@ -643,9 +645,12 @@ input
 
 .showRouteImgContent
 {
-    background-image: url("../images/re-route.jpg");
+    background-image: url("../images/re-route-green.png");
 }
-
+.esriCTDirectionRefreshButton
+{
+    background-image: url("../images/refresh-route-green.png") !important;
+}
 .esriCTshowRouteInfoContent
 {
     color: #7b6e40;

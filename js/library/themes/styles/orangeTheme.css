@@ -52,7 +52,10 @@
     {
         background-image: url("../images/img2X/img-email@2x-orange.png") !important;
     }
-
+    .esriCTDirectionRefreshButton
+    {
+        background-image: url("../images/refresh-route-orange.png") !important;
+    }
 }
 
 
@@ -70,7 +73,10 @@
     {
         background-image: url("../images/img44x44/Help.png") !important;
     }
-
+    .esriCTDirectionRefreshButton
+    {
+        background-image: url("../images/refresh-route-orange.png") !important;
+    }
     .esriCTTdGeolocation
     {
         background-image: url("../images/img44x44/imgGeolocation.png") !important;
@@ -451,7 +457,6 @@ input
     color: #d15706 !important;
 }
 
-
 .esriCTRouteContainer
 {
     background-color: #FFFFFF;
@@ -660,7 +665,7 @@ input
 
 .showRouteImgContent
 {
-    background-image: url("../images/re-route.jpg");
+    background-image: url("../images/re-route-orange.jpg");
 }
 
 .esriCTshowRouteInfoContent

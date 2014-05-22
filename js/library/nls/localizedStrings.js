@@ -1,5 +1,5 @@
 ﻿/*global define */
-/*jslint browser:true,sloppy:true,nomen:true,unparam:true,plusplus:true */
+/*jslint browser:true,sloppy:true,nomen:true,unparam:true,plusplus:true,indent:4 */
 /*
  | Copyright 2013 Esri
  |
@@ -27,7 +27,7 @@ define({
             less: "Less",
             link: "Link",
             embedding: "Embedding",
-            email: "email",  // Shown next to icon for sharing the current map extents via email; works with shareViaEmail tooltip
+            email: "Email",  // Shown next to icon for sharing the current map extents via email; works with shareViaEmail tooltip
             facebook: "Facebook",  // Shown next to icon for sharing the current map extents via a Facebook post; works with shareViaFacebook tooltip
             twitter: "Twitter"  // Shown next to icon for sharing the current map extents via a Twitter tweet; works with shareViaTwitter tooltip
         },
@@ -38,13 +38,14 @@ define({
             share: "Share",
             help: "Help",
             clearEntry: "Clear",
+            clearDirection: "Clear Direction",
             loadingText: "Loading..."
         },
         titles: {
             directionsDisplayText: "Directions",
             frequentRouteText: "Frequent Routes",
             informationPanelTitle: "Information for current map view",
-            webpageDisplayText: "Copy/paste HTML into your web page"
+            webpageDisplayText: "Copy/Paste HTML into your web page"
         },
         sentenceFragment: {
             to: "to"
@@ -59,7 +60,10 @@ define({
             shareFailed: "Unable to share.",
             noDirection: "Location could not be found",
             webMapMessages: "Title and/or QueryLayerId parameters in SearchSettings do not match with configured webmap",
-            noInfoWindow: "InfoWindow not found for this layer"
+            noInfoWindow: "InfoWindow not found for this layer",
+            enterCorrectPoints: "Enter correct source or destination.",
+            enterCorrectSource: "Enter correct source.",
+            enterCorrectDestination: "Enter correct destination."
         }
 
     },

@@ -54,6 +54,10 @@
     {
         background-image: url("../images/img2X/img-email@2x.png") !important;
     }
+    .esriCTDirectionRefreshButton
+    {
+        background-image: url("../images/refresh-route.png") !important;
+    }
 }
 
 @media screen and (max-width: 1024px)
@@ -700,12 +704,17 @@ input
 
 .showRouteImgContent
 {
-    background-image: url("../images/re-route.jpg");
+    background-image: url("../images/re-route.png");
 }
 
 .esriCTshowRouteInfoContent
 {
     color: #7b6e40;
+}
+
+.esriCTDirectionRefreshButton
+{
+    background-image: url("../images/refresh-route.png") !important;
 }
 
 .esriCTshowCountContent
