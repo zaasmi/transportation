@@ -219,6 +219,7 @@ define([
                     }
                     _this.clearAllGraphics(true);
                     domStyle.set(_this.esriCTDirectionRefreshButton, "display", "none");
+                    graphicsLayerHandle.clear();
                 };
             }
         },
@@ -428,7 +429,7 @@ define([
         * @memberOf widgets/route/routeSetting
         */
         setDirectionScrollbar: function () {
-            var esriRoutesHeight, esriRoutesStyle, _this = this;
+            var esriRoutesHeight, esriRoutesStyle, _this = this, containerMinHeight;
             if (dojo.configData.RoutingEnabled === "true" && lang.trim(dojo.configData.RoutingEnabled).length !== 0) {
                 if (_this.esriCTrouteDirectionScrollbar) {
                     domClass.add(_this.esriCTrouteDirectionScrollbar._scrollBarContent, "esriCTZeroHeight");
@@ -437,6 +438,11 @@ define([
                         esriRoutesHeight = document.documentElement.clientHeight - query(".esriCTApplicationHeader")[0].offsetHeight - html.coords(query(".simpleDirections .esriStopsContainer")[0]).h - 300;
                     } else {
                         esriRoutesHeight = document.documentElement.clientHeight - query(".esriCTApplicationHeader")[0].offsetHeight - 64;
+                    }
+                    //height fix for mobile
+                    if (dojo.window.getBox().w <= 680) {
+                        containerMinHeight = (document.documentElement.clientHeight - query(".esriCTApplicationHeader")[0].offsetHeight - 50) + "px";
+                        domStyle.set(this.esriCTRouteContainer, "min-height", containerMinHeight);
                     }
                     esriRoutesStyle = { height: esriRoutesHeight + "px" };
                     domAttr.set(_this.divFrequentRoutePanel, "style", esriRoutesStyle);

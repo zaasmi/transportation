@@ -876,7 +876,7 @@ input
     width: 286px;
     border-right: none !important;
     overflow: hidden;
-    min-height: 400px;
+    min-height: 100px;
     bottom: 0px;
 }
 .esriCTRouteContainerScroll

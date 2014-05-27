@@ -422,6 +422,11 @@
         width: 100%;
     }
 
+    .esriCTAddressScrollContent
+    {
+        height: 157px;
+    }
+
     .esriCTApplicationHeader
     {
         height: 60px;
@@ -627,10 +632,6 @@
     .esriRoutes
     {
         padding-bottom: 65px !important;
-    }
-    .esriCTRouteContainer
-    {
-        min-height: 100px !important;
     }
 }
 

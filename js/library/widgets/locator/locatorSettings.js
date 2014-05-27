@@ -219,6 +219,32 @@ define([
         },
 
         /**
+        * reset position of scrollbar
+        * @memberOf widgets/locator/locatorSetting
+        */
+        _resetLocatorScrollBar: function () {
+            var addressContentStyle, addressContentHeight;
+            if (dojo.window.getBox().w <= 680) {
+                if (this.locatorScrollbar) {
+                    domClass.add(this.locatorScrollbar._scrollBarContent, "esriCTZeroHeight");
+                    this.locatorScrollbar.removeScrollBar();
+                }
+                //if else to for issue of address container in mobiles
+                if (window.orientation !== 0) {
+                    addressContentHeight = document.documentElement.clientHeight - 100;
+                } else {
+                    addressContentHeight = 230;
+                }
+                addressContentStyle = { height: addressContentHeight + "px" };
+                domAttr.set(this.divAddressScrollContent, "style", addressContentStyle);
+                this.locatorScrollbar = new ScrollBar({ domNode: this.divAddressScrollContent });
+                this.locatorScrollbar.setContent(this.divAddressResults);
+                this.locatorScrollbar.createScrollBar();
+            }
+
+        },
+
+        /**
         * filter valid results from results returned by locator service
         * @param {object} candidates Contains results from locator service
         * @param {int} length of candidates result
@@ -228,11 +254,15 @@ define([
             var addrListCount = 0, addrList = [], candidateArray, divAddressCounty, divAddressSearchCell, addressContentStyle, addressContentHeight,
                 candiate, listContainer, i;
             if (dojo.window.getBox().w <= 680) {
-                if (domGeom.getMarginBox(this.divAddressScrollContent).h === this.addressContentheight) {
-                    addressContentHeight = document.documentElement.clientHeight - domGeom.getMarginBox(this.divAddressContent).h - domGeom.getMarginBox(query(".divlegendContainer")[0]).h - domGeom.getMarginBox(query(".esriCTRightTab")[0]).h - 35;
-                    addressContentStyle = { height: addressContentHeight + "px" };
-                    domAttr.set(this.divAddressScrollContent, "style", addressContentStyle);
+                addressContentHeight = document.documentElement.clientHeight - domGeom.getMarginBox(this.divAddressContent).h - domGeom.getMarginBox(query(".divlegendContainer")[0]).h - domGeom.getMarginBox(query(".esriCTRightTab")[0]).h - 35;
+                //if else to for issue of address container in mobiles
+                if (window.orientation !== 0) {
+                    addressContentHeight = document.documentElement.clientHeight - 100;
+                } else {
+                    addressContentHeight = 230;
                 }
+                addressContentStyle = { height: addressContentHeight + "px" };
+                domAttr.set(this.divAddressScrollContent, "style", addressContentStyle);
             }
             domConstruct.empty(this.divAddressResults);
             if (lang.trim(this.txtAddress.value) === "") {
@@ -473,7 +503,8 @@ define([
                 fieldNames = string.substitute(infoPopupFieldsCollection[key].FieldName, attributes);
                 if (string.substitute(infoPopupFieldsCollection[key].FieldName, attributes).match("http:") || string.substitute(infoPopupFieldsCollection[key].FieldName, attributes).match("https:")) {
                     link = fieldNames;
-                    if (layerSettings.SearchAnd511Settings[infoIndex].SearchDisplayTitle === "Cameras") {
+                    //Check if url is of image then create image in Infopopup
+                    if (link.match(/\.(jpeg|jpg|gif|png)$/) !== null) {
                         divLink = domConstruct.create("img", { "class": "esriCTLink" }, this.divInfoFieldValue);
                         domAttr.set(divLink, "src", link);
                     } else if (layerSettings.SearchAnd511Settings[infoIndex].SearchDisplayTitle === "Video Cameras") {
@@ -497,7 +528,13 @@ define([
                 }
             }
             infoTitle = string.substitute(layerSettings.InfoWindowSettings[infoIndex].InfoWindowHeaderField, attributes);
-            mobTitle = string.substitute(layerSettings.InfoWindowSettings[infoIndex].InfoWindowContent, attributes);
+            //Check if InfowindowContent available if not then showing infp title as mobile title.
+            //In WebMap case infowindow contents will be not available
+            if (layerSettings.InfoWindowSettings[infoIndex].InfoWindowContent) {
+                mobTitle = string.substitute(layerSettings.InfoWindowSettings[infoIndex].InfoWindowContent, attributes);
+            } else {
+                mobTitle = infoTitle;
+            }
             dojo.selectedMapPoint = mapPoint;
             extentChanged = map.setExtent(this._calculateCustomMapExtent(mapPoint));
             extentChanged.then(lang.hitch(this, function () {
