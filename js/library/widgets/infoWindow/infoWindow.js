@@ -99,8 +99,8 @@ define([
         * @memberOf widgets/infoWindow/infoWindow
         */
         onWindowResize: function () {
-            this.infoWindowzIndex = 1000;
-            domStyle.set(this.domNode, { zIndex: 1000 });
+            this.infoWindowzIndex = 1002;
+            domStyle.set(this.domNode, { zIndex: 1002 });
         },
 
         /**
@@ -120,6 +120,7 @@ define([
         show: function (detailsTab, screenPoint) {
             this.InfoShow = false;
             this.isVisible = true;
+            dojo.mapPoint = null;
             if (this.divInfoDetailsScroll) {
                 while (this.divInfoDetailsScroll.hasChildNodes()) {
                     this.divInfoDetailsScroll.removeChild(this.divInfoDetailsScroll.lastChild);

@@ -93,11 +93,7 @@ define([
 
         _changeBaseMap: function (spanControl) {
             var basemap, prevIndex, basemapType;
-            if (dojo.configData.WebMapId && lang.trim(dojo.configData.WebMapId).length !== 0) {
-                basemapType = "defaultBasemap";
-            } else {
-                basemapType = "esriCTbasemap";
-            }
+            basemapType = "defaultBasemap";
             if (spanControl === 0) {
                 prevIndex = dojo.configData.BaseMapLayers.length - 1;
             } else {
@@ -106,11 +102,15 @@ define([
 
             if (dojo.configData.BaseMapLayers[prevIndex].length) {
                 array.forEach(dojo.configData.BaseMapLayers[prevIndex], lang.hitch(this, function (layer, index) {
-                    this.map.removeLayer(this.map.getLayer(basemapType + index));
+                    if (this.map.getLayer(basemapType + index)) {
+                        this.map.removeLayer(this.map.getLayer(basemapType + index));
+                    }
                 }));
             } else {
                 basemap = this.map.getLayer(basemapType);
-                this.map.removeLayer(basemap);
+                if (basemap) {
+                    this.map.removeLayer(basemap);
+                }
             }
             this._selectBasemapLayers(dojo.configData.BaseMapLayers[spanControl], basemapType);
         },

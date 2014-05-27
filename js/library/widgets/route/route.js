@@ -75,7 +75,8 @@ define([
         routeTopTiteArrow: null,
         esriRoute: false,
         _update511InfoPanel: true,
-
+        currentValue: window.orientation,
+        _isFTRCreated: false,
         /**
         * create route widget
         *
@@ -197,14 +198,21 @@ define([
             this._showWidgetContainer();
             this._activate();
 
-            var currentValue = window.orientation;
-            on(window, "resize", lang.hitch(this, function () {
-                if (currentValue !== window.orientation || window.orientation === undefined || window.orientation === null) {
-                    currentValue = window.orientation;
-                    this._resetRouteScrollBar();
-                }
-            }));
-
+            if (window.orientation !== undefined && window.orientation !== null) {
+                on(window, "orientationchange", lang.hitch(this, function () {
+                    if (this.currentValue !== window.orientation) {
+                        this.currentValue = window.orientation;
+                        this._resetRouteScrollBar();
+                    }
+                }));
+            } else {
+                on(window, "resize", lang.hitch(this, function () {
+                    if (this.currentValue !== window.orientation || window.orientation === undefined || window.orientation === null) {
+                        this.currentValue = window.orientation;
+                        this._resetRouteScrollBar();
+                    }
+                }));
+            }
         },
 
         /**
@@ -212,6 +220,7 @@ define([
         * @memberOf widgets/route/route
         */
         _resetRouteScrollBar: function () {
+            var esriInfoPanelHeight, esriInfoPanelStyle;
             if (this.esriCTRouteContainer) {
                 if (domStyle.get(this.esriCTRouteContainer, "display") !== "none") {
                     if (dojo.window.getBox().w <= 680) {
@@ -223,9 +232,27 @@ define([
                     } else if (this.esriCTrouteDirectionScrollbar) {
                         this.setDirectionScrollbar();
                     }
+                } else {
+                    if (this.resultPanelContainer && domStyle.get(this.resultPanelContainer, "display") === "block") {
+                        if (this.InfoPanelScrollbar) {
+                            domClass.add(this.InfoPanelScrollbar._scrollBarContent, "esriCTZeroHeight");
+                            this.InfoPanelScrollbar.removeScrollBar();
+                        }
+                        esriInfoPanelHeight = domGeom.position(query(".esriCTHeaderRouteContainer")[0]).h - query(".esriCTRouteInformationBackTitle")[0].offsetHeight - 153;
+                        esriInfoPanelStyle = { height: esriInfoPanelHeight + "px" };
+                        domAttr.set(this.resultPanelContainer, "style", esriInfoPanelStyle);
+                        this.InfoPanelScrollbar = new ScrollBar({ domNode: this.resultPanelContainer });
+                        this.InfoPanelScrollbar.setContent(this.resultPanelContents);
+                        this.InfoPanelScrollbar.createScrollBar();
+                    }
                 }
             }
+
+            if (this.esriCTrouteDirectionScrollbar) {
+                this.esriCTrouteDirectionScrollbar.resetScrollBar(100);
+            }
         },
+
         /**
         * Refresh 511 information on extent change
         * @memberOf widgets/route/route
@@ -240,12 +267,13 @@ define([
                 }
             }));
             if (!dojo.configData.WebMapId && lang.trim(dojo.configData.WebMapId).length === 0) {
-                aspect.after(this.map.on("extent-change", lang.hitch(this, function () {
-                    if (window.location.toString().split("$frequentRouteId=").length > 1 || window.location.toString().split("$selectedInfo=")[1] === "true") {
+                if (window.location.toString().split("$frequentRouteId=").length > 1 || window.location.toString().split("$selectedInfo=")[1] === "true") {
+                    if (!this._isFTRCreated) {
+                        this._isFTRCreated = true;
                         dojo.share = true;
                         topic.publish("showDirection");
                     }
-                })));
+                }
             }
         },
 
@@ -346,8 +374,14 @@ define([
         * @memberOf widgets/route/route
         */
         _showInfoResultsPanel: function (bufferGeometry) {
+            //show 511InfoPannel in all case only hide if there is only one graphic and that is Polygon
+            var show511InfoPannel = true;
+            if (this.map.getLayer("esriGraphicsLayerMapSettings").graphics.length === 1) {
+                this.map.getLayer("esriGraphicsLayerMapSettings").graphics[0].geometry.geometyrType = "polygon";
+                show511InfoPannel = false;
+            }
             if (!this.inforesult || this.map.getLayer("frequentRoutesLayerID").graphics.length <= 0) {
-                if (this.map.getLayer("esriGraphicsLayerMapSettings").graphics.length <= 0) {
+                if (show511InfoPannel) {
                     if (this._update511InfoPanel) {
                         topic.publish("showProgressIndicator");
                         this._update511InfoPanel = false;
@@ -434,6 +468,9 @@ define([
                     this.inforesult = false;
                 }
                 topic.publish("setMinLegendLength");
+                setTimeout(dojo.hitch(this, function () {
+                    this._resetRouteScrollBar();
+                }), 500);
             }
         },
 
@@ -459,8 +496,8 @@ define([
                     esriRoutesHeight = document.documentElement.clientHeight - query(".esriCTApplicationHeader")[0].offsetHeight - 31;
                     esriRoutesStyle = { height: esriRoutesHeight + "px" };
                     domAttr.set(this.esriCTRouteContainer, "style", esriRoutesStyle);
-                    this.setDirectionScrollbar();
                 }
+                this.setDirectionScrollbar();
             }
         },
 
@@ -550,7 +587,7 @@ define([
         * @memberOf widgets/route/route
         */
         _frequentRoutesResult: function (featuresetResult) {
-            var esriRoutesHeight, esriRoutesStyle, i, j, frequentRouteId, frequentRouteName;
+            var esriRoutesHeight, esriRoutesStyle, i, j, frequentRouteId, frequentRouteName, containerMinHeight;
             this.divFrequentRoutePanel = domConstruct.create("div", { "class": "" });
             if (query(".esriRoutesContainer")[0]) {
                 domConstruct.place(this.divFrequentRoutePanel, query(".esriRoutesContainer")[0], "after");
@@ -576,6 +613,11 @@ define([
             if (dojo.configData.RoutingEnabled === "true" && lang.trim(dojo.configData.RoutingEnabled).length !== 0) {
                 domAttr.set(this.divFrequentRouteContainer, "style", esriRoutesStyle);
                 if (!this.esriCTrouteDirectionScrollbar) {
+                    //height fix for mobile
+                    if (dojo.window.getBox().w <= 680) {
+                        containerMinHeight = (document.documentElement.clientHeight - query(".esriCTApplicationHeader")[0].offsetHeight - 50) + "px";
+                        domStyle.set(this.esriCTRouteContainer, "min-height", containerMinHeight);
+                    }
                     this.esriCTrouteDirectionScrollbar = new ScrollBar({ domNode: this.esriCTRouteContainer });
                     this.esriCTrouteDirectionScrollbar.setContent(query(".simpleDirections")[0]);
                     this.esriCTrouteDirectionScrollbar.createScrollBar();
@@ -754,6 +796,7 @@ define([
             var graphicsLength, graphicsBufferLength, locaterGraphicsLength;
             dojo.featurePoint = null;
             dojo.frequentRouteId = null;
+            dojo.mapPoint = null;
             graphicsLength = this.map.getLayer("esriGraphicsLayerMapSettings").graphics.length;
             graphicsBufferLength = this.map.getLayer("frequentRoutesLayerID").graphics.length;
             locaterGraphicsLength = this.map.getLayer("esrilocaterGraphicsLayer").graphics.length;
@@ -1060,7 +1103,7 @@ define([
             }
             domAttr.set(infoPanelContent, "selectedFeatureID", featureset.resultFeatures[currentIndex].attributes[this.objID]);
             this.own(on(infoPanelContent, "click", lang.hitch(this, function () {
-                var map, currentLayer, selectedFeature, queryTask, queryLayer, geometryPaths, j, point;
+                var map, currentLayer, selectedFeature, queryTask, queryLayer, geometryPaths, j, point, currentLayerIndexInConfig;
                 dojo.showIndicator = false;
                 dojo.openInfowindow = false;
                 dojo.setMapTipPosition = false;
@@ -1073,6 +1116,15 @@ define([
                 topic.publish("showProgressIndicator");
                 currentLayer = domAttr.get(infoPanelContent, "currentLayer");
                 selectedFeature = domAttr.get(infoPanelContent, "selectedFeatureID");
+
+                //Compare InfoQueryURL and CurrentlayerUrl and accordingly set the index of layer from config
+                for (i = 0; i < dojo.configData.InfoWindowSettings.length; i++) {
+                    if (dojo.configData.InfoWindowSettings[i].InfoQueryURL === currentLayer) {
+                        currentLayerIndexInConfig = i;
+                        break;
+                    }
+                }
+                this.selectedIndex = currentLayerIndexInConfig;
                 queryTask = new QueryTask(currentLayer);
                 queryLayer = new Query();
                 queryLayer.where = this.objID + "=" + selectedFeature;

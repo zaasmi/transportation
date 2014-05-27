@@ -107,6 +107,15 @@ define([
                 });
                 mapDeferred.then(lang.hitch(this, function (response) {
                     this.map = response.map;
+                    dojo.selectedBasemapIndex = 0;
+                    if (response.itemInfo.itemData.baseMap.baseMapLayers && response.itemInfo.itemData.baseMap.baseMapLayers[0].id) {
+                        if (response.itemInfo.itemData.baseMap.baseMapLayers[0].id !== "defaultBasemap") {
+                            this.map.getLayer(response.itemInfo.itemData.baseMap.baseMapLayers[0].id).id = "defaultBasemap";
+                            this.map._layers.defaultBasemap = this.map.getLayer(response.itemInfo.itemData.baseMap.baseMapLayers[0].id);
+                            delete this.map._layers[response.itemInfo.itemData.baseMap.baseMapLayers[0].id];
+                            this.map.layerIds[0] = "defaultBasemap";
+                        }
+                    }
                     this._fetchWebMapData(response);
                     topic.publish("setMap", this.map);
                     topic.publish("showProgressIndicator");
@@ -133,11 +142,11 @@ define([
                 });
                 if (dojo.configData.BaseMapLayers[0].length > 1) {
                     array.forEach(dojo.configData.BaseMapLayers[0], lang.hitch(this, function (basemapLayer, index) {
-                        layer = new esri.layers.ArcGISTiledMapServiceLayer(basemapLayer.MapURL, { id: "esriCTbasemap" + index, visible: true });
+                        layer = new esri.layers.ArcGISTiledMapServiceLayer(basemapLayer.MapURL, { id: "defaultBasemap" + index, visible: true });
                         this.map.addLayer(layer);
                     }));
                 } else {
-                    layer = new esri.layers.ArcGISTiledMapServiceLayer(dojo.configData.BaseMapLayers[0].MapURL, { id: "esriCTbasemap", visible: true });
+                    layer = new esri.layers.ArcGISTiledMapServiceLayer(dojo.configData.BaseMapLayers[0].MapURL, { id: "defaultBasemap", visible: true });
                     this.map.addLayer(layer);
                 }
                 this.map.addLayer(graphicsLayer);
@@ -669,7 +678,7 @@ define([
         */
         _executeQueryTask: function (index, mapPoint, onMapFeaturArray) {
             var queryTask, queryLayer, queryOnRouteTask, deferred;
-            queryTask = new esri.tasks.QueryTask(dojo.configData.SearchAnd511Settings[index].QueryURL);
+            queryTask = new esri.tasks.QueryTask(dojo.configData.InfoWindowSettings[index].InfoQueryURL);
             queryLayer = new esri.tasks.Query();
             queryLayer.outSpatialReference = this.map.spatialReference;
             queryLayer.returnGeometry = true;

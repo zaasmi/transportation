@@ -44,7 +44,7 @@ define([
         stagedSearch: null,
         locatorScrollbar: null,
         screenPoint: null,
-
+        currentValue: window.orientation,
         /**
         * display locator widget
         *
@@ -92,6 +92,15 @@ define([
             this._setDefaultTextboxValue();
             this._attachLocatorEvents();
             this.addressContentheight = domGeom.getMarginBox(this.divAddressScrollContent).h;
+            if (window.orientation !== undefined && window.orientation !== null) {
+                on(window, "orientationchange", lang.hitch(this, function () {
+                    if (this.currentValue !== window.orientation) {
+                        this.currentValue = window.orientation;
+                        this._resetLocatorScrollBar();
+                    }
+                }));
+            }
+
         },
 
         /**
