@@ -702,7 +702,7 @@ define([
         * @memberOf widgets/mapSettings/mapSettings
         */
         _extentFromPoint: function (point) {
-            var tolerance = 3, screenPoint, sourcePoint, destinationPoint, sourceMapPoint, destinationMapPoint;
+            var tolerance = 15, screenPoint, sourcePoint, destinationPoint, sourceMapPoint, destinationMapPoint;
             screenPoint = this.map.toScreen(point);
             sourcePoint = new Point(screenPoint.x - tolerance, screenPoint.y + tolerance);
             destinationPoint = new Point(screenPoint.x + tolerance, screenPoint.y - tolerance);
