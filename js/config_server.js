@@ -60,9 +60,9 @@ define([], function () {
         // 33. Specify route Symbology                       - [ Tag(s) to look for: RouteSymbology ]
         // 34. Specify URLs for map sharing                  - [ Tag(s) to look for: MapSharingOptions,TinyURLServiceURL, TinyURLResponseAttribute, FacebookShareURL, TwitterShareURL, ShareByMailLink ]
 
-        
+        // ------------------------------------------------------------------------------------------------------------------------
         // GENERAL SETTINGS
-        //------------------------------------------------------------------------------------------------------------------------
+        // ------------------------------------------------------------------------------------------------------------------------
         // Set application title
         ApplicationName: "",
 
@@ -91,58 +91,99 @@ define([], function () {
         InformationDisplayText: "511 Information",
 
         // Set Re Route Display Text
-        ReRouteDisplayText: "Traffic incidents found on this road.",
+        ReRouteDisplayText: "Traffic incidents found on this road",
 
         // Set Frequently travelled route Tab DisplayText
-        FrequentRoute: "Frequently travelled routes",
+        FrequentRoute: "Frequently travelled route",
 
         
 
-        // Specify URL to ArcGIS Portal REST API. If you are using ArcGIS Online, leave this parameter as is.
+        // Specify URL to ArcGIS Portal REST API
         PortalAPIURL: "http://www.arcgis.com/sharing/rest/",
-
-        // Specify URL to Search. If you are using ArcGIS Online, leave this parameter as is
+        // Specify URL to Search
         SearchURL: "http://www.arcgis.com/sharing/rest/search?q=group:",
-
         // Specify the title of group that contains basemaps
-        BasemapGroupTitle: "Basemaps", 
+        BasemapGroupTitle: "Basemaps", //CyberTech Systems and Software Limited
         // Specify the user name of owner of the group that contains basemaps
-        BasemapGroupOwner: "GISITAdmin", 
+        BasemapGroupOwner: "GISITAdmin", //cybertechagol
         // Specify path to image used to display the thumbnail for a basemap when portal does not provide it
         NoThumbnail: "js/library/themes/images/not-available.png",
 
-      
+        // Initial map extent. Use comma (,) to separate values and dont delete the last comma
+        // The coordinates must be specified in the basemap's coordinate system, usually WKID:102100, unless a custom basemap is used
+        DefaultExtent: "-12001000, 5691000, -10330000, 6354000",
 
-        // If you want to use a WebMap for configuration and setup of the app specify a WebMapId within quotes,          otherwise leave this empty and configure operational layers
-        WebMapId: "ec4ac1550d5240eca0997f1e55006e0c",
+        // Choose if you want to use WebMap or Map Services for operational layers. If using WebMap, specify WebMapId within quotes, otherwise leave this empty and configure operational layers
+        WebMapId: "",
 
-        ThemeColor: "js/library/themes/styles/orangeTheme.css",
-      
+        ThemeColor: "js/library/themes/styles/blueTheme.css",
+        // OPERATIONAL DATA SETTINGS
+        // ------------------------------------------------------------------------------------------------------------------------
 
+        // Configure operational layers:
 
+        // Configure operational layers  below. The order of displaying layers is reversed on map. The last configured layer is displayed on top.
+        // ServiceURL: URL of the layer.
+        // LoadAsServiceType: Field to specify if the operational layers should be added as dynamic map service layer or feature layer.
+        //                    Supported service types are 'dynamic' or 'feature'.
+        OperationalLayers: [
+            {
+                ServiceURL: "http://arcgis-gov-1244222493.us-west-2.elb.amazonaws.com/arcgis/rest/services/Transportation511/MapServer/9",
+                LoadAsServiceType: "dynamic"
+            }, {
+                ServiceURL: "http://arcgis-gov-1244222493.us-west-2.elb.amazonaws.com/arcgis/rest/services/Transportation511/MapServer/8",
+                LoadAsServiceType: "dynamic"
+            }, {
+                ServiceURL: "http://arcgis-gov-1244222493.us-west-2.elb.amazonaws.com/arcgis/rest/services/Transportation511/MapServer/7",
+                LoadAsServiceType: "dynamic"
+            }, {
+                ServiceURL: "http://arcgis-gov-1244222493.us-west-2.elb.amazonaws.com/arcgis/rest/services/Transportation511/MapServer/6",
+                LoadAsServiceType: "dynamic"
+            }, {
+                ServiceURL: "http://arcgis-gov-1244222493.us-west-2.elb.amazonaws.com/arcgis/rest/services/Transportation511/MapServer/5",
+                LoadAsServiceType: "dynamic"
+            }, {
+                ServiceURL: "http://arcgis-gov-1244222493.us-west-2.elb.amazonaws.com/arcgis/rest/services/Transportation511/MapServer/4",
+                LoadAsServiceType: "dynamic"
+            }, {
+                ServiceURL: "http://arcgis-gov-1244222493.us-west-2.elb.amazonaws.com/arcgis/rest/services/Transportation511/MapServer/3",
+                LoadAsServiceType: "dynamic"
+            }, {
+                ServiceURL: "http://arcgis-gov-1244222493.us-west-2.elb.amazonaws.com/arcgis/rest/services/Transportation511/MapServer/2",
+                LoadAsServiceType: "dynamic"
+            }, {
+                ServiceURL: "http://arcgis-gov-1244222493.us-west-2.elb.amazonaws.com/arcgis/rest/services/Transportation511/MapServer/1",
+                LoadAsServiceType: "dynamic"
+            }, {
+                ServiceURL: "http://arcgis-gov-1244222493.us-west-2.elb.amazonaws.com/arcgis/rest/services/Transportation511/MapServer/0",
+                LoadAsServiceType: "dynamic"
+            }
+        ],
+
+        // ------------------------------------------------------------------------------------------------------------------------
         // SEARCH AND 511 SETTINGS
         // ------------------------------------------------------------------------------------------------------------------------
         // Configure search, barrier and info settings to be displayed in search and 511 Info panels:
 
         // Configure search and 511 settings below.
-        // Title: In the case of webmap implementations which use hosted services, the title must match layer name specified in webmap. If using ArcGIS Server operational layers, the title should be the name of the ArcGIS Server Service.
-        // QueryLayerId: This is the layer index in the webmap (if using hosted services) or ArcGIS Map/Feature 		Service and is used for performing queries.
+        // Title: In case of webmap implementations, it must match layer name specified in webmap and in case of operational layers
+        //        it should be the name of Map/Feature Service.
+        // QueryLayerId: This is the layer index in the webmap or ArcGIS Map/Feature Service and is used for performing queries.
         // SearchDisplayTitle: This text is displayed in search results as the title to group results.
         // SearchDisplayFields: Attribute that will be displayed in the search box when user performs a search.
-        // SearchExpression: Configure the query expression to be used for the search.
-        // BarrierLayer: Set the value to  "true" or "false" to treat this as a barrier layer to be used for routing 	and re-routing.
-        // BarrierSearchExpression: Configure the query expression to search for barriers along a route.
-        // Set this to emtpy "", if all features in the layer should be considered as barriers.
-        // InfoLayer: Allowed values are "true" or "false". Configure this to "true" to present this as information in the  511 panel.
-      
+        // SearchExpression: Configure the query expression to be used for search.
+        // BarrierLayer: Configure "true" or "false" to treat this as a barrier layer to be used for routing and re-routing.
+        // BarrierSearchExpression: Configure the query expression to search barriers in the layer.
+        //                          Set this to emtpy "", if all features in the layer should be considered as barriers.
+        // InfoLayer: Allowed values are "true" or "false". Configure this to "true" to consider this as 511 Information layer
+        //            and display in 511 Information panels.
         // InfoSearchExpression: Configure the query expression to search features and display in 511 Information panels.
-        // Set this to empty "", if all features in the layer should be considered.
-        // InfoListText: This text is displayed in the 511 Information Summary panel.
-        //               If empty "", then SearchDisplayTitle is used (if configured), otherwise the layer name in the webmap/mapservice is used.
+        //                       Set this to empty "", if all features in the layer should be considered.
+        // InfoListText: This text is displayed in 511 Information Summary panel.
+        //               If empty "", then SearchDisplayTitle is used (if configured), else layer name in the webmap/mapservice is used.
         // InfoDetailFields: Attributes that will be displayed in the 511 Information Details panel.
-        //                   If the string is empty "", then SearchDisplayFields will be used (if configured), else displayField property of layer in mapservice will be used.
-
-        SearchAnd511Settings: [
+        //                   If empty "", then SearchDisplayFields will be used (if configured), else displayField property of layer in mapservice will be used.
+SearchAnd511Settings: [
             {
                 Title: "Transportation511",
                 QueryLayerId: "0",
@@ -202,7 +243,7 @@ define([], function () {
                 InfoLayer: "true",
                 InfoSearchExpression: "",
                 InfoListText: "",
-                InfoDetailFields: "${STATIONNAME} / Wind Speed:{WINDSPEED}"
+                InfoDetailFields: "${STATIONNAME} / Wind Speed:${WINDSPEED}"
             }, {
                 Title: "Transportation511",
                 QueryLayerId: "5",
@@ -254,6 +295,8 @@ define([], function () {
             }
         ],
 
+
+
         // Following zoom level will be set for the map upon searching an address
         ZoomLevel: 12,
 
@@ -264,9 +307,219 @@ define([], function () {
         InfoPopupHeight: 250,
 
         // Minimum width should be 300 for the info-popup in pixels
-        InfoPopupWidth: 350,
+        InfoPopupWidth: 300,
 
-       
+        // ------------------------------------------------------------------------------------------------------------------------
+        // INFO-WINDOW SETTINGS
+        // ------------------------------------------------------------------------------------------------------------------------
+        // Configure info-popup settings. The Title and QueryLayerId fields should be the same as configured in "Title" and "QueryLayerId" fields in SearchAnd511Settings.
+        // Title: In case of webmap implementations, it must match layer name specified in webmap and in case of operational layers
+        // it should be the name of Map/Feature Service.
+        // QueryLayerId: Layer index used for performing queries.
+        // InfoWindowHeader: Specify field for the info window header
+        // InfoWindowContent: Specify field to be displayed in callout bubble for mobile devices
+        // ShowAllFields: When set to true, infowindow will display all fields from layer and InfoWindowData section is ignored
+        //                When set to false, only fields configured in InfoWindowData section will be displayed
+        // InfoWindowData: Set the content to be displayed in the info-Popup. Define labels and field values.
+        //                 These fields should be present in the layer referenced by 'QueryLayerId' specified under section 'SearchSettings'
+        // DisplayText: Caption to be displayed instead of field alias names. Set this to empty string ("") if you wish to display field alias names as captions.
+        // FieldName: Field used for displaying the value
+        InfoWindowSettings: [
+            {
+                Title: "Transportation511",
+                QueryLayerId: "0",
+                InfoWindowHeaderField: "${HWYNAME}",
+                InfoWindowContent: "${HWYDESC}",
+                ShowAllFields: "false",
+                InfoWindowData: [
+                    {
+                        DisplayText: "ROUTE ID:",
+                        FieldName: "${ROUTEID}"
+                    }, {
+                        DisplayText: "Highway Name:",
+                        FieldName: "${HWYNAME}"
+                    }, {
+                        DisplayText: "Project Location:",
+                        FieldName: "${PROJECTLOC}"
+                    }, {
+                        DisplayText: "Work Type:",
+                        FieldName: "${WORKTYPE}"
+                    }, {
+                        DisplayText: "Delay:",
+                        FieldName: "${DELAYDESC}"
+                    }, {
+                        DisplayText: "Travel Speeds:",
+                        FieldName: "${SPEEDDESC}"
+                    }, {
+                        DisplayText: "Comments:",
+                        FieldName: "${COMMENT}"
+                    }, {
+                        DisplayText: "Width Restriction:",
+                        FieldName: "${WIDTHREST}"
+                    }, {
+                        DisplayText: "Height Restriction:",
+                        FieldName: "${HEIGHTREST}"
+                    }, {
+                        DisplayText: "Expected Start Date:",
+                        FieldName: "${STARTDATE}"
+                    }, {
+                        DisplayText: "Expected End Date:",
+                        FieldName: "${ENDDATE}"
+                    }
+                ]
+            },
+            {
+                Title: "Transportation511",
+                QueryLayerId: "1",
+                InfoWindowHeaderField: "${HWYNAME}",
+                InfoWindowContent: "${HWYDESC}",
+                ShowAllFields: "false",
+                InfoWindowData: [
+                    {
+                        DisplayText: "ROUTE ID:",
+                        FieldName: "${ROUTEID}"
+                    }, {
+                        DisplayText: "Highway Name:",
+                        FieldName: "${HWYNAME}"
+                    }, {
+                        DisplayText: "Project Location:",
+                        FieldName: "${PROJECTLOC}"
+                    }, {
+                        DisplayText: "Work Type:",
+                        FieldName: "${WORKTYPE}"
+                    }, {
+                        DisplayText: "Delay:",
+                        FieldName: "${DELAYDESC}"
+                    }, {
+                        DisplayText: "Travel Speeds:",
+                        FieldName: "${SPEEDDESC}"
+                    }, {
+                        DisplayText: "Comments:",
+                        FieldName: "${COMMENT}"
+                    }, {
+                        DisplayText: "Width Restriction:",
+                        FieldName: "${WIDTHREST}"
+                    }, {
+                        DisplayText: "Height Restriction:",
+                        FieldName: "${HEIGHTREST}"
+                    }, {
+                        DisplayText: "Expected Start Date:",
+                        FieldName: "${STARTDATE}"
+                    }, {
+                        DisplayText: "Expected End Date:",
+                        FieldName: "${ENDDATE}"
+                    }
+                ]
+            }, {
+                Title: "Transportation511",
+                QueryLayerId: "2",
+                InfoWindowHeaderField: "${HWYNAME}",
+                InfoWindowContent: "${HWYDESC}",
+                ShowAllFields: "false",
+                InfoWindowData: [
+                    {
+                        DisplayText: "Comment:",
+                        FieldName: "${COMMENT}"
+                    }, {
+                        DisplayText: "Condition Desc:",
+                        FieldName: "${CONDDESC}"
+                    }
+                ]
+            },{
+                Title: "Transportation511",
+                QueryLayerId: "3",
+                InfoWindowHeaderField: "${HWYNAME}",
+                InfoWindowContent: "${HWYDESC}",
+                ShowAllFields: "false",
+                InfoWindowData: [
+                    {
+                        DisplayText: "Comment:",
+                        FieldName: "${COMMENT}"
+                    }, {
+                        DisplayText: "Condition Desc:",
+                        FieldName: "${DELAYDESC}"
+                    }
+                ]
+            }, {
+                Title: "Transportation511",
+                QueryLayerId: "4",
+                InfoWindowHeaderField: "${STATIONNAME}", //5
+                InfoWindowContent: "${STATE}",
+                ShowAllFields: "false",
+                InfoWindowData: [
+                    {
+                        DisplayText: "Wind:",
+                        FieldName: "${WINDDESC}"
+                    }, {
+                        DisplayText: "Temperature:",
+                        FieldName: "${TEMPERATURE}"
+                    }
+                ]
+            },
+            {
+                Title: "Transportation511",
+                QueryLayerId: "5",
+                InfoWindowHeaderField: "${CAMDESC}",
+                InfoWindowContent: "${CAMDESC}",
+                ShowAllFields: "false",
+                InfoWindowData: [
+                    {
+                        DisplayText: "",
+                        FieldName: "${URL}"
+                    }
+                ]
+            },
+            {
+                Title: "Transportation511",
+                QueryLayerId: "6",
+                InfoWindowHeaderField: "${HWYNAME}",
+                InfoWindowContent: "${HWYDESC}",
+                ShowAllFields: "false",
+                InfoWindowData: [
+                    {
+                        DisplayText: "Work Type:",
+                        FieldName: "${CONDCAT}"
+                    }, {
+                        DisplayText: "Description:",
+                        FieldName: "${RCSEGINFO}"
+                    }
+                ]
+            },
+            {
+                Title: "Transportation511",
+                QueryLayerId: "7",
+                InfoWindowHeaderField: "${HWYNAME}",
+                InfoWindowContent: "${HWYDESC}",
+                ShowAllFields: "false",
+                InfoWindowData: [
+                    {
+                        DisplayText: "Condition Category:",
+                        FieldName: "${CONDCAT}"
+                    }, {
+                        DisplayText: "Condition Description:",
+                        FieldName: "${CONDDESC}"
+                    }
+                ]
+            },
+            {
+                Title: "Transportation511",
+                QueryLayerId: "8",
+                InfoWindowHeaderField: "${HWYDESC}",
+                InfoWindowContent: "${HWYNAME}",
+                ShowAllFields: "false",
+                InfoWindowData: [
+                    {
+                        DisplayText: "Restriction Code:",
+                        FieldName: "${RESTCODE}"
+                    }, {
+                        DisplayText: "Restriction Desc:",
+                        FieldName: "${RESCODEDES}"
+                    }
+                ]
+            }
+        ],
+
+        // ------------------------------------------------------------------------------------------------------------------------
         // ADDRESS SEARCH SETTINGS
         // ------------------------------------------------------------------------------------------------------------------------
         // Set locator settings such as locator symbol, size, display fields, match score
@@ -302,8 +555,7 @@ define([], function () {
         // FREQUENTLY TRAVELLED ROUTES SETTINGS
         // ------------------------------------------------------------------------------------------------------------------------
 
-        // Title should match the service name for ArcGIS Server. If using hosted feature services with a webmap, use 	the layer title in the webmap.
-	//QueryLayerId should be set to the layer index. 
+        // LayerURL: URL for the layer (should include the layer id)
         // UniqueRouteField: Specify the field that contains values which uniquely identify routes
         // DisplayField: Attributes to be displayed in list of frequently travelled routes
         FrequentRoutesSettings: {
@@ -314,29 +566,52 @@ define([], function () {
             FrequentRoutesEnabled: "true"
         },
 
-        // ------------------------------------------------------------------------------------------------------------------------
+        //-------------------------------------------------------------------------------------------------------------------
         // GEOMETRY SERVICE SETTINGS
-        // ------------------------------------------------------------------------------------------------------------------------
+        // ---------------------------------------------------------------------------------------------------------------------
 
         // Set geometry service URL
         GeometryService: "http://tasks.arcgisonline.com/ArcGIS/rest/services/Geometry/GeometryServer",
-        // ------------------------------------------------------------------------------------------------------------------------
-
-        // ------------------------------------------------------------------------------------------------------------------------
+        // ---------------------------------------------------------------------------------------------------------------------//-------------------------------------------------------------------------------------------------------------------
+        // Header Widget Settings
+        //-------------------------------------------------------------------------------------------------------------------
+        // Set widgets settings such as widget title, widgetPath, mapInstanceRequired to be displayed in header panel
+        // Title: Name of the widget, will displayed as title of widget in header panel
+        // WidgetPath: path of the widget respective to the widgets package.
+        // MapInstanceRequired: true if widget is dependent on the map instance.
+        AppHeaderWidgets: [
+            {
+                WidgetPath: "widgets/locator/locator",
+                MapInstanceRequired: true
+            }, {
+                WidgetPath: "widgets/route/route",
+                MapInstanceRequired: true
+            }, {
+                WidgetPath: "widgets/geoLocation/geoLocation",
+                MapInstanceRequired: true
+            }, {
+                WidgetPath: "widgets/share/share",
+                MapInstanceRequired: true
+            }, {
+                WidgetPath: "widgets/help/help",
+                MapInstanceRequired: false
+            }
+        ],
+//------------------------------------------------------------------------------------------------------------------------
         // ROUTING SERVICE SETTINGS
         // ------------------------------------------------------------------------------------------------------------------------
 
         // Set routing service URL
-        // To use ArcGIS Online Routing Service:
+        // To use ArcGIS Online Routing Service, change it to http://route.arcgis.com/arcgis/rest/services/World/Route/NAServer/Route_World
         RouteTaskService: "http://route.arcgis.com/arcgis/rest/services/World/Route/NAServer/Route_World",
 
-        // Enable/Disable driving directions facility in the application.Note: If routing is enabled using the World         Route service, credits will be consumed.
+        // Enable/Disable driving directions facility in the application.
         RoutingEnabled: "true",
 
-        // Specify the buffer distance (in miles) to find 511 information along a route. This should typically be set        between 1 to 2 miles.
-        BufferMilesForProximityAnalysis: "1",
+        // Specify the buffer distance (in miles) to find 511 information along a route. This should typically be set between 1 to 10 miles.
+        BufferMilesForProximityAnalysis: "5",
 
-        // Barriers may lie very close to the route but not exactly on the route. Specify a distance (in meters) to          find barriers that should be
+        // Barriers may lie very close to the route but not exactly on the route. Specify a distance (in meters) to find barriers that are to be
         // considered as occuring on the route. This should typically be set between 1 to 3 meters.
         BufferMetersForFindingBarriers: "2",
 
@@ -365,31 +640,7 @@ define([], function () {
             CartographicLineWidth: 512
         },
 
-//------------------------------------------------------------------------------------------------------------------------
-        // Header Widget Settings
-        //------------------------------------------------------------------------------------------------------------------------
-        // Set widgets settings such as widget title, widgetPath, mapInstanceRequired to be displayed in header panel
-        // Title: Name of the widget, will displayed as title of widget in header panel
-        // WidgetPath: path of the widget respective to the widgets package.
-        // MapInstanceRequired: true if widget is dependent on the map instance.
-        AppHeaderWidgets: [
-            {
-                WidgetPath: "widgets/locator/locator",
-                MapInstanceRequired: true
-            }, {
-                WidgetPath: "widgets/route/route",
-                MapInstanceRequired: true
-            }, {
-                WidgetPath: "widgets/geoLocation/geoLocation",
-                MapInstanceRequired: true
-            }, {
-                WidgetPath: "widgets/share/share",
-                MapInstanceRequired: true
-            }, {
-                WidgetPath: "widgets/help/help",
-                MapInstanceRequired: false
-            }
-        ],
+
         // ------------------------------------------------------------------------------------------------------------------------
         // SETTINGS FOR MAP SHARING
         // ------------------------------------------------------------------------------------------------------------------------
