@@ -68,13 +68,11 @@ html, body
 
 .esriCTApplicationHeaderTextTD
 {
-    float: left;
     font-size: 22px;
     padding: 10px 0 10px 15px;
     text-shadow: 0 0 1px #AAAAAA;
     text-overflow: ellipsis;
     white-space: nowrap;
-    width: 42%;
     overflow: hidden;
 }
 
@@ -192,6 +190,7 @@ html, body
     right: 0px;
     width: 287px;
     border-top: none;
+    float:right;
 }
 
 .esriCTTxtAddress
@@ -261,6 +260,7 @@ input
     overflow: hidden;
     width: 290px;
     float: left;
+    display:none;
 }
 
 .esriCTInfoLoader
@@ -270,6 +270,16 @@ input
     text-align: center;
     margin-left: 45%;
     z-index: 10022;
+}
+.esriNoResultFound
+{
+    width: 245px;
+    margin: 25px 10px 0px 19px;
+    font-weight: bold;
+    height: 25px;
+    padding-top: 10px;
+    display: none;
+    border-bottom: 1px solid #ccc;
 }
 .esriCTRouteLoader
 {
@@ -441,12 +451,6 @@ input
 
 .esriCTShareCursor
 {
-    cursor: pointer;
-}
-
-.esriCTShareCursor
-{
-    cursor: pointer;
     height: 24px;
     width: 24px;
 }
@@ -472,9 +476,11 @@ input
     height: 24px !important;
     width: 24px;
     margin: 0 auto;
+}
+ .embedding
+{
     cursor: pointer;
 }
-
 /* End of Share Container Styles */
 
 /* Slider */
@@ -488,6 +494,13 @@ input
 .esriSimpleSliderTL
 {
     top: 70px !important;
+}
+
+.esriCTdirectionTabContent
+{
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
 }
 
 .esriSimpleSlider
@@ -576,6 +589,11 @@ input
 .simpleDirections .esriResultsPrint
 {
     margin: 0 25px 0 0;
+}
+
+.simpleDirections .esriResultsPrint:hover,.simpleDirections .esriResultsPrint:focus
+{
+    opacity: 1!important;
 }
 
 .simpleDirections .esriStopsRemovable .esriStop .esriStopIconRemove
@@ -796,6 +814,12 @@ input
     margin-bottom: 30px;
 }
 
+.mapLogoLegend
+{
+    position: relative !important;
+    right: 287px;
+}
+
 .mapLogoUrl
 {
     position: relative !important;
@@ -834,18 +858,48 @@ input
 .simpleDirections .esriStopsGetDirectionsContainer
 {
     float: right;
-    margin-right: 30px;
+    margin-right: 20px;
+    margin-left: 0px;
     margin-top: -7px;
 }
-
+.simpleDirections .esriLinkButton
+{
+    text-decoration: inherit;
+    white-space: inherit;
+    text-transform: inherit;
+    letter-spacing: inherit;
+    line-height: inherit;
+    font-size: inherit;
+    cursor: pointer;
+    color: inherit;
+}
+.simpleDirections .esriDirectionsButton
+{
+    text-align: inherit;
+    display: inherit;
+    text-transform: inherit;
+    cursor: pointer;
+    letter-spacing: inherit;
+    position: inherit;
+    -webkit-font-smoothing: inherit;
+    -webkit-box-shadow: inherit;
+    -moz-box-shadow: inherit;
+    box-shadow: inherit;
+}
 .simpleDirections .esriStopsGetDirections
 {
     background: none;
     border: none;
     padding: 8px 3px;
     filter: none !important;
+    line-height: inherit;
+    font-size: inherit;
+    float: inherit;
 }
-
+.simpleDirections .esriTravelModesContainer
+{
+    display: none !important;
+}
 .simpleDirections .esriStopsGetDirections:hover, .simpleDirections .esriStopsGetDirections:focus
 {
     background: none !important;
@@ -1279,6 +1333,7 @@ input
 
 .legendrightbox
 {
+    height: 30px;
     width: 287px;
     float: right;
     background: transparent;
@@ -1293,6 +1348,7 @@ input
 {
     padding-left: 10px;
     position: relative;
+    min-width: 100px;
 }
 
 .divLegendlist
@@ -1312,6 +1368,13 @@ input
 {
     height: 100%;
     width: 100%;
+}
+
+.divNoLegendContainer
+{
+    margin-top: 7px;
+    float: left;
+    width: 150px;
 }
 
 .esriCTLeftArrow
@@ -1808,11 +1871,9 @@ esriCTMobileCloseDiv
 .esriCTheadderPanel
 {
     line-height: 30px;
-    width: 50%;
     overflow: hidden;
     white-space: nowrap;
     font-weight: bold;
-    float: left;
     text-overflow: ellipsis;
     margin-left: 5px;
 }
@@ -1917,6 +1978,16 @@ esriCTMobileCloseDiv
     width: auto;
 }
 
+.esriCTMapLogo-select
+{
+    position: absolute;
+    bottom: 0px;
+    left: 5px;
+    height: 35px;
+    z-index: 29;
+    width: auto;
+}
+
 .divInfoDetailsScroll
 {
     overflow: hidden;
@@ -1962,6 +2033,7 @@ esriCTMobileCloseDiv
     float: right;
     padding-top: 5px;
     margin-right: 15px;
+    display:none;
 }
 .esriCTCrasualcount
 {
@@ -2085,5 +2157,32 @@ esriCTMobileCloseDiv
 {
     padding-right: 5px;
 }
+.simpleDirections .esriGeocoder
+{
+    border: 1px solid #8B8B8B;
+    border-radius: 2px;
+    display: block;
+    margin: 0;
+    padding: 6px;
+    width: 94% !important;
+}
 
+.simpleDirections .esriGeocoderContainer
+{
+    display: block;
+    margin: 0;
+    width: 100%;
+}
 
+.simpleDirections .esriGeocoder input
+{
+    background: none repeat scroll 0 0 #FFFFFF;
+    border: 0 none;
+    font-size: 12px;
+    height: 16px;
+    line-height: 16px;
+    margin: 0;
+    outline: 0 none;
+    padding: 0;
+    width: 100%;
+}

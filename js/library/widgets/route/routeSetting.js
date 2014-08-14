@@ -43,7 +43,6 @@ define([
     "esri/graphic",
     "dojo/_base/Color",
     "esri/urlUtils",
-    "esri/geometry/Extent",
     "../scrollBar/scrollBar",
     "esri/symbols/SimpleFillSymbol",
     "esri/symbols/SimpleMarkerSymbol",
@@ -53,8 +52,10 @@ define([
     "dijit/_TemplatedMixin",
     "dijit/_WidgetsInTemplateMixin",
     "dojo/i18n!application/js/library/nls/localizedStrings",
-    "esri/geometry/Polyline"
-], function (declare, domConstruct, on, topic, lang, domStyle, domAttr, query, domClass, array, FeatureSet, GeometryService, string, html, template, Query, Directions, QueryTask, Deferred, DeferredList, _BorderContainer, SimpleLineSymbol, _ContentPane, Graphic, Color, urlUtils, geometryExtent, ScrollBar, SimpleFillSymbol, SimpleMarkerSymbol, cookie, BufferParameters, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, sharedNls, Polyline) {
+    "esri/geometry/Polyline",
+    "dijit/a11yclick"
+
+], function (declare, domConstruct, on, topic, lang, domStyle, domAttr, query, domClass, array, FeatureSet, GeometryService, string, html, template, Query, Directions, QueryTask, Deferred, DeferredList, _BorderContainer, SimpleLineSymbol, _ContentPane, Graphic, Color, urlUtils, ScrollBar, SimpleFillSymbol, SimpleMarkerSymbol, cookie, BufferParameters, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, sharedNls, Polyline, a11yclick) {
 
     //========================================================================================================================//
 
@@ -87,11 +88,11 @@ define([
             var directionsUnits = dojo.configData.RouteSymbology.DirectionUnits, divFrequentRoute, i, stopsGeometry;
             urlUtils.addProxyRule({
                 urlPrefix: dojo.configData.RouteTaskService,
-                proxyUrl: dojoConfig.baseURL + dojo.configData.ProxyUrl
+                proxyUrl: dojo.configData.ProxyUrl
             });
             urlUtils.addProxyRule({
                 urlPrefix: dojo.configData.GeometryService,
-                proxyUrl: dojoConfig.baseURL + dojo.configData.ProxyUrl
+                proxyUrl: dojo.configData.ProxyUrl
             });
             if (!this._esriDirectionsWidget && dojo.configData.RoutingEnabled === "true" && lang.trim(dojo.configData.RoutingEnabled).length !== 0) {
                 this._esriDirectionsWidget = new Directions({
@@ -103,6 +104,7 @@ define([
                 this._esriDirectionsWidget.options.geocoderOptions.autoComplete = true;
                 this._esriDirectionsWidget.autoSolve = false;
                 this._esriDirectionsWidget.startup();
+                this.own(on(this._esriDirectionsWidget._getDirectionsButtonNode, a11yclick, lang.hitch(this._esriDirectionsWidget, this._esriDirectionsWidget.getDirections)));
                 //barriers feature set
                 if (this._esriDirectionsWidget.routeParams) {
                     this._esriDirectionsWidget.routeParams.barriers = new FeatureSet();
@@ -110,13 +112,13 @@ define([
                     this._esriDirectionsWidget.routeParams.polygonBarriers = new FeatureSet();
                 }
                 this._clearTextBox();
-
-                this.own(on(this._esriDirectionsWidget, "add-stops", lang.hitch(this, function (evt, a, b) {
+                this.own(on(this._esriDirectionsWidget._addDestinationNode, a11yclick, lang.hitch(this, function () {
                     this._clearTextBox();
                 })));
                 this._esriDirectionsWidget.options.routeSymbol.color = new Color([parseInt(dojo.configData.RouteSymbology.ColorRGB.split(",")[0], 10), parseInt(dojo.configData.RouteSymbology.ColorRGB.split(",")[1], 10), parseInt(dojo.configData.RouteSymbology.ColorRGB.split(",")[2], 10), parseFloat(dojo.configData.RouteSymbology.Transparency.split(",")[0], 10)]);
                 this._esriDirectionsWidget.options.routeSymbol.width = parseInt(dojo.configData.RouteSymbology.Width, 10);
                 this.own(on(this._esriDirectionsWidget, "directions-finish", lang.hitch(this, function () {
+                    dojo.share = false;
                     domConstruct.create("div", { "class": "esriCTRouteBlankPanel" }, query(".esriRoutes")[0]);
                     if (query(".esriRoutesError")[0]) {
                         domStyle.set(query(".esriRoutesError")[0], "display", "none");
@@ -145,6 +147,7 @@ define([
                             this.clearAllGraphics(false);
                         } else {
                             alert(sharedNls.errorMessages.enterCorrectPoints);
+                            this._resetDirectionTab();
                         }
                         topic.publish("hideProgressIndicator");
                         if (this.esriCTDirectionRefreshButton) {
@@ -159,13 +162,7 @@ define([
                     alert(err.message);
                     topic.publish("hideProgressIndicator");
                 }));
-                this.own(on(this._esriDirectionsWidget, "add-stops", lang.hitch(this, function () {
-                    this._routeGeocodersResult();
-                    if (!this.resultLength) {
-                        topic.publish("showProgressIndicator");
-                        this._esriDirectionsWidget.getDirections();
-                    }
-                })));
+
                 this._persistRouteAddress();
             }
 
@@ -188,7 +185,7 @@ define([
         clearDirection: function () {
             var graphicsLength, graphicsBufferLength, _this = this;
             graphicsLength = this.map.getLayer("esriGraphicsLayerMapSettings").graphics.length;
-            graphicsBufferLength = this.map.getLayer("frequentRoutesLayerID").graphics.length;
+            graphicsBufferLength = this.map.getLayer("frequentRoutesLayerID") && this.map.getLayer("frequentRoutesLayerID").graphics.length;
             if (graphicsLength > 0) {
                 if (this.map.getLayer("esriGraphicsLayerMapSettings").visible) {
                     if (domStyle.get(this.esriCTRouteContainer, "display") === "block") {
@@ -204,24 +201,35 @@ define([
                 }
             }
             if (domStyle.get(this.esriCTDirectionRefreshButton, "display") === "block") {
-                this.esriCTDirectionRefreshButton.onclick = function () {
-                    _this.routeOnMap = false;
-                    dojo.stops = [];
-                    dojo.frequentRouteId = null;
-                    if (_this.map.getLayer("esriGraphicsLayerMapSettings").graphics.length > 0) {
-                        domStyle.set(_this.containerButtonHtml, "cursor", "default");
-                        domStyle.set(_this.routeTopTiteArrow, "cursor", "default");
-                        _this.setDirectionScrollbar();
-                        domClass.replace(_this.routeTopTiteArrow, "esriCTrouteUpTitleArrow", "esriCTrouteDownTitleArrow");
-                        domClass.replace(_this.divFrequentRouteContainerButton, "esriCTFrequentRouteContainerButton", "esriCTFrequentRouteContainerTopButton");
-                        domStyle.set(query(".esriRoutesContainer")[0], "display", "none");
-                        domStyle.set(_this.divFrequentRoutePanel, "display", "block");
-                    }
-                    _this.clearAllGraphics(true);
-                    domStyle.set(_this.esriCTDirectionRefreshButton, "display", "none");
-                    graphicsLayerHandle.clear();
-                };
+                this.esriCTDirectionRefreshButton.onclick = lang.hitch(this, function () {
+                    this._resetDirectionTab(_this.map.getLayer("esriGraphicsLayerMapSettings").graphics.length === 0);
+                });
             }
+        },
+
+        _resetDirectionTab: function (isGraphics) {
+            this.routeOnMap = false;
+            this.esriRoute = true;
+            dojo.stops = [];
+            dojo.frequentRouteId = null;
+            if (!isGraphics) {
+                if (this.containerButtonHtml) {
+                    domStyle.set(this.containerButtonHtml, "cursor", "default");
+                }
+                this.setDirectionScrollbar();
+                if (this.routeTopTiteArrow) {
+                    domStyle.set(this.routeTopTiteArrow, "cursor", "default");
+                    domClass.replace(this.routeTopTiteArrow, "esriCTrouteUpTitleArrow", "esriCTrouteDownTitleArrow");
+                    domClass.replace(this.divFrequentRouteContainerButton, "esriCTFrequentRouteContainerButton", "esriCTFrequentRouteContainerTopButton");
+                    domStyle.set(this.divFrequentRoutePanel, "display", "block");
+                }
+                if (query(".esriRoutesContainer")[0]) {
+                    domStyle.set(query(".esriRoutesContainer")[0], "display", "none");
+                }
+            }
+            this.clearAllGraphics(true);
+            domStyle.set(this.esriCTDirectionRefreshButton, "display", "none");
+            graphicsLayerHandle.clear();
         },
 
         /**
@@ -229,7 +237,7 @@ define([
         * @memberOf widgets/route/routeSetting
         */
         _clearTextBox: function () {
-            var addressArray = query(".esriGeocoderContainer"), updatedAddressArray;
+            var addressArray = query(".esriGeocoderContainer"), updatedAddressArray, _this = this;
             array.forEach(addressArray, lang.hitch(this, function (inputBox) {
                 inputBox.getElementsByTagName("input")[0].ondblclick = lang.hitch(this, function (evt) {
                     var stops = [];
@@ -238,7 +246,7 @@ define([
                     array.forEach(updatedAddressArray, lang.hitch(this, function (directionTextBox) {
                         stops.push(directionTextBox.getElementsByTagName("input")[0] ? directionTextBox.getElementsByTagName("input")[0].value : "");
                     }));
-                    this._esriDirectionsWidget.updateStops(stops);
+                    _this._esriDirectionsWidget.updateStops(stops);
                 });
             }));
         },
@@ -319,6 +327,11 @@ define([
             var stopIndex = Math.ceil(this._esriDirectionsWidget.stops.length / 2);
             this._esriDirectionsWidget.addStop(evt.mapPoint, stopIndex);
             this._esriDirectionsWidget.clearDirections();
+            this._routeGeocodersResult();
+            if (!this.resultLength) {
+                topic.publish("showProgressIndicator");
+                this._esriDirectionsWidget.getDirections();
+            }
         },
 
         /**
@@ -430,27 +443,44 @@ define([
         */
         setDirectionScrollbar: function () {
             var esriRoutesHeight, esriRoutesStyle, _this = this, containerMinHeight;
-            if (dojo.configData.RoutingEnabled === "true" && lang.trim(dojo.configData.RoutingEnabled).length !== 0) {
-                if (_this.esriCTrouteDirectionScrollbar) {
-                    domClass.add(_this.esriCTrouteDirectionScrollbar._scrollBarContent, "esriCTZeroHeight");
-                    _this.esriCTrouteDirectionScrollbar.removeScrollBar();
-                    if (query(".simpleDirections .esriStopsContainer")[0]) {
-                        esriRoutesHeight = document.documentElement.clientHeight - query(".esriCTApplicationHeader")[0].offsetHeight - html.coords(query(".simpleDirections .esriStopsContainer")[0]).h - 300;
-                    } else {
-                        esriRoutesHeight = document.documentElement.clientHeight - query(".esriCTApplicationHeader")[0].offsetHeight - 64;
-                    }
-                    //height fix for mobile
-                    if (dojo.window.getBox().w <= 680) {
-                        containerMinHeight = (document.documentElement.clientHeight - query(".esriCTApplicationHeader")[0].offsetHeight - 50) + "px";
-                        domStyle.set(this.esriCTRouteContainer, "min-height", containerMinHeight);
-                    }
-                    esriRoutesStyle = { height: esriRoutesHeight + "px" };
-                    domAttr.set(_this.divFrequentRoutePanel, "style", esriRoutesStyle);
-                    _this.esriCTrouteDirectionScrollbar = new ScrollBar({ domNode: _this.esriCTRouteContainer });
-                    _this.esriCTrouteDirectionScrollbar.setContent(query(".simpleDirections")[0]);
-                    _this.esriCTrouteDirectionScrollbar.createScrollBar();
+            topic.publish("showProgressIndicator");
+            clearTimeout(_this.setScrollBarTimeout);
+            if (_this.esriCTrouteDirectionScrollbar) {
+                domClass.add(_this.esriCTrouteDirectionScrollbar._scrollBarContent, "esriCTZeroHeight");
+                _this.esriCTrouteDirectionScrollbar.removeScrollBar();
+                if (query(".simpleDirections .esriStopsContainer")[0]) {
+                    esriRoutesHeight = document.documentElement.clientHeight - query(".esriCTApplicationHeader")[0].offsetHeight - html.coords(query(".simpleDirections .esriStopsContainer")[0]).h - 300;
+                } else {
+                    esriRoutesHeight = document.documentElement.clientHeight - query(".esriCTApplicationHeader")[0].offsetHeight - 64;
                 }
+                containerMinHeight = (document.documentElement.clientHeight - query(".esriCTApplicationHeader")[0].offsetHeight - 32) + "px";
+                domStyle.set(_this.esriCTRouteContainer, "height", containerMinHeight);
+                esriRoutesStyle = { height: esriRoutesHeight + "px" };
+                if (_this.divFrequentRoutePanel) {
+                    domAttr.set(_this.divFrequentRoutePanel, "style", esriRoutesStyle);
+                }
+                if (dojo.configData.RoutingEnabled === "true" && lang.trim(dojo.configData.RoutingEnabled).length !== 0) {
+                    _this.setScrollBarTimeout = setTimeout(lang.hitch(this, function () {
+                        _this.esriCTrouteDirectionScrollbar = new ScrollBar({ domNode: _this.esriCTRouteContainer });
+                        _this.esriCTrouteDirectionScrollbar.setContent(query(".simpleDirections")[0]);
+                        _this.esriCTrouteDirectionScrollbar.createScrollBar();
+                        topic.publish("hideProgressIndicator");
+                    }), 500);
+
+                } else if (dojo.configData.FrequentRoutesSettings.FrequentRoutesEnabled === "true" && lang.trim(dojo.configData.FrequentRoutesSettings.FrequentRoutesEnabled).length !== 0) {
+                    _this.setScrollBarTimeout = setTimeout(lang.hitch(this, function () {
+                        _this.esriCTrouteDirectionScrollbar = new ScrollBar({ domNode: _this.divFrequentRoutePanel });
+                        _this.esriCTrouteDirectionScrollbar.setContent(_this.divFrequentRouteContainerScroll);
+                        _this.esriCTrouteDirectionScrollbar.createScrollBar();
+                        topic.publish("hideProgressIndicator");
+                    }), 500);
+                } else {
+                    topic.publish("hideProgressIndicator");
+                }
+            } else {
+                topic.publish("hideProgressIndicator");
             }
+
         },
 
         /**
@@ -648,7 +678,11 @@ define([
                 this.onBufferInfoResult(geometry, routeName);
                 return;
             }
-            params.bufferSpatialReference = new esri.SpatialReference({ wkid: this.map.spatialReference.wkid });
+            if (this.map.spatialReference) {
+                params.bufferSpatialReference = new esri.SpatialReference({ wkid: this.map.spatialReference.wkid });
+            } else {
+                params.bufferSpatialReference = new esri.SpatialReference({ wkid: 102100 });
+            }
             params.outSpatialReference = this.map.spatialReference;
             params.geometries = [geometry];
             geometryService.buffer(params, lang.hitch(this, function (bufferedGeometries) {
@@ -681,6 +715,9 @@ define([
             this.infoRouteResult = true;
             this.infoResultGeometry = geometry;
             topic.publish("hideProgressIndicator");
+            if (domStyle.get(this.esriCTRouteInformationContent, "display") === "block") {
+                this._showRouteInfoResult();
+            }
         },
 
         /**

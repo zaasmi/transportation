@@ -9,7 +9,6 @@
     {
         background-image: url("../images/img2X/search-select@2X-green.png") !important;
     }
-
     .esriCTHelpImg
     {
         background-image: url("../images/img2X/help@2X.png") !important;
@@ -647,13 +646,15 @@ input
 {
     background-image: url("../images/re-route-green.png");
 }
-.esriCTDirectionRefreshButton
-{
-    background-image: url("../images/refresh-route-green.png") !important;
-}
+
 .esriCTshowRouteInfoContent
 {
     color: #7b6e40;
+}
+
+.esriCTDirectionRefreshButton
+{
+    background-image: url("../images/refresh-route-green.png") !important;
 }
 
 .esriCTshowCountContent

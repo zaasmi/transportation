@@ -665,12 +665,17 @@ input
 
 .showRouteImgContent
 {
-    background-image: url("../images/re-route-orange.jpg");
+    background-image: url("../images/re-route-orange.png");
 }
 
 .esriCTshowRouteInfoContent
 {
     color: #7b6e40;
+}
+
+.esriCTDirectionRefreshButton
+{
+    background-image: url("../images/refresh-route-orange.png") !important;
 }
 
 .esriCTshowCountContent

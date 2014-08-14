@@ -66,11 +66,8 @@ define([
                     }
                 }
             }));
-            topic.subscribe("createInfoWindowContent", lang.hitch(this, function (mapPoint, attributes, fields, infoIndex, featureArray, count, map) {
-                this.createInfoWindowContent(mapPoint, attributes, fields, infoIndex, featureArray, count, map);
-            }));
-            topic.subscribe("setMapTipPosition", lang.hitch(this, function (selectedPoint, map, infoWindow) {
-                this._onSetMapTipPosition(selectedPoint, map, infoWindow);
+            topic.subscribe("createInfoWindowContent", lang.hitch(this, function (mapPoint, attributes, fields, infoIndex, featureArray, count, map, isInfoArrowClicked) {
+                this.createInfoWindowContent(mapPoint, attributes, fields, infoIndex, featureArray, count, map, isInfoArrowClicked);
             }));
 
             this.domNode = domConstruct.create("div", { "title": sharedNls.tooltips.search, "class": "esriCTTdHeaderSearch" }, null);
@@ -103,18 +100,7 @@ define([
 
         },
 
-        /**
-        * set infowindow anchor position on map
-        * @memberOf widgets/locator/locator
-        */
-        _onSetMapTipPosition: function (selectedPoint, map, infoWindow) {
-            if (selectedPoint) {
-                var screenPoint = map.toScreen(selectedPoint);
-                screenPoint.y = map.height - screenPoint.y;
-                infoWindow.setLocation(screenPoint);
 
-            }
-        },
 
         /**
         * set default value of locator textbox as specified in configuration file
@@ -187,6 +173,8 @@ define([
                 domClass.add(this.locatorScrollbar._scrollBarContent, "esriCTZeroHeight");
                 this.locatorScrollbar.removeScrollBar();
             }
+            domStyle.set(this.divAddressScrollContainer, "display", "none");
+            domStyle.set(this.noResultFound, "display", "none");
         },
 
         /**
@@ -281,6 +269,7 @@ define([
                         domStyle.set(this.imgSearchLoader, "display", "none");
                         domStyle.set(this.close, "display", "block");
                         domConstruct.empty(this.divAddressResults);
+                        this._locatorErrBack();
                     }
                 }
             }
@@ -359,14 +348,14 @@ define([
         * @memberOf widgets/locator/locator
         */
         _locatorErrBack: function () {
-            var errorAddressCounty;
             domConstruct.empty(this.divAddressResults);
+            domStyle.set(this.divAddressScrollContainer, "display", "none");
             domStyle.set(this.imgSearchLoader, "display", "none");
             domStyle.set(this.close, "display", "block");
             domClass.remove(this.divAddressContent, "esriCTAddressContainerHeight");
             domClass.add(this.divAddressContent, "esriCTAddressResultHeight");
-            errorAddressCounty = domConstruct.create("div", { "class": "esriCTBottomBorder esriCTCursorPointer esriAddressCounty" }, this.divAddressResults);
-            domAttr.set(errorAddressCounty, "innerHTML", sharedNls.errorMessages.invalidSearch);
+            domClass.remove(this.divAddressHolder, "esriCTAddressContentHeight");
+            domStyle.set(this.noResultFound, "display", "block");
         },
 
         /**
@@ -395,6 +384,7 @@ define([
             if (!target) {
                 return;
             }
+            domStyle.set(this.noResultFound, "display", "none");
             this._resetTargetValue(target, "defaultAddress");
         },
 

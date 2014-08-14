@@ -5,32 +5,27 @@
     {
         background-image: url("../images/img2X/search@2X.png") !important;
     }
-
-    .esriCTHelpImg
-    {
-        background-image: url("../images/img2X/help@2X.png") !important;
-    }
-
     .esriCTTdHeaderSearch-select
     {
         background-image: url("../images/img2X/search-select@2X.png") !important;
     }
-
+    .esriCTHelpImg
+    {
+        background-image: url("../images/img2X/help@2X.png") !important;
+    }
     .esriCTTdGeolocation
     {
         background-image: url("../images/img2X/geo-location@2x.png") !important;
+    }
+    .esriCTImgSocialMedia
+    {
+        background-image: url("../images/img2X/share@2X.png") !important;
     }
 
     .esriCTImgSocialMedia-select
     {
         background-image: url("../images/img2X/share-select@2X.png") !important;
     }
-
-    .esriCTImgSocialMedia
-    {
-        background-image: url("../images/img2X/share@2X.png") !important;
-    }
-
     .esriCTRouteImg
     {
         background-image: url("../images/img2X/get-route@2x.png") !important;
