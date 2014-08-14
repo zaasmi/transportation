@@ -23,7 +23,6 @@ define([
     "dojo/dom-attr",
     "dojo/_base/lang",
     "dojo/on",
-    "dojo/dom",
     "dojo/dom-class",
     "dojo/query",
     "dojo/string",
@@ -41,7 +40,7 @@ define([
     "dijit/_WidgetsInTemplateMixin",
     "dojo/i18n!application/js/library/nls/localizedStrings",
     "dojo/topic"
-], function (declare, domConstruct, domStyle, domAttr, lang, on, dom, domClass, query, string, domGeom, Locator, Query, ScrollBar, Deferred, DeferredList, QueryTask, Point, template, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, sharedNls, topic) {
+], function (declare, domConstruct, domStyle, domAttr, lang, on, domClass, query, string, domGeom, Locator, Query, ScrollBar, Deferred, DeferredList, QueryTask, Point, template, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, sharedNls, topic) {
     //========================================================================================================================//
 
     return declare([_WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin], {
@@ -171,21 +170,33 @@ define([
         */
         _addressResult: function (candidates, nameArray, searchFields, addressFieldName) {
             var order, j;
-            for (order = 0; order < candidates.length; order++) {
-                if (candidates[order].attributes[dojo.configData.LocatorSettings.AddressMatchScore.Field] > dojo.configData.LocatorSettings.AddressMatchScore.Value) {
-                    for (j in searchFields) {
-                        if (searchFields.hasOwnProperty(j)) {
-                            if (candidates[order].attributes[addressFieldName].toString() === searchFields[j].toString()) {
-                                if (nameArray.Address.length < dojo.configData.LocatorSettings.MaxResults) {
-                                    nameArray.Address.push({
-                                        name: string.substitute(dojo.configData.LocatorSettings.DisplayField, candidates[order].attributes),
-                                        attributes: candidates[order]
-                                    });
+            if (candidates.length > 0) {
+                domStyle.set(this.noResultFound, "display", "none");
+                domStyle.set(this.divAddressScrollContainer, "display", "block");
+                domClass.add(this.divAddressScrollContent, "esriCTdivAddressScrollContent");
+                for (order = 0; order < candidates.length; order++) {
+                    if (candidates[order].attributes[dojo.configData.LocatorSettings.AddressMatchScore.Field] > dojo.configData.LocatorSettings.AddressMatchScore.Value) {
+                        for (j in searchFields) {
+                            if (searchFields.hasOwnProperty(j)) {
+                                if (candidates[order].attributes[addressFieldName].toString() === searchFields[j].toString()) {
+                                    if (nameArray.Address.length < dojo.configData.LocatorSettings.MaxResults) {
+                                        nameArray.Address.push({
+                                            name: string.substitute(dojo.configData.LocatorSettings.DisplayField, candidates[order].attributes),
+                                            attributes: candidates[order]
+                                        });
+                                    }
                                 }
                             }
                         }
                     }
                 }
+                if (nameArray.Address.length === 0) {
+                    setTimeout(lang.hitch(this, function () {
+                        this._locatorErrBack();
+                    }), 100);
+                }
+            } else {
+                this._locatorErrBack();
             }
         },
 
@@ -265,7 +276,7 @@ define([
                 domAttr.set(this.divAddressScrollContent, "style", addressContentStyle);
             }
             domConstruct.empty(this.divAddressResults);
-            if (lang.trim(this.txtAddress.value) === "") {
+            if (resultLength > 0 && lang.trim(this.txtAddress.value) === "") {
                 this.txtAddress.focus();
                 domConstruct.empty(this.divAddressResults);
                 this.locatorScrollbar = new ScrollBar({ domNode: this.divAddressScrollContent });
@@ -285,10 +296,11 @@ define([
                 domClass.add(this.locatorScrollbar._scrollBarContent, "esriCTZeroHeight");
                 this.locatorScrollbar.removeScrollBar();
             }
-            this.locatorScrollbar = new ScrollBar({ domNode: this.divAddressScrollContent });
-            this.locatorScrollbar.setContent(this.divAddressResults);
-            this.locatorScrollbar.createScrollBar();
             if (resultLength > 0) {
+                this.locatorScrollbar = new ScrollBar({ domNode: this.divAddressScrollContent });
+                this.locatorScrollbar.setContent(this.divAddressResults);
+                this.locatorScrollbar.createScrollBar();
+
                 for (candidateArray in candidates) {
                     if (candidates.hasOwnProperty(candidateArray)) {
                         if (candidates[candidateArray].length > 0) {
@@ -425,11 +437,11 @@ define([
             this.txtAddress.value = candidate.name;
             if (candidateArray[index].geometry.type === "point") {
                 dojo.ispolyline = false;
-                this.createInfoWindowContent(candidateArray[index].geometry, candidateArray[index].attributes, candidateArray[index].fields, infoIndex, null, null, this.map);
+                this.createInfoWindowContent(candidateArray[index].geometry, candidateArray[index].attributes, candidateArray[index].fields, infoIndex, null, null, this.map, false);
             } else if (candidateArray[index].geometry.type === "polyline") {
                 dojo.ispolyline = true;
                 featurePoint = candidateArray[index].geometry.getPoint(0, 0);
-                this.createInfoWindowContent(featurePoint, candidateArray[index].attributes, candidateArray[index].fields, infoIndex, null, null, this.map);
+                this.createInfoWindowContent(featurePoint, candidateArray[index].attributes, candidateArray[index].fields, infoIndex, null, null, this.map, false);
             }
         },
 
@@ -437,25 +449,26 @@ define([
         * create infowindow content
         * @memberOf widgets/locator/locatorSetting
         */
-        createInfoWindowContent: function (mapPoint, attributes, fields, infoIndex, featureArray, count, map) {
+        createInfoWindowContent: function (mapPoint, attributes, fields, infoIndex, featureArray, count, map, isInfoArrowClicked) {
             var screenPoint, i, j, objID, layerSettings, infoPopupFieldsCollection, key,
                 divInfoRow, utcMilliseconds, divInfoDetailsTab, fieldNames, link, divLink,
-                infoTitle, mobTitle, extentChanged;
-
-            if (featureArray && count !== "undefined" && count !== null) {
-                if (featureArray.length > 1 && parseInt(count, 10) !== featureArray.length - 1) {
-                    domClass.add(query(".esriCTdivInfoRightArrow")[0], "esriCTShowInfoRightArrow");
-                    domAttr.set(query(".esriCTdivInfoFeatureCount")[0], "innerHTML", count);
-                } else {
-                    domClass.remove(query(".esriCTdivInfoRightArrow")[0], "esriCTShowInfoRightArrow");
-                    domAttr.set(query(".esriCTdivInfoFeatureCount")[0], "innerHTML", "");
-                }
-                if (count > 0 && count < featureArray.length) {
-                    domClass.add(query(".esriCTdivInfoLeftArrow")[0], "esriCTShowInfoLeftArrow");
-                    domAttr.set(query(".esriCTdivInfoFeatureCount")[0], "innerHTML", count + 1);
-                } else {
-                    domClass.remove(query(".esriCTdivInfoLeftArrow")[0], "esriCTShowInfoLeftArrow");
-                    domAttr.set(query(".esriCTdivInfoFeatureCount")[0], "innerHTML", count + 1);
+                infoTitle, mobTitle;
+            if (featureArray) {
+                if (window.location.toString().split("$featurepoint=").length <= 1) {
+                    if (featureArray.length > 1 && parseInt(count, 10) !== featureArray.length - 1) {
+                        domClass.add(query(".esriCTdivInfoRightArrow")[0], "esriCTShowInfoRightArrow");
+                        domAttr.set(query(".esriCTdivInfoFeatureCount")[0], "innerHTML", count);
+                    } else {
+                        domClass.remove(query(".esriCTdivInfoRightArrow")[0], "esriCTShowInfoRightArrow");
+                        domAttr.set(query(".esriCTdivInfoFeatureCount")[0], "innerHTML", "");
+                    }
+                    if (count > 0 && count < featureArray.length) {
+                        domClass.add(query(".esriCTdivInfoLeftArrow")[0], "esriCTShowInfoLeftArrow");
+                        domAttr.set(query(".esriCTdivInfoFeatureCount")[0], "innerHTML", count + 1);
+                    } else {
+                        domClass.remove(query(".esriCTdivInfoLeftArrow")[0], "esriCTShowInfoLeftArrow");
+                        domAttr.set(query(".esriCTdivInfoFeatureCount")[0], "innerHTML", count + 1);
+                    }
                 }
             } else {
                 domClass.remove(query(".esriCTdivInfoRightArrow")[0], "esriCTShowInfoRightArrow");
@@ -536,11 +549,28 @@ define([
                 mobTitle = infoTitle;
             }
             dojo.selectedMapPoint = mapPoint;
-            extentChanged = map.setExtent(this._calculateCustomMapExtent(mapPoint));
+            if (isInfoArrowClicked) {
+                domClass.remove(query(".esriCTdivInfoRightArrow")[0], "disableArrow");
+                domClass.remove(query(".esriCTdivInfoLeftArrow")[0], "disableArrow");
+                screenPoint = map.toScreen(dojo.selectedMapPoint);
+                screenPoint.y = map.height - screenPoint.y;
+                topic.publish("setInfoWindowOnMap", infoTitle, mobTitle, divInfoDetailsTab, screenPoint);
+                topic.publish("setMapTipPosition", dojo.selectedMapPoint);
+            } else {
+                domClass.remove(query(".esriCTdivInfoRightArrow")[0], "disableArrow");
+                domClass.remove(query(".esriCTdivInfoLeftArrow")[0], "disableArrow");
+                this._centralizeInfowindowOnMap(map, infoTitle, mobTitle, divInfoDetailsTab);
+
+            }
+        },
+
+
+
+        _centralizeInfowindowOnMap: function (map, infoTitle, mobTitle, divInfoDetailsTab) {
+            var extentChanged, screenPoint;
+            extentChanged = map.setExtent(this._calculateCustomMapExtent(dojo.selectedMapPoint));
             extentChanged.then(lang.hitch(this, function () {
-                if (!dojo.showIndicator) {
-                    topic.publish("hideProgressIndicator");
-                }
+                topic.publish("hideProgressIndicator");
                 screenPoint = map.toScreen(dojo.selectedMapPoint);
                 screenPoint.y = map.height - screenPoint.y;
                 topic.publish("setInfoWindowOnMap", infoTitle, mobTitle, divInfoDetailsTab, screenPoint);

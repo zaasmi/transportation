@@ -121,25 +121,28 @@ define([
             this.InfoShow = false;
             this.isVisible = true;
             dojo.mapPoint = null;
+            this.infoContent = detailsTab;
             if (this.divInfoDetailsScroll) {
                 while (this.divInfoDetailsScroll.hasChildNodes()) {
                     this.divInfoDetailsScroll.removeChild(this.divInfoDetailsScroll.lastChild);
                 }
             }
-            this.divInfoDetailsScroll.appendChild(detailsTab);
             if (screenPoint) {
                 this.setLocation(screenPoint);
             }
             if (dojo.window.getBox().w >= 680) {
                 if (this.infoContainerScrollbar) {
-                    domClass.add(this.infoContainerScrollbar._scrollBarContent, "esriCTZeroHeight");
                     this.infoContainerScrollbar.removeScrollBar();
                 }
+                this.divInfoDetailsScroll.appendChild(detailsTab);
                 this.infoContainerScrollbar = new ScrollBar({
                     domNode: this.divInfoScrollContent
                 });
                 this.infoContainerScrollbar.setContent(this.divInfoDetailsScroll);
                 this.infoContainerScrollbar.createScrollBar();
+                while (this.infoContainerScrollbar.domNode.children.length > 1) {
+                    this.infoContainerScrollbar.domNode.removeChild(this.infoContainerScrollbar.domNode.firstChild);
+                }
             } else {
                 this._closeInfowindow();
             }
@@ -192,7 +195,7 @@ define([
                 }
                 domStyle.set(this.domNode, {
                     left: (location.x - (this.infoWindowWidth / 2)) + "px",
-                    bottom: (location.y + 20) + "px"
+                    bottom: (location.y + 17) + "px"
                 });
                 if (!this.InfoShow) {
                     domUtils.show(this.domNode);
@@ -245,16 +248,24 @@ define([
                 var divInfoContentHeight = document.documentElement.clientHeight - 60,
                     esriInfoStyle = { height: divInfoContentHeight + 'px' };
                 domAttr.set(this.divInfoScrollContent, "style", esriInfoStyle);
+                if (this.divInfoDetailsScroll) {
+                    while (this.divInfoDetailsScroll.hasChildNodes()) {
+                        this.divInfoDetailsScroll.removeChild(this.divInfoDetailsScroll.lastChild);
+                    }
+                }
                 if (this.infoContainerScrollbar) {
-                    domClass.add(this.infoContainerScrollbar._scrollBarContent, "esriCTZeroHeight");
                     this.infoContainerScrollbar.removeScrollBar();
                 }
+                this.divInfoDetailsScroll.appendChild(this.infoContent);
                 this.infoContainerScrollbar = new ScrollBar({
                     domNode: this.divInfoScrollContent
                 });
                 this.infoContainerScrollbar.setContent(this.divInfoDetailsScroll);
                 this.infoContainerScrollbar.createScrollBar();
                 dojo.onInfoWindowResize = true;
+                while (this.infoContainerScrollbar.domNode.children.length > 1) {
+                    this.infoContainerScrollbar.domNode.removeChild(this.infoContainerScrollbar.domNode.firstChild);
+                }
                 topic.publish("onWindowResize");
             }
         },

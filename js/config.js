@@ -1,4 +1,4 @@
-/*global define */
+﻿/*global define */
 /*jslint browser:true,sloppy:true,nomen:true,unparam:true,plusplus:true,indent:4 */
 /*
  | Copyright 2013 Esri
@@ -60,7 +60,7 @@ define([], function () {
         // 33. Specify route Symbology                       - [ Tag(s) to look for: RouteSymbology ]
         // 34. Specify URLs for map sharing                  - [ Tag(s) to look for: MapSharingOptions,TinyURLServiceURL, TinyURLResponseAttribute, FacebookShareURL, TwitterShareURL, ShareByMailLink ]
 
-        
+
         // GENERAL SETTINGS
         //------------------------------------------------------------------------------------------------------------------------
         // Set application title
@@ -96,29 +96,25 @@ define([], function () {
         // Set Frequently travelled route Tab DisplayText
         FrequentRoute: "Frequently travelled routes",
 
-        
+        // Set Direction Tab DisplayText
+        DirectionsDisplayText: "Directions",
 
         // Specify URL to ArcGIS Portal REST API. If you are using ArcGIS Online, leave this parameter as is.
         PortalAPIURL: "http://www.arcgis.com/sharing/rest/",
-
-        // Specify URL to Search. If you are using ArcGIS Online, leave this parameter as is
-        SearchURL: "http://www.arcgis.com/sharing/rest/search?q=group:",
-
         // Specify the title of group that contains basemaps
-        BasemapGroupTitle: "Basemaps", 
+        BasemapGroupTitle: "Basemaps",
         // Specify the user name of owner of the group that contains basemaps
-        BasemapGroupOwner: "GISITAdmin", 
+        BasemapGroupOwner: "GISITAdmin",
         // Specify path to image used to display the thumbnail for a basemap when portal does not provide it
         NoThumbnail: "js/library/themes/images/not-available.png",
-
-      
 
         // If you want to use a WebMap for configuration and setup of the app specify a WebMapId within quotes,          otherwise leave this empty and configure operational layers
         WebMapId: "ec4ac1550d5240eca0997f1e55006e0c",
 
         ThemeColor: "js/library/themes/styles/orangeTheme.css",
-      
 
+        // Set Legend Visibility
+        ShowLegend: "true",
 
         // SEARCH AND 511 SETTINGS
         // ------------------------------------------------------------------------------------------------------------------------
@@ -126,15 +122,15 @@ define([], function () {
 
         // Configure search and 511 settings below.
         // Title: In the case of webmap implementations which use hosted services, the title must match layer name specified in webmap. If using ArcGIS Server operational layers, the title should be the name of the ArcGIS Server Service.
-        // QueryLayerId: This is the layer index in the webmap (if using hosted services) or ArcGIS Map/Feature 		Service and is used for performing queries.
+        // QueryLayerId: This is the layer index in the webmap (if using hosted services) or ArcGIS Map/Feature Service and is used for performing queries.
         // SearchDisplayTitle: This text is displayed in search results as the title to group results.
         // SearchDisplayFields: Attribute that will be displayed in the search box when user performs a search.
         // SearchExpression: Configure the query expression to be used for the search.
-        // BarrierLayer: Set the value to  "true" or "false" to treat this as a barrier layer to be used for routing 	and re-routing.
+        // BarrierLayer: Set the value to  "true" or "false" to treat this as a barrier layer to be used for routing and re-routing.
         // BarrierSearchExpression: Configure the query expression to search for barriers along a route.
         // Set this to emtpy "", if all features in the layer should be considered as barriers.
         // InfoLayer: Allowed values are "true" or "false". Configure this to "true" to present this as information in the  511 panel.
-      
+
         // InfoSearchExpression: Configure the query expression to search features and display in 511 Information panels.
         // Set this to empty "", if all features in the layer should be considered.
         // InfoListText: This text is displayed in the 511 Information Summary panel.
@@ -266,7 +262,7 @@ define([], function () {
         // Minimum width should be 300 for the info-popup in pixels
         InfoPopupWidth: 350,
 
-       
+
         // ADDRESS SEARCH SETTINGS
         // ------------------------------------------------------------------------------------------------------------------------
         // Set locator settings such as locator symbol, size, display fields, match score
@@ -302,8 +298,8 @@ define([], function () {
         // FREQUENTLY TRAVELLED ROUTES SETTINGS
         // ------------------------------------------------------------------------------------------------------------------------
 
-        // Title should match the service name for ArcGIS Server. If using hosted feature services with a webmap, use 	the layer title in the webmap.
-	//QueryLayerId should be set to the layer index. 
+        // Title should match the service name for ArcGIS Server. If using hosted feature services with a webmap, use the layer title in the webmap.
+	//QueryLayerId should be set to the layer index.
         // UniqueRouteField: Specify the field that contains values which uniquely identify routes
         // DisplayField: Attributes to be displayed in list of frequently travelled routes
         FrequentRoutesSettings: {
