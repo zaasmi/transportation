@@ -97,7 +97,6 @@ define([
                     }
                 }));
             }
-
         },
 
 
@@ -175,6 +174,7 @@ define([
             }
             domStyle.set(this.divAddressScrollContainer, "display", "none");
             domStyle.set(this.noResultFound, "display", "none");
+            domClass.remove(this.divAddressHolder, "esriCTAddressContentHeight");
         },
 
         /**

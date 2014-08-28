@@ -467,7 +467,7 @@
 
     .esriCTSplashScreenDialog
     {
-        height: 90% !important;
+        height: 170px !important;
         width: 93% !important;
     }
     .divSplashScreenContent
@@ -515,7 +515,6 @@
         clear: both;
         margin-top: 61px;
     }
-
 
     .esriCTRouteImg
     {
@@ -625,7 +624,7 @@
     }
     .esriCTFrequentRouteContainerButton
     {
-        width: 98.2%;
+        width: 100%;
     }
     .esriCTFrequentRouteContainerTopButton
     {
@@ -637,7 +636,7 @@
     }
      .esriCTRouteContainer
     {
-        min-height: 100px !important;
+        min-height: 100px;
     }
 }
 
@@ -895,7 +894,7 @@
     }
     .esriCTFrequentRouteContainerButton
     {
-        width: 98.2%;
+        width: 100%;
     }
     .esriCTFrequentRouteContainerTopButton
     {
@@ -909,7 +908,6 @@
     {
         min-height: 150px !important;
     }
-
 }
 
 /* Landscape */

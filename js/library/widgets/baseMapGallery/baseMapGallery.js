@@ -28,8 +28,9 @@ define([
     "dijit/_WidgetBase",
     "dijit/_TemplatedMixin",
     "dijit/_WidgetsInTemplateMixin",
-    "esri/layers/ArcGISTiledMapServiceLayer"
-], function (declare, domConstruct, array, lang, on, dom, query, template, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, ArcGISTiledMapServiceLayer) {
+    "esri/layers/ArcGISTiledMapServiceLayer",
+    "esri/layers/OpenStreetMapLayer"
+], function (declare, domConstruct, array, lang, on, dom, query, template, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, ArcGISTiledMapServiceLayer, OpenStreetMapLayer) {
 
     //========================================================================================================================//
 
@@ -121,7 +122,11 @@ define([
                 }));
             } else {
                 this.enableToggling = false;
-                layer = new ArcGISTiledMapServiceLayer(basemapLayers.MapURL, { id: basemapLayerId, visible: true });
+                if (basemapLayers.layerType === "OpenStreetMap") {
+                    layer = new OpenStreetMapLayer({ id: basemapLayerId, visible: true });
+                } else {
+                    layer = new ArcGISTiledMapServiceLayer(basemapLayers.MapURL, { id: basemapLayerId, visible: true });
+                }
                 this.map.addLayer(layer, 0);
             }
 

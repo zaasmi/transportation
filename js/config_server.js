@@ -91,17 +91,16 @@ define([], function () {
         InformationDisplayText: "511 Information",
 
         // Set Re Route Display Text
-        ReRouteDisplayText: "Traffic incidents found on this road",
+        ReRouteDisplayText: "Traffic incidents found on this road.",
 
         // Set Frequently travelled route Tab DisplayText
-        FrequentRoute: "Frequently travelled route",
+        FrequentRoute: "Frequently travelled routes",
 
-        
+        // Set Direction Tab DisplayText
+        DirectionsDisplayText: "Directions",
 
         // Specify URL to ArcGIS Portal REST API
         PortalAPIURL: "http://www.arcgis.com/sharing/rest/",
-        // Specify URL to Search
-        SearchURL: "http://www.arcgis.com/sharing/rest/search?q=group:",
         // Specify the title of group that contains basemaps
         BasemapGroupTitle: "Basemaps", //CyberTech Systems and Software Limited
         // Specify the user name of owner of the group that contains basemaps
@@ -117,6 +116,10 @@ define([], function () {
         WebMapId: "",
 
         ThemeColor: "js/library/themes/styles/blueTheme.css",
+
+        // Set Legend Visibility
+        ShowLegend: "true",
+
         // OPERATIONAL DATA SETTINGS
         // ------------------------------------------------------------------------------------------------------------------------
 
@@ -183,7 +186,7 @@ define([], function () {
         //               If empty "", then SearchDisplayTitle is used (if configured), else layer name in the webmap/mapservice is used.
         // InfoDetailFields: Attributes that will be displayed in the 511 Information Details panel.
         //                   If empty "", then SearchDisplayFields will be used (if configured), else displayField property of layer in mapservice will be used.
-SearchAnd511Settings: [
+        SearchAnd511Settings: [
             {
                 Title: "Transportation511",
                 QueryLayerId: "0",
@@ -425,7 +428,7 @@ SearchAnd511Settings: [
                         FieldName: "${CONDDESC}"
                     }
                 ]
-            },{
+            }, {
                 Title: "Transportation511",
                 QueryLayerId: "3",
                 InfoWindowHeaderField: "${HWYNAME}",
@@ -597,7 +600,7 @@ SearchAnd511Settings: [
                 MapInstanceRequired: false
             }
         ],
-//------------------------------------------------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------------------------------------------------
         // ROUTING SERVICE SETTINGS
         // ------------------------------------------------------------------------------------------------------------------------
 
@@ -649,7 +652,7 @@ SearchAnd511Settings: [
         MapSharingOptions: {
             TinyURLServiceURL: "https://api-ssl.bitly.com/v3/shorten?longUrl=${0}",
             TinyURLResponseAttribute: "data.url",
-            FacebookShareURL: "http://www.facebook.com/sharer.php?u=${0}&t=Transportation%20511",
+            FacebookShareURL: "http://www.facebook.com/sharer.php?m2w&u=${0}&t=Transportation%20511",
             TwitterShareURL: "http://mobile.twitter.com/compose/tweet?status=Transportation%20511 ${0}",
             ShareByMailLink: "mailto:%20?subject=Check%20out%20this%20map!&body=${0}"
         }

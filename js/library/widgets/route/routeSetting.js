@@ -73,6 +73,7 @@ define([
         inforesult: false,
         infoPanelHeight: false,
         buffercount: 0,
+        getDirections: 0,
         divapplicationFrequentRoutes: null,
         containerButtonHtml: null,
         routeTopTiteArrow: null,
@@ -104,9 +105,9 @@ define([
                 this._esriDirectionsWidget.options.geocoderOptions.autoComplete = true;
                 this._esriDirectionsWidget.autoSolve = false;
                 this._esriDirectionsWidget.startup();
-                this.own(on(this._esriDirectionsWidget._getDirectionsButtonNode, a11yclick, lang.hitch(this._esriDirectionsWidget, this._esriDirectionsWidget.getDirections)));
                 //barriers feature set
                 if (this._esriDirectionsWidget.routeParams) {
+                    this._esriDirectionsWidget.routeParams.ignoreInvalidLocations = false;
                     this._esriDirectionsWidget.routeParams.barriers = new FeatureSet();
                     this._esriDirectionsWidget.routeParams.polylineBarriers = new FeatureSet();
                     this._esriDirectionsWidget.routeParams.polygonBarriers = new FeatureSet();
@@ -114,6 +115,10 @@ define([
                 this._clearTextBox();
                 this.own(on(this._esriDirectionsWidget._addDestinationNode, a11yclick, lang.hitch(this, function () {
                     this._clearTextBox();
+                })));
+                this.own(on(this._esriDirectionsWidget._getDirectionsButtonNode, a11yclick, lang.hitch(this, function () {
+                    this._getDirectionsButtonValidation();
+                    this._esriDirectionsWidget.getDirections();
                 })));
                 this._esriDirectionsWidget.options.routeSymbol.color = new Color([parseInt(dojo.configData.RouteSymbology.ColorRGB.split(",")[0], 10), parseInt(dojo.configData.RouteSymbology.ColorRGB.split(",")[1], 10), parseInt(dojo.configData.RouteSymbology.ColorRGB.split(",")[2], 10), parseFloat(dojo.configData.RouteSymbology.Transparency.split(",")[0], 10)]);
                 this._esriDirectionsWidget.options.routeSymbol.width = parseInt(dojo.configData.RouteSymbology.Width, 10);
@@ -132,6 +137,13 @@ define([
                     }
                     topic.publish("hideInfoWindowOnMap");
                     topic.publish("showProgressIndicator");
+                    if (this._validateRouteGeocodersResult()) {
+                        this._showErrorResult();
+                        this._resetFTRButton();
+                        dojo.stops = [];
+                        topic.publish("hideProgressIndicator");
+                        return;
+                    }
                     if (this._esriDirectionsWidget.directions !== null) {
                         this.routeOnMap = true;
                         this._onDirectionFinish();
@@ -141,13 +153,12 @@ define([
                     } else {
                         this.routeOnMap = false;
                         this._validateAddress();
-                        this._routeGeocodersResult();
                         if (!this.resultLength) {
                             this._showErrorResult();
                             this.clearAllGraphics(false);
                         } else {
                             alert(sharedNls.errorMessages.enterCorrectPoints);
-                            this._resetDirectionTab();
+                            this.resetDirectionTab();
                         }
                         topic.publish("hideProgressIndicator");
                         if (this.esriCTDirectionRefreshButton) {
@@ -162,8 +173,10 @@ define([
                     alert(err.message);
                     topic.publish("hideProgressIndicator");
                 }));
-
                 this._persistRouteAddress();
+                setTimeout(lang.hitch(this, function () {
+                    this.own(on(this._esriDirectionsWidget.routeTask, "error", lang.hitch(this, this._onRouteTaskFailed)));
+                }), 1000);
             }
 
             if (!this.routeLoader && dojo.configData.FrequentRoutesSettings.FrequentRoutesEnabled === "true" && lang.trim(dojo.configData.FrequentRoutesSettings.FrequentRoutesEnabled).length !== 0) {
@@ -179,15 +192,55 @@ define([
         },
 
         /**
+        * Show validation on route task failed
+        * @memberOf widgets/route/routeSetting
+        */
+        _onRouteTaskFailed: function (err) {
+            var errorMsg = err.error.message, index;
+            for (index = 0; index < err.error.details.length; index++) {
+                errorMsg += "\n" + err.error.details[index];
+            }
+            alert(errorMsg);
+            this.infoResultGeometry = null;
+            dojo.stops = [];
+            this._resetFTRButton();
+        },
+
+        /**
+        * Reset position of FTR button
+        * @memberOf widgets/route/routeSetting
+        */
+        _resetFTRButton: function () {
+            if (this.containerButtonHtml) {
+                domStyle.set(this.containerButtonHtml, "cursor", "default");
+            }
+            this.setDirectionScrollbar();
+            if (this.routeTopTiteArrow) {
+                this.esriRoute = true;
+                domStyle.set(this.routeTopTiteArrow, "cursor", "default");
+                domClass.replace(this.routeTopTiteArrow, "esriCTrouteUpTitleArrow", "esriCTrouteDownTitleArrow");
+                domClass.replace(this.divFrequentRouteContainerButton, "esriCTFrequentRouteContainerButton", "esriCTFrequentRouteContainerTopButton");
+                domStyle.set(this.divFrequentRoutePanel, "display", "block");
+            }
+            if (query(".esriRoutesContainer")[0]) {
+                if (window.location.toString().split("$stops=").length > 1) {
+                    domStyle.set(query(".esriRoutesContainer")[0], "display", "block");
+                } else {
+                    domStyle.set(query(".esriRoutesContainer")[0], "display", "none");
+                }
+            }
+        },
+
+        /**
         * Clear route graphics present on map
         * @memberOf widgets/route/routeSetting
         */
         clearDirection: function () {
             var graphicsLength, graphicsBufferLength, _this = this;
-            graphicsLength = this.map.getLayer("esriGraphicsLayerMapSettings").graphics.length;
-            graphicsBufferLength = this.map.getLayer("frequentRoutesLayerID") && this.map.getLayer("frequentRoutesLayerID").graphics.length;
+            graphicsLength = this.map.getLayer("esriRouteGraphicsLayerMapSettings").graphics.length;
+            graphicsBufferLength = this.map.getLayer("frequentRoutesLayerID").graphics.length;
             if (graphicsLength > 0) {
-                if (this.map.getLayer("esriGraphicsLayerMapSettings").visible) {
+                if (this.map.getLayer("esriRouteGraphicsLayerMapSettings").visible) {
                     if (domStyle.get(this.esriCTRouteContainer, "display") === "block") {
                         domStyle.set(this.esriCTDirectionRefreshButton, "display", "block");
                     } else {
@@ -202,12 +255,39 @@ define([
             }
             if (domStyle.get(this.esriCTDirectionRefreshButton, "display") === "block") {
                 this.esriCTDirectionRefreshButton.onclick = lang.hitch(this, function () {
-                    this._resetDirectionTab(_this.map.getLayer("esriGraphicsLayerMapSettings").graphics.length === 0);
+                    this.infoResultGeometry = null;
+                    this.resetDirectionTab(_this.map.getLayer("esriRouteGraphicsLayerMapSettings").graphics.length === 0);
                 });
             }
         },
 
-        _resetDirectionTab: function (isGraphics) {
+
+        /**
+        * Validations On click of Get Direction Button
+        * @memberOf widgets/route/routeSetting
+        */
+        _getDirectionsButtonValidation: function () {
+            var i, invalidStopsCounter = 0;
+            for (i = 0; i < this._esriDirectionsWidget.stops.length; i++) {
+                if (lang.trim(this._esriDirectionsWidget.stops[i].name) === "") {
+                    invalidStopsCounter++;
+                }
+            }
+            if (invalidStopsCounter > 0) {
+                if (this.map.getLayer("esriRouteGraphicsLayerMapSettings").visible && invalidStopsCounter === this._esriDirectionsWidget.stops.length) {
+                    if (this.esriCTDirectionRefreshButton) {
+                        domStyle.set(this.esriCTDirectionRefreshButton, "display", "none");
+                    }
+                    this.resetDirectionTab(this.map.getLayer("esriRouteGraphicsLayerMapSettings").graphics.length === 0);
+                }
+            }
+        },
+
+        /**
+        * Reset position of Direction Tab
+        * @memberOf widgets/route/routeSetting
+        */
+        resetDirectionTab: function (isGraphics) {
             this.routeOnMap = false;
             this.esriRoute = true;
             dojo.stops = [];
@@ -292,6 +372,21 @@ define([
                     break;
                 }
             }
+        },
+
+        /**
+        * Validates the Geocoded address of direction widget
+        * @memberOf widgets/route/routeSetting
+        */
+        _validateRouteGeocodersResult: function () {
+            var j, isInvalid = false, featureLength = this._esriDirectionsWidget.stops;
+            for (j = 0; j < featureLength.length; j++) {
+                if (!featureLength[j].feature) {
+                    isInvalid = true;
+                    break;
+                }
+            }
+            return isInvalid;
         },
 
         /**
@@ -418,7 +513,7 @@ define([
                 this.divapplicationFrequentRoutes.onclick = function () {
                     if (!_this.esriRoute) {
                         if (query(".esriRoutesContainer")[0]) {
-                            if (domStyle.get(query(".esriRoutesContainer")[0], "display") === "none" && (_this.map.getLayer("esriGraphicsLayerMapSettings").graphics.length > 0 || _this.routeOnMap)) {
+                            if (domStyle.get(query(".esriRoutesContainer")[0], "display") === "none" && (_this.map.getLayer("esriRouteGraphicsLayerMapSettings").graphics.length > 0 || _this.routeOnMap)) {
                                 _this.setDirectionScrollbar();
                                 domClass.replace(_this.divFrequentRouteContainerButton, "esriCTFrequentRouteContainerTopButton", "esriCTFrequentRouteContainerButton");
                                 domClass.replace(_this.routeTopTiteArrow, "esriCTrouteDownTitleArrow", "esriCTrouteUpTitleArrow");
@@ -454,8 +549,13 @@ define([
                     esriRoutesHeight = document.documentElement.clientHeight - query(".esriCTApplicationHeader")[0].offsetHeight - 64;
                 }
                 containerMinHeight = (document.documentElement.clientHeight - query(".esriCTApplicationHeader")[0].offsetHeight - 32) + "px";
-                domStyle.set(_this.esriCTRouteContainer, "height", containerMinHeight);
+
                 esriRoutesStyle = { height: esriRoutesHeight + "px" };
+                if (dojo.window.getBox().w <= 680) {
+                    domStyle.set(_this.esriCTRouteContainer, "min-height", containerMinHeight);
+                } else {
+                    domStyle.set(_this.esriCTRouteContainer, "height", containerMinHeight);
+                }
                 if (_this.divFrequentRoutePanel) {
                     domAttr.set(_this.divFrequentRoutePanel, "style", esriRoutesStyle);
                 }
@@ -650,7 +750,7 @@ define([
             routeLastName = this._esriDirectionsWidget.stops[routeLength - 1].name;
             routeName = routeFirstName + " " + sharedNls.sentenceFragment.to + " " + routeLastName;
             geometryService.union(geometry).then(lang.hitch(this, function (geometries) {
-                this.executeBufferQuery(geometries, geometryService, this.map.getLayer("esriGraphicsLayerMapSettings"), routeName);
+                this.executeBufferQuery(geometries, geometryService, this.map.getLayer("esriRouteGraphicsLayerMapSettings"), routeName);
             }), function (err) {
                 alert(err.message);
                 topic.publish("hideProgressIndicator");

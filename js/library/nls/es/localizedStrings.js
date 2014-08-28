@@ -61,6 +61,7 @@ define({
         noInfoWindow: "InfoWindow not found for this layer",
         enterCorrectPoints: "Enter correct source or destination.",
         enterCorrectSource: "Enter correct source.",
-        enterCorrectDestination: "Enter correct destination."
+        enterCorrectDestination: "Enter correct destination.",
+        noPortalUrl: "Portal URL could not be found"
     }
 });

@@ -448,14 +448,12 @@ input
 
 .esriCTrouteUpTitleArrow
 {
-    background-image: url("../images/arrow-gray-down.png");
-    background-color: #028D6A;
+    background-image: url("../images/arrow-green-down.png");
 }
 
 .esriCTrouteDownTitleArrow
 {
-    background-image: url("../images/arrow-gray-up.png");
-    background-color: #028D6A;
+    background-image: url("../images/arrow-green-up.png");
 }
 /* End of Route */
 

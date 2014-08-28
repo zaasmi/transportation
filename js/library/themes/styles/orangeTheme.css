@@ -468,14 +468,12 @@ input
 
 .esriCTrouteUpTitleArrow
 {
-    background-image: url("../images/arrow-gray-down.png");
-    background-color: #d15706;
+    background-image: url("../images/arrow-orange-down.png");
 }
 
 .esriCTrouteDownTitleArrow
 {
-    background-image: url("../images/arrow-gray-up.png");
-    background-color: #d15706;
+    background-image: url("../images/arrow-orange-up.png");
 }
 /* End of Route */
 
