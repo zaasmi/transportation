@@ -25,6 +25,11 @@ html, body
     font-size: 11px !important;
     font-family: Verdana !important;
     visibility: visible !important;
+
+}
+.modelBody
+{
+    position:relative;
 }
 
 .esriCTFullWidth
@@ -393,7 +398,7 @@ input
 {
     margin: 0 auto;
     padding: 0 15px 15px;
-    width: 290PX;
+    width: 260px;
 }
 
 .esriAddressCounty
@@ -682,10 +687,9 @@ input
 
 .esriCTFrequentRouteContainerButton
 {
-    padding: 0 0 0 10px;
     z-index: 1010;
     right: 0px;
-    width: 276px;
+    width: 286px;
     text-align: center;
     float: left;
     line-height: 30px;
@@ -731,7 +735,6 @@ input
 
 .esriCTRouteInformationContainer
 {
-    /* background: none repeat scroll 0 0 #FAFAFA;*/
     font-weight: 100;
     line-height: 30px;
     text-align: center;
@@ -958,10 +961,6 @@ input
     background: linear-gradient(to bottom, #FFFFFF 0%, #FFFFFF 100%) repeat scroll 0 0 rgba(0, 0, 0, 0) !important;
 }
 
-.esriCTFrequentRouteContainer
-{
-    position: relative;
-}
 .esriCTdivFrequentRoutePanel
 {
     position: relative;
@@ -972,18 +971,24 @@ input
 {
     float: right;
     background-repeat: no-repeat;
-    background-position: center;
+    background-position: left;
     height: 30px;
     width: 30px;
+    padding-right:10px;
+    position:relative;
+    z-index:100;
 }
 
 .esriCTrouteDownTitleArrow
 {
     float: right;
     background-repeat: no-repeat;
-    background-position: center;
+    background-position: left;
     height: 30px;
     width: 30px;
+    padding-right:10px;
+    position:relative;
+    z-index:100;
 }
 /* End of Route */
 
@@ -1157,7 +1162,7 @@ input
 {
     overflow: hidden;
     border: none;
-    width: 286px !important;
+    width: 100%;
 }
 .scrollbar_content_splashScreen
 {
@@ -1283,7 +1288,7 @@ input
 {
     height: 31px;
     position: absolute;
-    z-index: 998;
+    z-index: 997;
     overflow: hidden;
     width: 100%;
     bottom: 0px;
@@ -1596,6 +1601,7 @@ input
 {
     height: 18px !important;
     width: 18px !important;
+    margin-right: 10px !important;
 }
 
 .simpleDirections .esriResultsButtonsContainer
@@ -1814,9 +1820,10 @@ input
 
 .esriCTValueFieldLink
 {
-    text-align: center;
+    text-align: left;
     vertical-align: top;
-    width: 100%;
+    width: 49.5%;
+    float: right;
 }
 .esriCTDetailsDisplay
 {
@@ -2163,7 +2170,7 @@ esriCTMobileCloseDiv
     border-radius: 2px;
     display: block;
     margin: 0;
-    padding: 6px;
+    padding: 4px;
     width: 94% !important;
 }
 
@@ -2179,10 +2186,31 @@ esriCTMobileCloseDiv
     background: none repeat scroll 0 0 #FFFFFF;
     border: 0 none;
     font-size: 12px;
-    height: 16px;
-    line-height: 16px;
+    height: 22px;
+    line-height: 22px;
     margin: 0;
     outline: 0 none;
     padding: 0;
     width: 100%;
+}
+
+.esriPopup .pointer, .esriPopup .outerPointer
+{
+     transform: rotate(0deg);
+    -ms-transform: rotate(0deg);
+    -moz-transform: rotate(0deg);
+    -o-transform: rotate(0deg);
+    -webkit-transform: rotate(0deg);
+
+}
+
+.esriRoutesError
+{
+    display:none !important;
+}
+
+.esriCTLinkImg
+{
+    width: 95%;
+    height:auto;
 }

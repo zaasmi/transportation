@@ -129,7 +129,7 @@ define([
             } else {
                 urlStr = encodeURI(url.path) + "?extent=" + mapExtent;
             }
-            if (dojo.stops && dojo.stops.length > 0) {
+            if (dojo.stops && dojo.stops.length > 0 && !dojo.featurePoint) {
                 urlStr = urlStr + "$stops=" + dojo.stops.join("_");
             }
             if (dojo.selectedBasemapIndex !== null) {

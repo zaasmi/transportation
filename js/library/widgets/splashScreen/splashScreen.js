@@ -21,6 +21,7 @@ define([
     "dojo/dom-construct",
     "dojo/dom-style",
     "dojo/_base/lang",
+    "dojo/topic",
     "dojo/dom-attr",
     "dojo/on",
     "dojo/text!./templates/splashScreenTemplate.html",
@@ -30,11 +31,12 @@ define([
     "dijit/_WidgetsInTemplateMixin",
     "dojo/i18n!application/js/library/nls/localizedStrings",
     "../scrollBar/scrollBar"
-], function (declare, domConstruct, domStyle, lang, domAttr, on, template, _WidgetBase, _TemplatedMixin, domClass, _WidgetsInTemplateMixin, sharedNls, ScrollBar) {
+], function (declare, domConstruct, domStyle, lang, topic, domAttr, on, template, _WidgetBase, _TemplatedMixin, domClass, _WidgetsInTemplateMixin, sharedNls, ScrollBar) {
     return declare([_WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin], {
         templateString: template,
         sharedNls: sharedNls,
         splashScreenScrollbar: null,
+        splashScreenContent: null,
 
         /**
         * create share widget
@@ -51,20 +53,38 @@ define([
             this.domNode = domConstruct.create("div", { "class": "esriGovtLoadSpashScreen" }, dojo.body());
             this.domNode.appendChild(this.splashScreenScrollBarOuterContainer);
             domConstruct.create("div", { "class": "esriCTLoadingIndicator", "id": "splashscreenlodingIndicator" }, this.splashScreenScrollBarOuterContainer);
+            topic.subscribe("setSplashScreenScrollbar", lang.hitch(this, function () {
+                this.setSplashScreenScrollbar();
+            }));
         },
 
         showSplashScreenDialog: function () {
-            var splashScreenContent;
             domStyle.set(this.domNode, "display", "block");
-            splashScreenContent = domConstruct.create("div", { "class": "esriGovtSplashContent" }, this.splashScreenScrollBarContainer);
-            this.splashScreenScrollBarContainer.style.height = (this.splashScreenDialogContainer.offsetHeight - 70) + "px";
-            domAttr.set(splashScreenContent, "innerHTML", dojo.configData.SplashScreen.SplashScreenContent);
-            this.splashScreenScrollbar = new ScrollBar({ domNode: this.splashScreenScrollBarContainer });
-            if (dojo.window.getBox().w >= 680) {
-                domClass.replace(this.splashScreenScrollbar._scrollBarContent, "scrollbar_content_splashScreen", "scrollbar_content");
+            this.splashScreenContent = domConstruct.create("div", { "class": "esriGovtSplashContent" }, this.splashScreenScrollBarContainer);
+            domAttr.set(this.splashScreenContent, "innerHTML", dojo.configData.SplashScreen.SplashScreenContent);
+            this.setSplashScreenScrollbar();
+        },
+
+        setSplashScreenScrollbar: function () {
+            if (domStyle.get(this.domNode, "display") === "block") {
+                if (this.splashScreenScrollbar) {
+                    domClass.add(this.splashScreenScrollbar._scrollBarContent, "esriCTZeroHeight");
+                    this.splashScreenScrollbar.removeScrollBar();
+                }
+                this.splashScreenScrollBarContainer.style.height = (this.splashScreenDialogContainer.offsetHeight - 70) + "px";
+                if ((this.splashScreenDialogContainer.offsetHeight - 70) > document.documentElement.clientHeight) {
+                    var h = document.documentElement.clientHeight - (this.splashScreenDialogContainer.offsetHeight);
+                    this.splashScreenScrollBarContainer.style.height = (this.splashScreenDialogContainer.offsetHeight - 70 - h) + "px";
+                } else {
+                    this.splashScreenScrollBarContainer.style.height = (this.splashScreenDialogContainer.offsetHeight - 70) + "px";
+                }
+                this.splashScreenScrollbar = new ScrollBar({ domNode: this.splashScreenScrollBarContainer });
+                if (dojo.window.getBox().w >= 680) {
+                    domClass.replace(this.splashScreenScrollbar._scrollBarContent, "scrollbar_content_splashScreen", "scrollbar_content");
+                }
+                this.splashScreenScrollbar.setContent(this.splashScreenContent);
+                this.splashScreenScrollbar.createScrollBar();
             }
-            this.splashScreenScrollbar.setContent(splashScreenContent);
-            this.splashScreenScrollbar.createScrollBar();
         },
 
         _hideSplashScreenDialog: function () {

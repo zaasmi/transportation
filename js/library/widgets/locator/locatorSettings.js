@@ -387,7 +387,7 @@ define([
                 _this.txtAddress.value = this.innerHTML;
                 domAttr.set(_this.txtAddress, "defaultAddress", _this.txtAddress.value);
                 _this._hideAddressContainer();
-                topic.publish("clearAllGraphics", false, true);
+                topic.publish("resetDirectionTab", _this.map.getLayer("esriRouteGraphicsLayerMapSettings").graphics.length === 0);
                 if (candidate.attributes.location) {
                     dojo.setMapTipPosition = true;
                     _this.mapPoint = new Point(domAttr.get(this, "x"), domAttr.get(this, "y"), _this.map.spatialReference);
@@ -453,6 +453,12 @@ define([
             var screenPoint, i, j, objID, layerSettings, infoPopupFieldsCollection, key,
                 divInfoRow, utcMilliseconds, divInfoDetailsTab, fieldNames, link, divLink,
                 infoTitle, mobTitle;
+            if (!infoIndex && infoIndex !== 0) {
+                topic.publish("hideInfoWindowOnMap");
+                map.setExtent(this._calculateCustomMapExtent(mapPoint));
+                topic.publish("hideProgressIndicator");
+                return;
+            }
             if (featureArray) {
                 if (window.location.toString().split("$featurepoint=").length <= 1) {
                     if (featureArray.length > 1 && parseInt(count, 10) !== featureArray.length - 1) {
@@ -518,12 +524,11 @@ define([
                     link = fieldNames;
                     //Check if url is of image then create image in Infopopup
                     if (link.match(/\.(jpeg|jpg|gif|png)$/) !== null) {
-                        divLink = domConstruct.create("img", { "class": "esriCTLink" }, this.divInfoFieldValue);
+                        divLink = domConstruct.create("img", { "class": "esriCTLinkImg" }, this.divInfoFieldValue);
                         domAttr.set(divLink, "src", link);
                     } else if (layerSettings.SearchAnd511Settings[infoIndex].SearchDisplayTitle === "Video Cameras") {
                         divLink = domConstruct.create("div", { "class": "esriCTLink" }, this.divInfoFieldValue);
                         this._renderVideoContent(link, divLink);
-
                     } else {
                         divLink = domConstruct.create("div", { "class": " esriCTInfoLink", innerHTML: sharedNls.buttons.link }, this.divInfoFieldValue);
                         on(divLink, "click", lang.hitch(this, this._makeWindowOpenHandler(link)));

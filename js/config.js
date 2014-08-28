@@ -299,7 +299,7 @@ define([], function () {
         // ------------------------------------------------------------------------------------------------------------------------
 
         // Title should match the service name for ArcGIS Server. If using hosted feature services with a webmap, use the layer title in the webmap.
-	//QueryLayerId should be set to the layer index.
+        // QueryLayerId should be set to the layer index.
         // UniqueRouteField: Specify the field that contains values which uniquely identify routes
         // DisplayField: Attributes to be displayed in list of frequently travelled routes
         FrequentRoutesSettings: {
@@ -361,7 +361,7 @@ define([], function () {
             CartographicLineWidth: 512
         },
 
-//------------------------------------------------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------------------------------------------------
         // Header Widget Settings
         //------------------------------------------------------------------------------------------------------------------------
         // Set widgets settings such as widget title, widgetPath, mapInstanceRequired to be displayed in header panel
@@ -394,7 +394,7 @@ define([], function () {
         MapSharingOptions: {
             TinyURLServiceURL: "https://api-ssl.bitly.com/v3/shorten?longUrl=${0}",
             TinyURLResponseAttribute: "data.url",
-            FacebookShareURL: "http://www.facebook.com/sharer.php?u=${0}&t=Transportation%20511",
+            FacebookShareURL: "http://www.facebook.com/sharer.php?m2w&u=${0}&t=Transportation%20511",
             TwitterShareURL: "http://mobile.twitter.com/compose/tweet?status=Transportation%20511 ${0}",
             ShareByMailLink: "mailto:%20?subject=Check%20out%20this%20map!&body=${0}"
         }

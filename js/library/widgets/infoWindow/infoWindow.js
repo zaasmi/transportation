@@ -166,6 +166,7 @@ define([
                     esriInfoStyle = { height: divInfoContentHeight + 'px' };
                 domAttr.set(this.divInfoScrollContent, "style", esriInfoStyle);
             }
+            this._setScrollbarOnReSize();
         },
 
         /**
@@ -195,7 +196,7 @@ define([
                 }
                 domStyle.set(this.domNode, {
                     left: (location.x - (this.infoWindowWidth / 2)) + "px",
-                    bottom: (location.y + 17) + "px"
+                    bottom: (location.y + 19) + "px"
                 });
                 if (!this.InfoShow) {
                     domUtils.show(this.domNode);
@@ -267,6 +268,29 @@ define([
                     this.infoContainerScrollbar.domNode.removeChild(this.infoContainerScrollbar.domNode.firstChild);
                 }
                 topic.publish("onWindowResize");
+            }
+        },
+
+        /**
+        * Set Scrollbar to InfoWinodw
+        * @memberOf widgets/infoWindow/infoWindow
+        */
+        _setScrollbarOnReSize: function () {
+            if (dojo.window.getBox().w <= 680) {
+                var divInfoContentHeight = document.documentElement.clientHeight - 60,
+                    esriInfoStyle = { height: divInfoContentHeight + 'px' };
+                domAttr.set(this.divInfoScrollContent, "style", esriInfoStyle);
+                if (this.infoContainerScrollbar) {
+                    this.infoContainerScrollbar.removeScrollBar();
+                }
+                this.infoContainerScrollbar = new ScrollBar({
+                    domNode: this.divInfoScrollContent
+                });
+                this.infoContainerScrollbar.setContent(this.divInfoDetailsScroll);
+                this.infoContainerScrollbar.createScrollBar();
+                while (this.infoContainerScrollbar.domNode.children.length > 1) {
+                    this.infoContainerScrollbar.domNode.removeChild(this.infoContainerScrollbar.domNode.firstChild);
+                }
             }
         },
 

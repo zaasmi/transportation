@@ -65,7 +65,8 @@ define({
             enterCorrectSource: "Enter correct source.",
             enterCorrectDestination: "Enter correct destination.",
             invalidBasemapQuery: "Invalid BasemapQuery",
-            noBasemap: "No Basemap Found"
+            noBasemap: "No Basemap Found",
+            noPortalUrl: "Portal URL could not be found"
         }
 
     },

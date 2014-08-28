@@ -50,10 +50,12 @@ define([
     "dojo/_base/array",
     "dojo/aspect",
     "esri/layers/ArcGISDynamicMapServiceLayer",
+    "esri/layers/OpenStreetMapLayer",
+    "esri/layers/ArcGISTiledMapServiceLayer",
     "dojo/cookie",
     "dojo/_base/unload",
     "dojo/domReady!"
-], function (declare, domConstruct, domStyle, lang, esriUtils, dom, domAttr, query, domClass, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, sharedNls, esriMap, ImageParameters, FeatureLayer, GraphicsLayer, SimpleLineSymbol, SimpleRenderer, Color, BaseMapGallery, Legends, GeometryExtent, HomeButton, Deferred, DeferredList, InfoWindow, template, topic, Point, array, aspect, ArcGISDynamicMapServiceLayer, cookie, baseUnload) {
+], function (declare, domConstruct, domStyle, lang, esriUtils, dom, domAttr, query, domClass, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, sharedNls, esriMap, ImageParameters, FeatureLayer, GraphicsLayer, SimpleLineSymbol, SimpleRenderer, Color, BaseMapGallery, Legends, GeometryExtent, HomeButton, Deferred, DeferredList, InfoWindow, template, topic, Point, array, aspect, ArcGISDynamicMapServiceLayer, OpenStreetMapLayer, ArcGISTiledMapServiceLayer, cookie, baseUnload) {
 
     //========================================================================================================================//
 
@@ -62,6 +64,7 @@ define([
         templateString: template,
         tempGraphicsLayerId: "esriGraphicsLayerMapSettings",
         locaterGraphicsLayerId: "esrilocaterGraphicsLayer",
+        routeGraphicsLayerId: "esriRouteGraphicsLayerMapSettings",
         sharedNls: sharedNls,
         stagedSearch: null,
         newLeft: 0,
@@ -80,10 +83,12 @@ define([
             * set map extent to default extent specified in configuration file
             * @param {string} dojo.configData.DefaultExtent Default extent of map specified in configuration file
             */
-            var extentPoints, graphicsLayer, mapDeferred, layer, geometry, locaterGraphicsLayer;
+            var extentPoints, graphicsLayer, routeGraphicsLayer, mapDeferred, layer, geometry, locaterGraphicsLayer, i;
             extentPoints = dojo.configData && dojo.configData.DefaultExtent && dojo.configData.DefaultExtent.split(",");
             graphicsLayer = new GraphicsLayer();
             graphicsLayer.id = this.tempGraphicsLayerId;
+            routeGraphicsLayer = new GraphicsLayer();
+            routeGraphicsLayer.id = this.routeGraphicsLayerId;
             locaterGraphicsLayer = new GraphicsLayer();
             locaterGraphicsLayer.id = this.locaterGraphicsLayerId;
             this.sharePoint = false;
@@ -118,6 +123,7 @@ define([
                     geometry = response.map.extent;
                     this._mapOnCurrentExtent(response);
                     this.map.addLayer(graphicsLayer);
+                    this.map.addLayer(routeGraphicsLayer);
                     this.map.addLayer(locaterGraphicsLayer);
                     this._addFrequentRoutesLayer();
                     this._initializeMapSettings(geometry);
@@ -141,21 +147,29 @@ define([
                 this.map = esriMap("esriCTParentDivContainer", {});
 
                 dojo.selectedBasemapIndex = 0;
-                if (dojo.configData.BaseMapLayers[0].length > 1) {
-                    array.forEach(dojo.configData.BaseMapLayers[0], lang.hitch(this, function (basemapLayer, index) {
-                        layer = new esri.layers.ArcGISTiledMapServiceLayer(basemapLayer.MapURL, { id: "defaultBasemap" + index, visible: true });
-                        this.map.addLayer(layer);
-                    }));
+
+                if (!dojo.configData.BaseMapLayers[0].length) {
+                    if (dojo.configData.BaseMapLayers[0].layerType === "OpenStreetMap") {
+                        layer = new OpenStreetMapLayer({ id: "defaultBasemap", visible: true });
+                    } else {
+                        layer = new ArcGISTiledMapServiceLayer(dojo.configData.BaseMapLayers[0].MapURL, { id: "defaultBasemap", visible: true });
+                    }
+                    this.map.addLayer(layer, 0);
                 } else {
-                    layer = new esri.layers.ArcGISTiledMapServiceLayer(dojo.configData.BaseMapLayers[0].MapURL, { id: "defaultBasemap", visible: true });
-                    this.map.addLayer(layer);
+                    for (i = 0; i < dojo.configData.BaseMapLayers[0].length; i++) {
+                        layer = new ArcGISTiledMapServiceLayer(dojo.configData.BaseMapLayers[0][i].MapURL, { id: "defaultBasemap" + i, visible: true });
+                        this.map.addLayer(layer, i);
+                    }
                 }
                 this.map.addLayer(graphicsLayer);
+                this.map.addLayer(routeGraphicsLayer);
                 this.map.addLayer(locaterGraphicsLayer);
                 this._addFrequentRoutesLayer();
                 this._mapOnLoad(extentPoints);
             }
+
         },
+
         /**
         * set default id for basemaps
         * @memberOf widgets/mapSettings/mapSettings
@@ -178,26 +192,34 @@ define([
         */
         _setBasemapId: function (basmap, defaultId) {
             var layerIndex;
-            if (basmap.id !== "defaultBasemap") {
-                this.map.getLayer(basmap.id).id = defaultId;
-                this.map._layers[defaultId] = this.map.getLayer(basmap.id);
-                layerIndex = array.indexOf(this.map.layerIds, basmap.id);
+            this.map.getLayer(basmap.id).id = defaultId;
+            this.map._layers[defaultId] = this.map.getLayer(basmap.id);
+            layerIndex = array.indexOf(this.map.layerIds, basmap.id);
+            if (basmap.id !== defaultId) {
                 delete this.map._layers[basmap.id];
-                this.map.layerIds[layerIndex] = defaultId;
             }
+            this.map.layerIds[layerIndex] = defaultId;
         },
 
+        /**
+        * Create an Array For Legend
+        * @memberOf widgets/mapSettings/mapSettings
+        */
         _createWebmapLegendLayerList: function (layers) {
-            var i, webMapLayers = [], webmapLayerList = [];
+            var i, webMapLayers = [], webmapLayerList = {}, hasLayers = false;
             for (i = 0; i < layers.length; i++) {
                 if (layers[i].layerDefinition && layers[i].layerDefinition.drawingInfo) {
                     webmapLayerList[layers[i].url] = layers[i];
+                    hasLayers = true;
                 } else {
                     webMapLayers.push(layers[i]);
                 }
-
+            }
+            if (!hasLayers) {
+                webmapLayerList = null;
             }
             this._addLayerLegendWebmap(webMapLayers, webmapLayerList);
+
         },
 
         /**
@@ -362,6 +384,7 @@ define([
                 if (dojo.configData.WebMapId && lang.trim(dojo.configData.WebMapId).length !== 0) {
                     topic.publish("showInfoWindowContent", evt.extent);
                 }
+                topic.publish("setSplashScreenScrollbar");
             }));
             if (!dojo.configData.WebMapId && lang.trim(dojo.configData.WebMapId).length === 0) {
                 if (dojo.configData.ShowLegend === "true" && lang.trim(dojo.configData.ShowLegend).length !== 0) {
@@ -409,7 +432,7 @@ define([
         * @memberOf widgets/mapSettings/mapSettings
         */
         _fetchWebMapData: function (response) {
-            var searchSettings, i, j, k, l, str, index, serviceTitle = [], webMapDetails, operationalLayers, frequentRoutesLayer,
+            var searchSettings, i, j, k, l, str, displayText, index, serviceTitle = [], webMapDetails, operationalLayers, frequentRoutesLayer,
                 p = 0, operationalLayerId, lastIndex, layerInfo, infowindowIndex, field;
             dojo.configData.InfoWindowSettings = [];
             dojo.configData.OperationalLayers = [];
@@ -469,8 +492,12 @@ define([
                                             for (field in layerInfo.popupInfo.fieldInfos) {
                                                 if (layerInfo.popupInfo.fieldInfos.hasOwnProperty(field)) {
                                                     if (layerInfo.popupInfo.fieldInfos[field].visible) {
+                                                        displayText = layerInfo.popupInfo.fieldInfos[field].label;
+                                                        if (displayText === "") {
+                                                            displayText = layerInfo.popupInfo.fieldInfos[field].fieldName;
+                                                        }
                                                         dojo.configData.InfoWindowSettings[dojo.configData.InfoWindowSettings.length - 1].InfoWindowData.push({
-                                                            "DisplayText": layerInfo.popupInfo.fieldInfos[field].label + ":",
+                                                            "DisplayText": displayText + ":",
                                                             "FieldName": "${" + layerInfo.popupInfo.fieldInfos[field].fieldName + "}"
                                                         });
                                                     }
@@ -602,7 +629,6 @@ define([
         */
         _showInfoWindowOnMap: function (mapPoint, map) {
             var featureArray = [], onMapFeaturArray = [], index, deferredListResult, i, j;
-
             this.counter = 0;
             for (index = 0; index < dojo.configData.InfoWindowSettings.length; index++) {
                 this._executeQueryTask(index, mapPoint, onMapFeaturArray);
