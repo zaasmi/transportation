@@ -92,6 +92,8 @@ define([
             locaterGraphicsLayer = new GraphicsLayer();
             locaterGraphicsLayer.id = this.locaterGraphicsLayerId;
             this.sharePoint = false;
+            dojo.isInfoWinodwShareExtent = false;
+            dojo.isRouteShareExtent = false;
             topic.subscribe("locateAddressOnMap", lang.hitch(this, function (mapPoint) {
                 this._addPushpinOnMap(mapPoint);
             }));
@@ -129,7 +131,9 @@ define([
                     this._initializeMapSettings(geometry);
                     this._generateLayerURL(response.itemInfo.itemData.operationalLayers);
                     if (dojo.configData.ShowLegend === "true" && lang.trim(dojo.configData.ShowLegend).length !== 0) {
-                        this._createWebmapLegendLayerList(response.itemInfo.itemData.operationalLayers);
+                        setTimeout(lang.hitch(this, function () {
+                            this._createWebmapLegendLayerList(response.itemInfo.itemData.operationalLayers);
+                        }), 1000);
                     }
                     topic.publish("showInfoWindowContent", geometry);
                     this._addMapEvents();
@@ -145,9 +149,7 @@ define([
             } else {
                 this._generateLayerURL(dojo.configData.OperationalLayers);
                 this.map = esriMap("esriCTParentDivContainer", {});
-
                 dojo.selectedBasemapIndex = 0;
-
                 if (!dojo.configData.BaseMapLayers[0].length) {
                     if (dojo.configData.BaseMapLayers[0].layerType === "OpenStreetMap") {
                         layer = new OpenStreetMapLayer({ id: "defaultBasemap", visible: true });
@@ -167,7 +169,6 @@ define([
                 this._addFrequentRoutesLayer();
                 this._mapOnLoad(extentPoints);
             }
-
         },
 
         /**
@@ -208,18 +209,19 @@ define([
         _createWebmapLegendLayerList: function (layers) {
             var i, webMapLayers = [], webmapLayerList = {}, hasLayers = false;
             for (i = 0; i < layers.length; i++) {
-                if (layers[i].layerDefinition && layers[i].layerDefinition.drawingInfo) {
-                    webmapLayerList[layers[i].url] = layers[i];
-                    hasLayers = true;
-                } else {
-                    webMapLayers.push(layers[i]);
+                if (layers[i].visibility) {
+                    if (layers[i].layerDefinition && layers[i].layerDefinition.drawingInfo) {
+                        webmapLayerList[layers[i].url] = layers[i];
+                        hasLayers = true;
+                    } else {
+                        webMapLayers.push(layers[i]);
+                    }
                 }
             }
             if (!hasLayers) {
                 webmapLayerList = null;
             }
             this._addLayerLegendWebmap(webMapLayers, webmapLayerList);
-
         },
 
         /**
@@ -246,6 +248,13 @@ define([
                     this._showBasMapGallery();
                 }
                 this._addMapEvents();
+                if (!dojo.configData.WebMapId && lang.trim(dojo.configData.WebMapId).length === 0) {
+                    if (dojo.configData.ShowLegend === "true" && lang.trim(dojo.configData.ShowLegend).length !== 0) {
+                        setTimeout(lang.hitch(this, function () {
+                            this._addLayerLegend();
+                        }), 1000);
+                    }
+                }
             }));
             aspect.after(this.map.on("load", lang.hitch(this, function () {
                 this._shareInfoWindow(this.map);
@@ -269,6 +278,8 @@ define([
                 }
                 if (!this.currentExtent) {
                     dojo.share = true;
+                    dojo.isInfoWinodwShareExtent = true; // Set flag for the extent Based infoWindow share on WebMap
+                    dojo.isRouteShareExtent = true; // Set flag for the extent Based route share on WebMap
                     mapDefaultExtent = extent.split(',');
                     mapDefaultExtent = new GeometryExtent({ "xmin": parseFloat(mapDefaultExtent[0]), "ymin": parseFloat(mapDefaultExtent[1]), "xmax": parseFloat(mapDefaultExtent[2]), "ymax": parseFloat(mapDefaultExtent[3]), "spatialReference": { "wkid": this.map.spatialReference.wkid} });
                     extentPoints.map.setExtent(mapDefaultExtent);
@@ -278,6 +289,8 @@ define([
                     mapDefaultExtent = new GeometryExtent({ "xmin": parseFloat(extentPoints[0]), "ymin": parseFloat(extentPoints[1]), "xmax": parseFloat(extentPoints[2]), "ymax": parseFloat(extentPoints[3]), "spatialReference": { "wkid": this.map.spatialReference.wkid} });
                 } else {
                     dojo.share = true;
+                    dojo.isInfoWinodwShareExtent = true; // Set flag for the extent Based infoWindow share
+                    dojo.isRouteShareExtent = true; // Set flag for the extent Based route share
                     mapDefaultExtent = extent.split(',');
                     mapDefaultExtent = new GeometryExtent({ "xmin": parseFloat(mapDefaultExtent[0]), "ymin": parseFloat(mapDefaultExtent[1]), "xmax": parseFloat(mapDefaultExtent[2]), "ymax": parseFloat(mapDefaultExtent[3]), "spatialReference": { "wkid": this.map.spatialReference.wkid} });
                 }
@@ -386,11 +399,7 @@ define([
                 }
                 topic.publish("setSplashScreenScrollbar");
             }));
-            if (!dojo.configData.WebMapId && lang.trim(dojo.configData.WebMapId).length === 0) {
-                if (dojo.configData.ShowLegend === "true" && lang.trim(dojo.configData.ShowLegend).length !== 0) {
-                    this._addLayerLegend();
-                }
-            }
+
         },
 
         /**
@@ -461,7 +470,6 @@ define([
             for (index = 0; index < searchSettings.length; index++) {
                 if (searchSettings[index].Title && searchSettings[index].QueryLayerId && serviceTitle[searchSettings[index].Title]) {
                     searchSettings[index].QueryURL = serviceTitle[searchSettings[index].Title] + searchSettings[index].QueryLayerId;
-
                     for (j = 0; j < webMapDetails.operationalLayers.length; j++) {
                         if (webMapDetails.operationalLayers[j].title && serviceTitle[webMapDetails.operationalLayers[j].title] && (webMapDetails.operationalLayers[j].title === searchSettings[index].Title)) {
                             if (webMapDetails.operationalLayers[j].layers) {
@@ -510,7 +518,7 @@ define([
                                 //Fetching infopopup data in case the layers are added as feature layers in the webmap
                                 operationalLayers[p] = {};
                                 operationalLayers[p].ServiceURL = webMapDetails.operationalLayers[j].url;
-                                dojo.configData.InfoWindowSettings.push({ "InfoQueryURL": serviceTitle[searchSettings[index].Title] + searchSettings[index].QueryLayerId });
+                                dojo.configData.InfoWindowSettings[index] = { "InfoQueryURL": serviceTitle[searchSettings[index].Title] + searchSettings[index].QueryLayerId };
                                 p++;
                                 if (webMapDetails.operationalLayers[j].popupInfo.title.split("{").length > 1) {
                                     dojo.configData.InfoWindowSettings[index].InfoWindowHeaderField = dojo.string.trim(webMapDetails.operationalLayers[j].popupInfo.title.split("{")[0]);
@@ -540,9 +548,12 @@ define([
                                         }
                                     }
                                 }
+                            } else {
+                                dojo.configData.InfoWindowSettings[index] = false;
                             }
                         }
                     }
+
                 } else {
                     alert(sharedNls.errorMessages.webMapMessages);
                 }
@@ -618,7 +629,9 @@ define([
         * @memberOf widgets/mapSettings/mapSettings
         */
         _hideInfoWindow: function () {
-            this.infoWindowPanel.hide();
+            if (window.location.toString().split("$stops=").length <= 1) {
+                this.infoWindowPanel.hide();
+            }
         },
 
         /**
@@ -631,27 +644,33 @@ define([
             var featureArray = [], onMapFeaturArray = [], index, deferredListResult, i, j;
             this.counter = 0;
             for (index = 0; index < dojo.configData.InfoWindowSettings.length; index++) {
-                this._executeQueryTask(index, mapPoint, onMapFeaturArray);
+                if (dojo.configData.InfoWindowSettings[index]) {
+                    this._executeQueryTask(index, mapPoint, onMapFeaturArray);
+                }
             }
-            deferredListResult = new DeferredList(onMapFeaturArray);
-            deferredListResult.then(lang.hitch(this, function (result) {
-                if (result) {
-                    for (j = 0; j < result.length; j++) {
-                        if (result[j][1].features.length > 0) {
-                            for (i = 0; i < result[j][1].features.length; i++) {
-                                featureArray.push({
-                                    attr: result[j][1].features[i],
-                                    layerId: j,
-                                    fields: result[j][1].fields
-                                });
+            if (onMapFeaturArray.length > 0) {
+                deferredListResult = new DeferredList(onMapFeaturArray);
+                deferredListResult.then(lang.hitch(this, function (result) {
+                    if (result) {
+                        for (j = 0; j < result.length; j++) {
+                            if (result[j][1].features.length > 0) {
+                                for (i = 0; i < result[j][1].features.length; i++) {
+                                    featureArray.push({
+                                        attr: result[j][1].features[i],
+                                        layerId: result[j][1].layerIndex,
+                                        fields: result[j][1].fields
+                                    });
+                                }
                             }
                         }
+                        this._fetchQueryResults(featureArray, map, mapPoint);
                     }
-                    this._fetchQueryResults(featureArray, map, mapPoint);
-                }
-            }), function (err) {
-                alert(err.message);
-            });
+                }), function (err) {
+                    alert(err.message);
+                });
+            } else {
+                topic.publish("hideProgressIndicator");
+            }
         },
 
         /**
@@ -661,7 +680,13 @@ define([
         _executeFeatureQueryTask: function () {
             var onMapFeaturArray = [], index;
             this.counter = 0;
-            index = window.location.toString().split("$featurepoint=")[1].split("$LayerID=")[1].split("$selectedDirection=")[0];
+            if (window.location.toString().split("$featurepoint=")[1].split("$LayerID=")[1].split("$frequentRouteId=")[0] > 0) {
+                index = window.location.toString().split("$featurepoint=")[1].split("$LayerID=")[1].split("$selectedDirection=")[0].split("$frequentRouteId=")[0];
+            } else if (window.location.toString().split("$featurepoint=")[1].split("$LayerID=")[1].split("$point=")[0] > 0) {
+                index = window.location.toString().split("$featurepoint=")[1].split("$LayerID=")[1].split("$selectedDirection=")[0].split("$point=")[0];
+            } else {
+                index = window.location.toString().split("$featurepoint=")[1].split("$LayerID=")[1].split("$selectedDirection=")[0];
+            }
             this._executeShareQueryTask(index, onMapFeaturArray);
         },
 
@@ -672,7 +697,7 @@ define([
         * @memberOf widgets/mapSettings/mapSettings
         */
         _executeShareQueryTask: function (index, onMapFeaturArray) {
-            var _self = this, featureArray = [], queryTask, queryLayer, queryOnRouteTask, i, j, p, objID,
+            var _self = this, featureArray = [], queryTask, queryLayer, queryOnRouteTask, i, j, p, objID, layerIndex = index,
                 deferred, deferredListResult;
             queryTask = new esri.tasks.QueryTask(dojo.configData.SearchAnd511Settings[index].QueryURL);
             esri.request({
@@ -692,6 +717,7 @@ define([
                     queryLayer.maxAllowableOffset = 100;
                     queryOnRouteTask = queryTask.execute(queryLayer, lang.hitch(this, function (results) {
                         deferred = new Deferred();
+                        results.layerIndex = layerIndex;
                         deferred.resolve(results);
                         return deferred.promise;
                     }), function (err) {
@@ -706,7 +732,7 @@ define([
                                     for (i = 0; i < result[j][1].features.length; i++) {
                                         featureArray.push({
                                             attr: result[j][1].features[i],
-                                            layerId: index,
+                                            layerId: result[j][1].layerIndex,
                                             fields: result[j][1].fields
                                         });
                                     }
@@ -732,16 +758,17 @@ define([
         * @memberOf widgets/mapSettings/mapSettings
         */
         _executeQueryTask: function (index, mapPoint, onMapFeaturArray) {
-            var queryTask, queryLayer, queryOnRouteTask, deferred;
+            var queryTask, queryLayer, queryOnRouteTask, deferred, resultData = index;
             queryTask = new esri.tasks.QueryTask(dojo.configData.InfoWindowSettings[index].InfoQueryURL);
             queryLayer = new esri.tasks.Query();
             queryLayer.outSpatialReference = this.map.spatialReference;
             queryLayer.returnGeometry = true;
-            queryLayer.maxAllowableOffset = 100;
+
             queryLayer.geometry = this._extentFromPoint(mapPoint);
             queryLayer.outFields = ["*"];
             queryOnRouteTask = queryTask.execute(queryLayer, lang.hitch(this, function (results) {
                 deferred = new Deferred();
+                results.layerIndex = resultData;
                 deferred.resolve(results);
                 return deferred.promise;
             }), function (err) {
@@ -757,7 +784,7 @@ define([
         * @memberOf widgets/mapSettings/mapSettings
         */
         _extentFromPoint: function (point) {
-            var tolerance = 15, screenPoint, sourcePoint, destinationPoint, sourceMapPoint, destinationMapPoint;
+            var tolerance = dojo.configData.InfoWindowTolerance, screenPoint, sourcePoint, destinationPoint, sourceMapPoint, destinationMapPoint;
             screenPoint = this.map.toScreen(point);
             sourcePoint = new Point(screenPoint.x - tolerance, screenPoint.y + tolerance);
             destinationPoint = new Point(screenPoint.x + tolerance, screenPoint.y - tolerance);
@@ -780,7 +807,7 @@ define([
                     domStyle.set(query(".esriCTdivInfoWindowCrasual")[0], "display", "none");
                     domClass.remove(query(".esriCTdivInfoRightArrow")[0], "esriCTShowInfoRightArrow");
                     if (window.location.toString().split("$featurepoint=").length > 1) {
-                        if (window.location.toString().split("$ispolyline=")[1].split("$selectedBasemapIndex=")[0] === "true") {
+                        if (featureArray[0].attr.geometry.type === "polyline") {
                             point = featureArray[0].attr.geometry.getPoint(0, 0);
                         } else {
                             point = featureArray[0].attr.geometry;
@@ -792,7 +819,6 @@ define([
                         } else {
                             point = mapPoint;
                         }
-                        dojo.ispolyline = false;
                         topic.publish("createInfoWindowContent", point, featureArray[0].attr.attributes, featureArray[0].fields, featureArray[0].layerId, null, null, map, false);
                     }
                 } else {
@@ -801,7 +827,6 @@ define([
                     dojo.setMapTipPosition = false;
                     domAttr.set(query(".esriCTdivInfoTotalFeatureCount")[0], "innerHTML", '/' + featureArray.length);
                     if (featureArray[this.count].attr.geometry.type === "polyline") {
-                        dojo.ispolyline = true;
                         point = mapPoint;
                     } else {
                         if (featureArray[0].attr.geometry.type === "polygon") {
@@ -809,11 +834,8 @@ define([
                         } else {
                             point = mapPoint;
                         }
-                        dojo.ispolyline = false;
                     }
                     topic.publish("createInfoWindowContent", point, featureArray[0].attr.attributes, featureArray[0].fields, featureArray[0].layerId, featureArray, this.count, map, false);
-                    topic.publish("hideProgressIndicator");
-
                     query(".esriCTdivInfoRightArrow")[0].onclick = function () {
                         dojo.showInfo = true;
                         _this._nextInfoContent(featureArray, map, point);
@@ -922,14 +944,12 @@ define([
                 this.infoWindowPanel.hide();
                 this.infoWindowPanel.setTitle(infoTitle, mobTitle);
                 this.infoWindowPanel.show(divInfoDetailsTab, screenPoint);
-                topic.publish("hideProgressIndicator");
                 if (dojo.window.getBox().w <= 680) {
                     if (dojo.openInfowindow) {
                         topic.publish("openMobileInfowindow");
                     }
                 }
             } else if (this.infoWindowPanel.isVisible) {
-                topic.publish("hideProgressIndicator");
                 this._onSetMapTipPosition(screenPoint);
             }
         },
@@ -1043,7 +1063,7 @@ define([
                 }
             }
             for (infoIndex = 0; infoIndex < infoWindowSettings.length; infoIndex++) {
-                if (infoWindowSettings[infoIndex].Title && infoWindowSettings[infoIndex].QueryLayerId) {
+                if (infoWindowSettings[infoIndex] && infoWindowSettings[infoIndex].Title && infoWindowSettings[infoIndex].QueryLayerId) {
                     if (layerTitle === infoWindowSettings[infoIndex].Title && layerId === infoWindowSettings[infoIndex].QueryLayerId) {
                         infoWindowSettings[infoIndex].InfoQueryURL = str.join("/");
                     }

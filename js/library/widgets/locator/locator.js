@@ -99,8 +99,6 @@ define([
             }
         },
 
-
-
         /**
         * set default value of locator textbox as specified in configuration file
         * @param {array} dojo.configData.LocatorSettings.Locators Locator settings specified in configuration file

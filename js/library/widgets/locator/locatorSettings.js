@@ -213,7 +213,7 @@ define([
             if (layerobject.QueryURL) {
                 queryTask = new QueryTask(layerobject.QueryURL);
                 queryLayer = new Query();
-                queryLayer.where = string.substitute(layerobject.SearchExpression, [lang.trim(this.txtAddress.value).toUpperCase()]);
+                queryLayer.where = string.substitute(layerobject.SearchExpression, [lang.trim(this.txtAddress.value).toUpperCase().replace(/'/g, "''")]);
                 queryLayer.outSpatialReference = this.map.spatialReference;
                 queryLayer.returnGeometry = true;
                 queryLayer.maxAllowableOffset = 100;
@@ -273,7 +273,9 @@ define([
                     addressContentHeight = 230;
                 }
                 addressContentStyle = { height: addressContentHeight + "px" };
-                domAttr.set(this.divAddressScrollContent, "style", addressContentStyle);
+                if (addressContentHeight > 0) {
+                    domAttr.set(this.divAddressScrollContent, "style", addressContentStyle);
+                }
             }
             domConstruct.empty(this.divAddressResults);
             if (resultLength > 0 && lang.trim(this.txtAddress.value) === "") {
@@ -300,7 +302,6 @@ define([
                 this.locatorScrollbar = new ScrollBar({ domNode: this.divAddressScrollContent });
                 this.locatorScrollbar.setContent(this.divAddressResults);
                 this.locatorScrollbar.createScrollBar();
-
                 for (candidateArray in candidates) {
                     if (candidates.hasOwnProperty(candidateArray)) {
                         if (candidates[candidateArray].length > 0) {
@@ -377,7 +378,6 @@ define([
             } catch (err) {
                 alert(sharedNls.errorMessages.falseConfigParams);
             }
-
             candidateDate.onclick = function () {
                 var layer, infoIndex;
                 topic.publish("showProgressIndicator");
@@ -387,7 +387,7 @@ define([
                 _this.txtAddress.value = this.innerHTML;
                 domAttr.set(_this.txtAddress, "defaultAddress", _this.txtAddress.value);
                 _this._hideAddressContainer();
-                topic.publish("resetDirectionTab", _this.map.getLayer("esriRouteGraphicsLayerMapSettings").graphics.length === 0);
+                topic.publish("resetDirectionTab");
                 if (candidate.attributes.location) {
                     dojo.setMapTipPosition = true;
                     _this.mapPoint = new Point(domAttr.get(this, "x"), domAttr.get(this, "y"), _this.map.spatialReference);
@@ -436,10 +436,8 @@ define([
             domStyle.set(this.close, "display", "none");
             this.txtAddress.value = candidate.name;
             if (candidateArray[index].geometry.type === "point") {
-                dojo.ispolyline = false;
                 this.createInfoWindowContent(candidateArray[index].geometry, candidateArray[index].attributes, candidateArray[index].fields, infoIndex, null, null, this.map, false);
             } else if (candidateArray[index].geometry.type === "polyline") {
-                dojo.ispolyline = true;
                 featurePoint = candidateArray[index].geometry.getPoint(0, 0);
                 this.createInfoWindowContent(featurePoint, candidateArray[index].attributes, candidateArray[index].fields, infoIndex, null, null, this.map, false);
             }
@@ -455,12 +453,14 @@ define([
                 infoTitle, mobTitle;
             if (!infoIndex && infoIndex !== 0) {
                 topic.publish("hideInfoWindowOnMap");
-                map.setExtent(this._calculateCustomMapExtent(mapPoint));
+                if (window.location.toString().split("$featurepoint=").length <= 1) {
+                    map.setExtent(this._calculateCustomMapExtent(mapPoint));
+                }
                 topic.publish("hideProgressIndicator");
                 return;
             }
             if (featureArray) {
-                if (window.location.toString().split("$featurepoint=").length <= 1) {
+                if (window.location.toString().split("$featurepoint=").length <= 1 || !dojo.isInfoWinodwShareExtent) {
                     if (featureArray.length > 1 && parseInt(count, 10) !== featureArray.length - 1) {
                         domClass.add(query(".esriCTdivInfoRightArrow")[0], "esriCTShowInfoRightArrow");
                         domAttr.set(query(".esriCTdivInfoFeatureCount")[0], "innerHTML", count);
@@ -561,6 +561,7 @@ define([
                 screenPoint.y = map.height - screenPoint.y;
                 topic.publish("setInfoWindowOnMap", infoTitle, mobTitle, divInfoDetailsTab, screenPoint);
                 topic.publish("setMapTipPosition", dojo.selectedMapPoint);
+                topic.publish("hideProgressIndicator");
             } else {
                 domClass.remove(query(".esriCTdivInfoRightArrow")[0], "disableArrow");
                 domClass.remove(query(".esriCTdivInfoLeftArrow")[0], "disableArrow");
@@ -569,17 +570,26 @@ define([
             }
         },
 
-
-
+        /**
+        * Set InfoWinodw Position on map
+        * @memberOf widgets/locator/locatorSetting
+        */
         _centralizeInfowindowOnMap: function (map, infoTitle, mobTitle, divInfoDetailsTab) {
             var extentChanged, screenPoint;
-            extentChanged = map.setExtent(this._calculateCustomMapExtent(dojo.selectedMapPoint));
-            extentChanged.then(lang.hitch(this, function () {
-                topic.publish("hideProgressIndicator");
+            if (dojo.isInfoWinodwShareExtent) {
                 screenPoint = map.toScreen(dojo.selectedMapPoint);
                 screenPoint.y = map.height - screenPoint.y;
                 topic.publish("setInfoWindowOnMap", infoTitle, mobTitle, divInfoDetailsTab, screenPoint);
-            }));
+                dojo.isInfoWinodwShareExtent = false;
+            } else {
+                extentChanged = map.setExtent(this._calculateCustomMapExtent(dojo.selectedMapPoint));
+                extentChanged.then(lang.hitch(this, function () {
+                    screenPoint = map.toScreen(dojo.selectedMapPoint);
+                    screenPoint.y = map.height - screenPoint.y;
+                    topic.publish("setInfoWindowOnMap", infoTitle, mobTitle, divInfoDetailsTab, screenPoint);
+                }));
+            }
+            topic.publish("hideProgressIndicator");
         },
 
         /**
