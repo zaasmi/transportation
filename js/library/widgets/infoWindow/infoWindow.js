@@ -120,7 +120,6 @@ define([
         show: function (detailsTab, screenPoint) {
             this.InfoShow = false;
             this.isVisible = true;
-            dojo.mapPoint = null;
             this.infoContent = detailsTab;
             if (this.divInfoDetailsScroll) {
                 while (this.divInfoDetailsScroll.hasChildNodes()) {

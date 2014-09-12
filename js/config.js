@@ -150,7 +150,7 @@ define([], function () {
                 InfoLayer: "true",
                 InfoSearchExpression: "",
                 InfoListText: "",
-                InfoDetailFields: "MaxHeight:${HWYDESC} MaxWidth:${WIDTHREST}"
+                InfoDetailFields: "HWY:${HWYNAME}/ MaxHeight:${HEIGHTREST} MaxWidth:${WIDTHREST}"
             }, {
                 Title: "Transportation511",
                 QueryLayerId: "1",
@@ -158,7 +158,7 @@ define([], function () {
                 SearchDisplayFields: "${HWYNAME} / ${DELAYDESC}",
                 SearchExpression: "UPPER(HWYNAME) LIKE UPPER('${0}%') OR UPPER(HWYDESC) LIKE UPPER('${0}%')",
                 BarrierLayer: "true",
-                BarrierSearchExpression: "(STARTDATE >= DATE '${0}' AND ENDDATE <= DATE '${0}')",
+                BarrierSearchExpression: "(STARTDATE >= CURRENT_TIMESTAMP AND ENDDATE <= CURRENT_TIMESTAMP)",
                 InfoLayer: "true",
                 InfoSearchExpression: "",
                 InfoListText: "",
@@ -170,7 +170,7 @@ define([], function () {
                 SearchDisplayFields: "${HWYNAME} / ${CONDDESC}",
                 SearchExpression: "UPPER(HWYNAME) LIKE UPPER('${0}%') OR UPPER(HWYDESC) LIKE UPPER('${0}%')",
                 BarrierLayer: "true",
-                BarrierSearchExpression: "(STARTDATE >= DATE '${0}' AND EFFDATE <= DATE '${0}')",
+                BarrierSearchExpression: "(STARTDATE >= CURRENT_TIMESTAMP AND EFFDATE <= CURRENT_TIMESTAMP)",
                 InfoLayer: "true",
                 InfoSearchExpression: "",
                 InfoListText: "",
@@ -198,7 +198,7 @@ define([], function () {
                 InfoLayer: "true",
                 InfoSearchExpression: "",
                 InfoListText: "",
-                InfoDetailFields: "${STATIONNAME} / Wind Speed:{WINDSPEED}"
+                InfoDetailFields: "${STATIONNAME} / Wind Speed:${WINDSPEED}"
             }, {
                 Title: "Transportation511",
                 QueryLayerId: "5",
@@ -230,11 +230,11 @@ define([], function () {
                 SearchDisplayFields: "${HWYNAME} / ${CONDDESC}",
                 SearchExpression: "UPPER(HWYNAME) LIKE UPPER('${0}%') OR UPPER(HWYDESC) LIKE UPPER('${0}%')",
                 BarrierLayer: "true",
-                BarrierSearchExpression: "EFFDATE >= DATE '${0}'",
+                BarrierSearchExpression: "EFFDATE >= CURRENT_TIMESTAMP",
                 InfoLayer: "true",
                 InfoSearchExpression: "ACTIVE = 'Yes'",
                 InfoListText: "",
-                InfoDetailFields: "Condition:${CONDDESC}"
+                InfoDetailFields: "Condition:${HWYDESC} - ${CONDDESC}"
             }, {
                 Title: "Transportation511",
                 QueryLayerId: "8",
@@ -242,16 +242,19 @@ define([], function () {
                 SearchDisplayFields: "${HWYNAME} / ${RESCODEDES}",
                 SearchExpression: "UPPER(HWYNAME) LIKE UPPER('${0}%') OR UPPER(HWYDESC) LIKE UPPER('${0}%')",
                 BarrierLayer: "true",
-                BarrierSearchExpression: "EFFDATE >= DATE '${0}'",
+                BarrierSearchExpression: "EFFDATE >= CURRENT_TIMESTAMP",
                 InfoLayer: "true",
                 InfoSearchExpression: "ACTIVE = 'Yes'",
                 InfoListText: "",
-                InfoDetailFields: "Restriction:${RESCODEDES}"
+                InfoDetailFields: "Restriction:${HWYDESC} - ${RESCODEDES}"
             }
         ],
 
         // Following zoom level will be set for the map upon searching an address
         ZoomLevel: 12,
+
+        // Following Tolerance will be used to identify features on map click to display InfoWindow
+        InfoWindowTolerance: 15,
 
         // Time interval to refresh all layers on map
         LayersRefreshInterval: 5, // in minutes
@@ -306,7 +309,7 @@ define([], function () {
             Title: "Transportation511",
             QueryLayerId: "9",
             UniqueRouteField: "ROUTEID",
-            DisplayField: "${ROUTEID} / ${HWYNUM} - ${DIRECTION}",
+            DisplayField: "Route ID:${ROUTEID} / Highway:${HWYNUM} - ${DIRECTION}",
             FrequentRoutesEnabled: "true"
         },
 
@@ -348,17 +351,18 @@ define([], function () {
         // ColorRGB: Specify the color as comma separated R,G,B values
         // Transparency: Specify the transparency value between 0:Fully Transparent and 1:Fully Opaque
         // Width: Specify the display width of route in pixels
+        // DirectionUnits: Specify unit for Direction Results
+        // RouteDragMarkerOutlineColor: Specify Route Drag outline color
+        // RouteDragMarkerFillColor: Specify Route Drag fill color
+        // RouteDragMarkerWidth: Specify Route Drag width
         RouteSymbology: {
             ColorRGB: "0,0,225",
             Transparency: "0.5",
             Width: "4",
             DirectionUnits: "MILES",
-            RouteCircleColor: "007AC2",
-            RouteCircleFillColor: "FFFFFF",
-            RouteCircleWidth: 2,
-            CartographicLineColor: "0,0,225",
-            CartographicTransparency: "0",
-            CartographicLineWidth: 512
+            RouteDragMarkerOutlineColor: "007AC2",
+            RouteDragMarkerFillColor: "FFFFFF",
+            RouteDragMarkerWidth: 2
         },
 
         //------------------------------------------------------------------------------------------------------------------------

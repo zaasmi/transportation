@@ -27,7 +27,6 @@ define([
     "dojo/dom",
     "dojo/query",
     "dojo/dom-class",
-    "dojo/dom-geometry",
     "esri/tasks/GeometryService",
     "dojo/string",
     "dojo/_base/html",
@@ -50,9 +49,8 @@ define([
     "esri/geometry/Polyline",
     "esri/symbols/CartographicLineSymbol",
     "esri/layers/GraphicsLayer",
-    "esri/geometry/Extent",
     "./routeSetting"
-], function (declare, domConstruct, on, topic, lang, domStyle, domAttr, dom, query, domClass, domGeom, GeometryService, string, html, template, Query, QueryTask, Deferred, DeferredList, _BorderContainer, SimpleRenderer, _ContentPane, ScrollBar, Graphic, Color, cookie, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, sharedNls, Polyline, CartographicLineSymbol, GraphicsLayer, GeometryExtent, routeSetting) {
+], function (declare, domConstruct, on, topic, lang, domStyle, domAttr, dom, query, domClass, GeometryService, string, html, template, Query, QueryTask, Deferred, DeferredList, _BorderContainer, SimpleRenderer, _ContentPane, ScrollBar, Graphic, Color, cookie, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, sharedNls, Polyline, CartographicLineSymbol, GraphicsLayer, routeSetting) {
 
     //========================================================================================================================//
 
@@ -110,7 +108,7 @@ define([
                 }
                 if (widgetID === "geolocation") {
                     topic.publish("hideInfoWindowOnMap");
-                    this.resetDirectionTab(this.map.getLayer("esriRouteGraphicsLayerMapSettings").graphics.length === 0);
+                    this.resetDirectionTab();
                 }
             }));
             dojo.selectedInfo = false;
@@ -137,8 +135,8 @@ define([
             topic.subscribe("clearAllGraphics", lang.hitch(this, function (refresh, clear) {
                 this.clearAllGraphics(refresh, clear);
             }));
-            topic.subscribe("resetDirectionTab", lang.hitch(this, function (layer) {
-                this.resetDirectionTab(layer);
+            topic.subscribe("resetDirectionTab", lang.hitch(this, function () {
+                this.resetDirectionTab();
             }));
             this._addMapLogo();
             topic.subscribe("update511InfoOnLoad", lang.hitch(this, function (geometry) {
@@ -165,7 +163,6 @@ define([
                     this._showInformationPanelContent(bufferGeometry);
                 }));
             }
-
             if (window.location.toString().split("$stops=").length > 1) {
                 setTimeout(lang.hitch(this, function () {
                     this._shareDirection();
@@ -201,7 +198,6 @@ define([
                     }
                 }
             })));
-
             this._showWidgetContainer();
             this._activate();
             if (window.orientation !== undefined && window.orientation !== null) {
@@ -276,7 +272,7 @@ define([
                             domClass.add(this.InfoPanelScrollbar._scrollBarContent, "esriCTZeroHeight");
                             this.InfoPanelScrollbar.removeScrollBar();
                         }
-                        esriInfoPanelHeight = domGeom.position(query(".esriCTHeaderRouteContainer")[0]).h - query(".esriCTRouteInformationBackTitle")[0].offsetHeight - 153;
+                        esriInfoPanelHeight = document.documentElement.clientHeight - query(".esriCTApplicationHeader")[0].offsetHeight - 100;
                         esriInfoPanelStyle = { height: esriInfoPanelHeight + "px" };
                         domAttr.set(this.resultPanelContainer, "style", esriInfoPanelStyle);
                         this.InfoPanelScrollbar = new ScrollBar({ domNode: this.resultPanelContainer });
@@ -298,7 +294,7 @@ define([
                 graphicsBufferLength = this.map.getLayer("frequentRoutesLayerID").graphics.length;
                 this.extenChangeResult = true;
                 this._updateinfoPanelData(evt.extent);
-                if (window.location.toString().split("$point=").length > 1) {
+                if (window.location.toString().split("$point=").length > 1 && dojo.window.getBox().w >= 680) {
                     this._showInfoResultsPanel(evt.extent);
                 }
                 if (this.infoResultGeometry && !this.infoRouteResult) {
@@ -420,7 +416,7 @@ define([
         */
         _activate: function () {
             var symbolEventPaddingMouseCursor;
-            symbolEventPaddingMouseCursor = new CartographicLineSymbol().setColor(new Color([parseInt(dojo.configData.RouteSymbology.CartographicLineColor.split(",")[0], 10), parseInt(dojo.configData.RouteSymbology.CartographicLineColor.split(",")[1], 10), parseInt(dojo.configData.RouteSymbology.CartographicLineColor.split(",")[2], 10), parseFloat(dojo.configData.RouteSymbology.CartographicTransparency.split(",")[0], 10)])).setWidth(dojo.configData.RouteSymbology.CartographicLineWidth).setCap(esri.symbol.CartographicLineSymbol.CAP_ROUND);
+            symbolEventPaddingMouseCursor = new CartographicLineSymbol().setColor(new Color([parseInt(0, 10), parseInt(0, 10), parseInt(225, 10), 0])).setWidth(512).setCap(esri.symbol.CartographicLineSymbol.CAP_ROUND);
             this.map.removeLayer(graphicsLayerHandle);
             this.map.addLayer(graphicsLayerHandle);
             this.graphicsHandleEvent = new GraphicsLayer(); //static, singleton - big near-circle geometry around mouse cursor while d-n-d: topmost; draws with transparent symbol
@@ -578,7 +574,6 @@ define([
             }
         },
 
-
         /**
         * Show 511 Information panel tab
         * @memberOf widgets/route/route
@@ -685,7 +680,7 @@ define([
                 this.divFrequentRouteContainerScroll = domConstruct.create("div", { "class": "esriCTFrequentRouteContainerScroll" }, this.divFrequentRoutePanel);
             }
             if (query(".simpleDirections .esriStopsContainer")[0]) {
-                esriRoutesHeight = document.documentElement.clientHeight - query(".esriCTApplicationHeader")[0].offsetHeight - html.coords(query(".simpleDirections .esriStopsContainer")[0]).h - 300;
+                esriRoutesHeight = document.documentElement.clientHeight - query(".esriCTApplicationHeader")[0].offsetHeight - html.coords(query(".simpleDirections .esriStopsContainer")[0]).h - 35;
             } else {
                 esriRoutesHeight = document.documentElement.clientHeight - query(".esriCTApplicationHeader")[0].offsetHeight - 64;
             }
@@ -887,15 +882,18 @@ define([
         * @memberOf widgets/route/route
         */
         clearAllGraphics: function (refreshButton, clear) {
-            var graphicsLength, graphicsBufferLength, locaterGraphicsLength;
+            var graphicsLength, graphicsBufferLength, locaterGraphicsLength, directions = false;
             dojo.frequentRouteId = null;
             dojo.mapPoint = null;
             dojo.featurePoint = null;
             topic.publish("hideInfoWindowOnMap");
             graphicsLength = this.map.getLayer("esriRouteGraphicsLayerMapSettings").graphics.length;
+            if (this._esriDirectionsWidget) {
+                directions = this._esriDirectionsWidget.directions !== null;
+            }
             graphicsBufferLength = this.map.getLayer("frequentRoutesLayerID") && this.map.getLayer("frequentRoutesLayerID").graphics.length;
             locaterGraphicsLength = this.map.getLayer("esrilocaterGraphicsLayer").graphics.length;
-            if (graphicsLength > 0) {
+            if (graphicsLength > 0 || directions) {
                 if (!clear) {
                     if (this.map.getLayer("esriRouteGraphicsLayerMapSettings").visible) {
                         this.map.getLayer("esriRouteGraphicsLayerMapSettings").clear();
@@ -949,6 +947,7 @@ define([
             deferredListResult = new DeferredList(infoArray);
             deferredListResult.then(lang.hitch(this, function (result) {
                 if (result) {
+                    topic.publish("showProgressIndicator");
                     for (infoArrayResult = 0; infoArrayResult < result.length; infoArrayResult++) {
                         if (result[infoArrayResult][1] && result[infoArrayResult][1].features) {
                             this.extenChangeResult = false;
@@ -1075,7 +1074,7 @@ define([
             }
             if (!this.esriCTrouteScrollbar) {
                 if (this.infoRouteResult) {
-                    esriRoutesHeight = document.documentElement.clientHeight - query(".esriCTApplicationHeader")[0].offsetHeight - 65;
+                    esriRoutesHeight = document.documentElement.clientHeight - query(".esriCTApplicationHeader")[0].offsetHeight - 70;
                     esriRoutesStyle = { height: esriRoutesHeight + "px" };
                     if (!this.infoPanelHeight) {
                         domAttr.set(this.esriCTInfoLayerTitle, "style", esriRoutesStyle);
@@ -1178,7 +1177,7 @@ define([
             domStyle.set(this.esriCTInfoLayerTitle, "display", "none");
             domStyle.set(this.esriCTInfoLayerFeatureList, "display", "block");
             dojo.featureResult = true;
-            esriInfoPanelHeight = domGeom.position(query(".esriCTHeaderRouteContainer")[0]).h - query(".esriCTRouteInformationBackTitle")[0].offsetHeight - 153;
+            esriInfoPanelHeight = document.documentElement.clientHeight - query(".esriCTApplicationHeader")[0].offsetHeight - 100;
             esriInfoPanelStyle = { height: esriInfoPanelHeight + "px" };
             domStyle.set(resultPanelContainer, "display", "block");
             domAttr.set(resultPanelContainer, "style", esriInfoPanelStyle);
@@ -1278,10 +1277,8 @@ define([
                         domStyle.set(query(".esriCTdivInfoWindowCrasual")[0], "display", "none");
                     }
                     if (featureSet.features[0].geometry.type === "point") {
-                        dojo.ispolyline = false;
                         topic.publish("createInfoWindowContent", featureSet.features[0].geometry, featureSet.features[0].attributes, featureSet.fields, this.selectedIndex, null, null, map, false);
                     } else if (featureSet.features[0].geometry.type === "polyline") {
-                        dojo.ispolyline = true;
                         geometryPaths = featureSet.features[0].geometry.paths;
                         for (i = 0; i < geometryPaths.length; i++) {
                             for (j = 0; j < geometryPaths[i].length; j++) {

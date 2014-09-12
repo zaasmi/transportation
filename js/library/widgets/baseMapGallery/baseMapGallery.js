@@ -87,22 +87,27 @@ define([
         _changeBaseMap: function (preLayerIndex) {
             var basemap, basemapLayers, basemapLayerId = "defaultBasemap";
             basemapLayers = dojo.configData.BaseMapLayers[preLayerIndex];
+            this.enableToggling = false;
             this.map.onLayerRemove = lang.hitch(this, function (layer) {
-                this._addBasemapLayerOnMap(basemapLayerId);
+                if (this.enableToggling) {
+                    this._addBasemapLayerOnMap(basemapLayerId);
+                }
             });
 
             if (basemapLayers.length) {
                 array.forEach(basemapLayers, lang.hitch(this, function (layer, index) {
                     basemap = this.map.getLayer(basemapLayerId + index);
+                    if (basemapLayers.length - 1 === index) {
+                        this.enableToggling = true;
+                    }
                     if (basemap) {
-                        this.enableToggling = false;
                         this.map.removeLayer(basemap);
                     }
                 }));
             } else {
                 basemap = this.map.getLayer(basemapLayerId);
                 if (basemap) {
-                    this.enableToggling = false;
+                    this.enableToggling = true;
                     this.map.removeLayer(basemap);
                 }
             }
@@ -114,6 +119,9 @@ define([
         */
         _addBasemapLayerOnMap: function (basemapLayerId) {
             var layer, basemapLayers = dojo.configData.BaseMapLayers[dojo.selectedBasemapIndex];
+            this.map.onLayerAdd = lang.hitch(this, function (layer) {
+                this.enableToggling = true;
+            });
             if (basemapLayers.length) {
                 array.forEach(basemapLayers, lang.hitch(this, function (basemap, index) {
                     this.enableToggling = false;
@@ -129,10 +137,6 @@ define([
                 }
                 this.map.addLayer(layer, 0);
             }
-
-            this.map.onLayerAdd = lang.hitch(this, function (layer) {
-                this.enableToggling = true;
-            });
         },
 
         /**
@@ -174,7 +178,6 @@ define([
                 thumbnailPath = dojo.configData.BaseMapLayers[presentThumbNail][0].ThumbnailSource;
             } else {
                 thumbnailPath = dojo.configData.BaseMapLayers[presentThumbNail].ThumbnailSource;
-
             }
             query('.basemapThumbnail')[0].src = thumbnailPath;
         }

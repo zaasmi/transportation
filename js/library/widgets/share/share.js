@@ -27,14 +27,13 @@ define([
     "dojo/dom-class",
     "dojo/string",
     "dojo/_base/html",
-    "dojo/query",
     "dojo/text!./templates/shareTemplate.html",
     "dijit/_WidgetBase",
     "dijit/_TemplatedMixin",
     "dijit/_WidgetsInTemplateMixin",
     "dojo/i18n!application/js/library/nls/localizedStrings",
     "dojo/topic"
-], function (declare, domConstruct, domStyle, lang, domAttr, on, dom, domClass, string, html, query, template, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, sharedNls, topic) {
+], function (declare, domConstruct, domStyle, lang, domAttr, on, dom, domClass, string, html, template, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, sharedNls, topic) {
 
     //========================================================================================================================//
 
@@ -118,10 +117,14 @@ define([
             domAttr.set(this.esriCTDivshareCodeContainer, "innerHTML", sharedNls.titles.webpageDisplayText);
             mapExtent = this._getMapExtent();
             url = esri.urlToObject(window.location.toString());
-            if (dojo.mapPoint) {
+            if (dojo.mapPoint && dojo.featurePoint) {
+                urlStr = encodeURI(url.path) + "?extent=" + mapExtent + "$featurepoint=" + dojo.featurePoint + "$LayerID=" + dojo.LayerID + "$point=" + dojo.mapPoint.x + "," + dojo.mapPoint.y + "$selectedDirection=" + dojo.selectedDirection;
+            } else if (dojo.mapPoint) {
                 urlStr = encodeURI(url.path) + "?extent=" + mapExtent + "$point=" + dojo.mapPoint.x + "," + dojo.mapPoint.y + "$selectedDirection=" + dojo.selectedDirection;
+            } else if (dojo.featurePoint && dojo.frequentRouteId) {
+                urlStr = encodeURI(url.path) + "?extent=" + mapExtent + "$featurepoint=" + dojo.featurePoint + "$LayerID=" + dojo.LayerID + "$frequentRouteId=" + dojo.frequentRouteId + "$selectedDirection=" + dojo.selectedDirection;
             } else if (dojo.featurePoint) {
-                urlStr = encodeURI(url.path) + "?extent=" + mapExtent + "$featurepoint=" + dojo.featurePoint + "$LayerID=" + dojo.LayerID + "$selectedDirection=" + dojo.selectedDirection + "$ispolyline=" + dojo.ispolyline;
+                urlStr = encodeURI(url.path) + "?extent=" + mapExtent + "$featurepoint=" + dojo.featurePoint + "$LayerID=" + dojo.LayerID + "$selectedDirection=" + dojo.selectedDirection;
             } else if (dojo.frequentRouteId) {
                 urlStr = encodeURI(url.path) + "?extent=" + mapExtent + "$frequentRouteId=" + dojo.frequentRouteId + "$selectedDirection=" + dojo.selectedDirection;
             } else if (dojo.selectedInfo) {
@@ -129,7 +132,7 @@ define([
             } else {
                 urlStr = encodeURI(url.path) + "?extent=" + mapExtent;
             }
-            if (dojo.stops && dojo.stops.length > 0 && !dojo.featurePoint) {
+            if (dojo.stops && dojo.stops.length > 0) {
                 urlStr = urlStr + "$stops=" + dojo.stops.join("_");
             }
             if (dojo.selectedBasemapIndex !== null) {
@@ -151,7 +154,7 @@ define([
                         tinyUrl = response.data.url;
                     }
                     this._displayShareContainer(tinyUrl, urlStr);
-                }), lang.hitch(this, function (err) {
+                }), lang.hitch(this, function () {
                     this._displayShareContainer(null, urlStr);
                 }));
             } catch (err) {
@@ -163,7 +166,7 @@ define([
         * show and hide share container
         * @memberOf widgets/share/share
         */
-        _showHideShareContainer: function (tinyUrl, urlStr) {
+        _showHideShareContainer: function () {
 
             if (html.coords(this.divAppContainer).h > 0) {
 
