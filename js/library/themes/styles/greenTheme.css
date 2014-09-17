@@ -9,7 +9,6 @@
     {
         background-image: url("../images/img2X/search-select@2X-green.png") !important;
     }
-
     .esriCTHelpImg
     {
         background-image: url("../images/img2X/help@2X.png") !important;
@@ -449,14 +448,12 @@ input
 
 .esriCTrouteUpTitleArrow
 {
-    background-image: url("../images/arrow-gray-down.png");
-    background-color: #028D6A;
+    background-image: url("../images/arrow-green-down.png");
 }
 
 .esriCTrouteDownTitleArrow
 {
-    background-image: url("../images/arrow-gray-up.png");
-    background-color: #028D6A;
+    background-image: url("../images/arrow-green-up.png");
 }
 /* End of Route */
 
@@ -647,13 +644,15 @@ input
 {
     background-image: url("../images/re-route-green.png");
 }
-.esriCTDirectionRefreshButton
-{
-    background-image: url("../images/refresh-route-green.png") !important;
-}
+
 .esriCTshowRouteInfoContent
 {
     color: #7b6e40;
+}
+
+.esriCTDirectionRefreshButton
+{
+    background-image: url("../images/refresh-route-green.png") !important;
 }
 
 .esriCTshowCountContent

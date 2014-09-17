@@ -68,8 +68,10 @@ define([
                     }
                 }
             }));
-
+            var applicationHeaderDiv;
             this.domNode = domConstruct.create("div", { "title": sharedNls.tooltips.share, "class": "esriCTImgSocialMedia" }, null);
+            applicationHeaderDiv = domConstruct.create("div", { "class": "esriCTApplicationShareicon" }, dom.byId("esriCTParentDivContainer"));
+            applicationHeaderDiv.appendChild(this.divAppContainer);
             this.own(on(this.domNode, "click", lang.hitch(this, function () {
 
                 /**
@@ -78,6 +80,7 @@ define([
                 topic.publish("toggleWidget", "share");
                 topic.publish("setMaxLegendLength");
                 this._shareLink();
+                this._showHideShareContainer();
             })));
             on(this.embedding, "click", lang.hitch(this, function () {
                 this._showEmbeddingContainer();
@@ -114,10 +117,14 @@ define([
             domAttr.set(this.esriCTDivshareCodeContainer, "innerHTML", sharedNls.titles.webpageDisplayText);
             mapExtent = this._getMapExtent();
             url = esri.urlToObject(window.location.toString());
-            if (dojo.mapPoint) {
+            if (dojo.mapPoint && dojo.featurePoint) {
+                urlStr = encodeURI(url.path) + "?extent=" + mapExtent + "$featurepoint=" + dojo.featurePoint + "$LayerID=" + dojo.LayerID + "$point=" + dojo.mapPoint.x + "," + dojo.mapPoint.y + "$selectedDirection=" + dojo.selectedDirection;
+            } else if (dojo.mapPoint) {
                 urlStr = encodeURI(url.path) + "?extent=" + mapExtent + "$point=" + dojo.mapPoint.x + "," + dojo.mapPoint.y + "$selectedDirection=" + dojo.selectedDirection;
+            } else if (dojo.featurePoint && dojo.frequentRouteId) {
+                urlStr = encodeURI(url.path) + "?extent=" + mapExtent + "$featurepoint=" + dojo.featurePoint + "$LayerID=" + dojo.LayerID + "$frequentRouteId=" + dojo.frequentRouteId + "$selectedDirection=" + dojo.selectedDirection;
             } else if (dojo.featurePoint) {
-                urlStr = encodeURI(url.path) + "?extent=" + mapExtent + "$featurepoint=" + dojo.featurePoint + "$LayerID=" + dojo.LayerID + "$selectedDirection=" + dojo.selectedDirection + "$ispolyline=" + dojo.ispolyline;
+                urlStr = encodeURI(url.path) + "?extent=" + mapExtent + "$featurepoint=" + dojo.featurePoint + "$LayerID=" + dojo.LayerID + "$selectedDirection=" + dojo.selectedDirection;
             } else if (dojo.frequentRouteId) {
                 urlStr = encodeURI(url.path) + "?extent=" + mapExtent + "$frequentRouteId=" + dojo.frequentRouteId + "$selectedDirection=" + dojo.selectedDirection;
             } else if (dojo.selectedInfo) {
@@ -127,6 +134,9 @@ define([
             }
             if (dojo.stops && dojo.stops.length > 0) {
                 urlStr = urlStr + "$stops=" + dojo.stops.join("_");
+            }
+            if (dojo.selectedBasemapIndex !== null) {
+                urlStr += "$selectedBasemapIndex=" + dojo.selectedBasemapIndex;
             }
             try {
                 /**
@@ -144,26 +154,20 @@ define([
                         tinyUrl = response.data.url;
                     }
                     this._displayShareContainer(tinyUrl, urlStr);
-                }), lang.hitch(this, function (err) {
+                }), lang.hitch(this, function () {
                     this._displayShareContainer(null, urlStr);
-                    alert(sharedNls.errorMessages.shareLoadingFailed);
                 }));
             } catch (err) {
-                alert(sharedNls.errorMessages.shareLoadingFailed);
                 this._displayShareContainer(null, urlStr);
             }
         },
 
         /**
-        * return display share container
-        * @return {string} urlStr shared full url
-        * @return {string} tinyUrl shared bitly url
+        * show and hide share container
         * @memberOf widgets/share/share
         */
-        _displayShareContainer: function (tinyUrl, urlStr) {
-            var applicationHeaderDiv;
-            applicationHeaderDiv = domConstruct.create("div", { "class": "esriCTApplicationShareicon" }, dom.byId("esriCTParentDivContainer"));
-            applicationHeaderDiv.appendChild(this.divAppContainer);
+        _showHideShareContainer: function () {
+
             if (html.coords(this.divAppContainer).h > 0) {
 
                 /**
@@ -179,7 +183,19 @@ define([
                 domClass.replace(this.domNode, "esriCTImgSocialMedia-select", "esriCTImgSocialMedia");
                 domClass.replace(this.divAppContainer, "esriCTShowContainerHeight", "esriCTHideContainerHeight");
             }
+        },
 
+        /**
+        * return display share container
+        * @return {string} urlStr shared full url
+        * @return {string} tinyUrl shared bitly url
+        * @memberOf widgets/share/share
+        */
+        _displayShareContainer: function (tinyUrl, urlStr) {
+
+            domStyle.set(this.imgFacebook, "cursor", "pointer");
+            domStyle.set(this.imgTwitter, "cursor", "pointer");
+            domStyle.set(this.imgMail, "cursor", "pointer");
             /**
             * remove event handlers from sharing options
             */

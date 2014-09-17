@@ -41,7 +41,6 @@ define({
         loadingText: "Loading..."
     },
     titles: {
-        directionsDisplayText: "Directions",
         frequentRouteText: "Frequent Routes",
         informationPanelTitle: "Information for current map view",
         webpageDisplayText: "Copy/Paste HTML into your web page"
@@ -55,13 +54,14 @@ define({
         invalidLocation: "Current location not found.",
         invalidProjection: "Unable to plot current location on the map.",
         widgetNotLoaded: "Unable to load widgets.",
-        shareLoadingFailed: "Unable to load share options.",
+        shareLoadingFailed: "Unable to shorten URL, Bit.ly failed to load.",
         shareFailed: "Unable to share.",
         noDirection: "Location could not be found",
         webMapMessages: "Title and/or QueryLayerId parameters in SearchSettings do not match with configured webmap",
         noInfoWindow: "InfoWindow not found for this layer",
         enterCorrectPoints: "Enter correct source or destination.",
         enterCorrectSource: "Enter correct source.",
-        enterCorrectDestination: "Enter correct destination."
+        enterCorrectDestination: "Enter correct destination.",
+        noPortalUrl: "Portal URL could not be found"
     }
 });

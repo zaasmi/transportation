@@ -1,4 +1,4 @@
-/*global define */
+﻿/*global define */
 /*jslint browser:true,sloppy:true,nomen:true,unparam:true,plusplus:true,indent:4 */
 /*
  | Copyright 2013 Esri
@@ -60,7 +60,7 @@ define([], function () {
         // 33. Specify route Symbology                       - [ Tag(s) to look for: RouteSymbology ]
         // 34. Specify URLs for map sharing                  - [ Tag(s) to look for: MapSharingOptions,TinyURLServiceURL, TinyURLResponseAttribute, FacebookShareURL, TwitterShareURL, ShareByMailLink ]
 
-        
+
         // GENERAL SETTINGS
         //------------------------------------------------------------------------------------------------------------------------
         // Set application title
@@ -96,29 +96,25 @@ define([], function () {
         // Set Frequently travelled route Tab DisplayText
         FrequentRoute: "Frequently travelled routes",
 
-        
+        // Set Direction Tab DisplayText
+        DirectionsDisplayText: "Directions",
 
         // Specify URL to ArcGIS Portal REST API. If you are using ArcGIS Online, leave this parameter as is.
         PortalAPIURL: "http://www.arcgis.com/sharing/rest/",
-
-        // Specify URL to Search. If you are using ArcGIS Online, leave this parameter as is
-        SearchURL: "http://www.arcgis.com/sharing/rest/search?q=group:",
-
         // Specify the title of group that contains basemaps
-        BasemapGroupTitle: "Basemaps", 
+        BasemapGroupTitle: "Basemaps",
         // Specify the user name of owner of the group that contains basemaps
-        BasemapGroupOwner: "GISITAdmin", 
+        BasemapGroupOwner: "GISITAdmin",
         // Specify path to image used to display the thumbnail for a basemap when portal does not provide it
         NoThumbnail: "js/library/themes/images/not-available.png",
-
-      
 
         // If you want to use a WebMap for configuration and setup of the app specify a WebMapId within quotes,          otherwise leave this empty and configure operational layers
         WebMapId: "ec4ac1550d5240eca0997f1e55006e0c",
 
         ThemeColor: "js/library/themes/styles/orangeTheme.css",
-      
 
+        // Set Legend Visibility
+        ShowLegend: "true",
 
         // SEARCH AND 511 SETTINGS
         // ------------------------------------------------------------------------------------------------------------------------
@@ -126,15 +122,15 @@ define([], function () {
 
         // Configure search and 511 settings below.
         // Title: In the case of webmap implementations which use hosted services, the title must match layer name specified in webmap. If using ArcGIS Server operational layers, the title should be the name of the ArcGIS Server Service.
-        // QueryLayerId: This is the layer index in the webmap (if using hosted services) or ArcGIS Map/Feature 		Service and is used for performing queries.
+        // QueryLayerId: This is the layer index in the webmap (if using hosted services) or ArcGIS Map/Feature Service and is used for performing queries.
         // SearchDisplayTitle: This text is displayed in search results as the title to group results.
         // SearchDisplayFields: Attribute that will be displayed in the search box when user performs a search.
         // SearchExpression: Configure the query expression to be used for the search.
-        // BarrierLayer: Set the value to  "true" or "false" to treat this as a barrier layer to be used for routing 	and re-routing.
+        // BarrierLayer: Set the value to  "true" or "false" to treat this as a barrier layer to be used for routing and re-routing.
         // BarrierSearchExpression: Configure the query expression to search for barriers along a route.
         // Set this to emtpy "", if all features in the layer should be considered as barriers.
         // InfoLayer: Allowed values are "true" or "false". Configure this to "true" to present this as information in the  511 panel.
-      
+
         // InfoSearchExpression: Configure the query expression to search features and display in 511 Information panels.
         // Set this to empty "", if all features in the layer should be considered.
         // InfoListText: This text is displayed in the 511 Information Summary panel.
@@ -154,7 +150,7 @@ define([], function () {
                 InfoLayer: "true",
                 InfoSearchExpression: "",
                 InfoListText: "",
-                InfoDetailFields: "MaxHeight:${HWYDESC} MaxWidth:${WIDTHREST}"
+                InfoDetailFields: "HWY:${HWYNAME}/ MaxHeight:${HEIGHTREST} MaxWidth:${WIDTHREST}"
             }, {
                 Title: "Transportation511",
                 QueryLayerId: "1",
@@ -162,7 +158,7 @@ define([], function () {
                 SearchDisplayFields: "${HWYNAME} / ${DELAYDESC}",
                 SearchExpression: "UPPER(HWYNAME) LIKE UPPER('${0}%') OR UPPER(HWYDESC) LIKE UPPER('${0}%')",
                 BarrierLayer: "true",
-                BarrierSearchExpression: "(STARTDATE >= DATE '${0}' AND ENDDATE <= DATE '${0}')",
+                BarrierSearchExpression: "(STARTDATE >= CURRENT_TIMESTAMP AND ENDDATE <= CURRENT_TIMESTAMP)",
                 InfoLayer: "true",
                 InfoSearchExpression: "",
                 InfoListText: "",
@@ -174,7 +170,7 @@ define([], function () {
                 SearchDisplayFields: "${HWYNAME} / ${CONDDESC}",
                 SearchExpression: "UPPER(HWYNAME) LIKE UPPER('${0}%') OR UPPER(HWYDESC) LIKE UPPER('${0}%')",
                 BarrierLayer: "true",
-                BarrierSearchExpression: "(STARTDATE >= DATE '${0}' AND EFFDATE <= DATE '${0}')",
+                BarrierSearchExpression: "(STARTDATE >= CURRENT_TIMESTAMP AND EFFDATE <= CURRENT_TIMESTAMP)",
                 InfoLayer: "true",
                 InfoSearchExpression: "",
                 InfoListText: "",
@@ -202,7 +198,7 @@ define([], function () {
                 InfoLayer: "true",
                 InfoSearchExpression: "",
                 InfoListText: "",
-                InfoDetailFields: "${STATIONNAME} / Wind Speed:{WINDSPEED}"
+                InfoDetailFields: "${STATIONNAME} / Wind Speed:${WINDSPEED}"
             }, {
                 Title: "Transportation511",
                 QueryLayerId: "5",
@@ -234,11 +230,11 @@ define([], function () {
                 SearchDisplayFields: "${HWYNAME} / ${CONDDESC}",
                 SearchExpression: "UPPER(HWYNAME) LIKE UPPER('${0}%') OR UPPER(HWYDESC) LIKE UPPER('${0}%')",
                 BarrierLayer: "true",
-                BarrierSearchExpression: "EFFDATE >= DATE '${0}'",
+                BarrierSearchExpression: "EFFDATE >= CURRENT_TIMESTAMP",
                 InfoLayer: "true",
                 InfoSearchExpression: "ACTIVE = 'Yes'",
                 InfoListText: "",
-                InfoDetailFields: "Condition:${CONDDESC}"
+                InfoDetailFields: "Condition:${HWYDESC} - ${CONDDESC}"
             }, {
                 Title: "Transportation511",
                 QueryLayerId: "8",
@@ -246,16 +242,19 @@ define([], function () {
                 SearchDisplayFields: "${HWYNAME} / ${RESCODEDES}",
                 SearchExpression: "UPPER(HWYNAME) LIKE UPPER('${0}%') OR UPPER(HWYDESC) LIKE UPPER('${0}%')",
                 BarrierLayer: "true",
-                BarrierSearchExpression: "EFFDATE >= DATE '${0}'",
+                BarrierSearchExpression: "EFFDATE >= CURRENT_TIMESTAMP",
                 InfoLayer: "true",
                 InfoSearchExpression: "ACTIVE = 'Yes'",
                 InfoListText: "",
-                InfoDetailFields: "Restriction:${RESCODEDES}"
+                InfoDetailFields: "Restriction:${HWYDESC} - ${RESCODEDES}"
             }
         ],
 
         // Following zoom level will be set for the map upon searching an address
         ZoomLevel: 12,
+
+        // Following Tolerance will be used to identify features on map click to display InfoWindow
+        InfoWindowTolerance: 15,
 
         // Time interval to refresh all layers on map
         LayersRefreshInterval: 5, // in minutes
@@ -266,7 +265,7 @@ define([], function () {
         // Minimum width should be 300 for the info-popup in pixels
         InfoPopupWidth: 350,
 
-       
+
         // ADDRESS SEARCH SETTINGS
         // ------------------------------------------------------------------------------------------------------------------------
         // Set locator settings such as locator symbol, size, display fields, match score
@@ -302,15 +301,15 @@ define([], function () {
         // FREQUENTLY TRAVELLED ROUTES SETTINGS
         // ------------------------------------------------------------------------------------------------------------------------
 
-        // Title should match the service name for ArcGIS Server. If using hosted feature services with a webmap, use 	the layer title in the webmap.
-	//QueryLayerId should be set to the layer index. 
+        // Title should match the service name for ArcGIS Server. If using hosted feature services with a webmap, use the layer title in the webmap.
+        // QueryLayerId should be set to the layer index.
         // UniqueRouteField: Specify the field that contains values which uniquely identify routes
         // DisplayField: Attributes to be displayed in list of frequently travelled routes
         FrequentRoutesSettings: {
             Title: "Transportation511",
             QueryLayerId: "9",
             UniqueRouteField: "ROUTEID",
-            DisplayField: "${ROUTEID} / ${HWYNUM} - ${DIRECTION}",
+            DisplayField: "Route ID:${ROUTEID} / Highway:${HWYNUM} - ${DIRECTION}",
             FrequentRoutesEnabled: "true"
         },
 
@@ -352,20 +351,21 @@ define([], function () {
         // ColorRGB: Specify the color as comma separated R,G,B values
         // Transparency: Specify the transparency value between 0:Fully Transparent and 1:Fully Opaque
         // Width: Specify the display width of route in pixels
+        // DirectionUnits: Specify unit for Direction Results
+        // RouteDragMarkerOutlineColor: Specify Route Drag outline color
+        // RouteDragMarkerFillColor: Specify Route Drag fill color
+        // RouteDragMarkerWidth: Specify Route Drag width
         RouteSymbology: {
             ColorRGB: "0,0,225",
             Transparency: "0.5",
             Width: "4",
             DirectionUnits: "MILES",
-            RouteCircleColor: "007AC2",
-            RouteCircleFillColor: "FFFFFF",
-            RouteCircleWidth: 2,
-            CartographicLineColor: "0,0,225",
-            CartographicTransparency: "0",
-            CartographicLineWidth: 512
+            RouteDragMarkerOutlineColor: "007AC2",
+            RouteDragMarkerFillColor: "FFFFFF",
+            RouteDragMarkerWidth: 2
         },
 
-//------------------------------------------------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------------------------------------------------
         // Header Widget Settings
         //------------------------------------------------------------------------------------------------------------------------
         // Set widgets settings such as widget title, widgetPath, mapInstanceRequired to be displayed in header panel
@@ -398,7 +398,7 @@ define([], function () {
         MapSharingOptions: {
             TinyURLServiceURL: "https://api-ssl.bitly.com/v3/shorten?longUrl=${0}",
             TinyURLResponseAttribute: "data.url",
-            FacebookShareURL: "http://www.facebook.com/sharer.php?u=${0}&t=Transportation%20511",
+            FacebookShareURL: "http://www.facebook.com/sharer.php?m2w&u=${0}&t=Transportation%20511",
             TwitterShareURL: "http://mobile.twitter.com/compose/tweet?status=Transportation%20511 ${0}",
             ShareByMailLink: "mailto:%20?subject=Check%20out%20this%20map!&body=${0}"
         }
