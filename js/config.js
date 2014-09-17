@@ -310,7 +310,7 @@ define([], function () {
             QueryLayerId: "9",
             UniqueRouteField: "ROUTEID",
             DisplayField: "Route ID:${ROUTEID} / Highway:${HWYNUM} - ${DIRECTION}",
-            FrequentRoutesEnabled: "true"
+            FrequentRoutesEnabled: "false"
         },
 
         // ------------------------------------------------------------------------------------------------------------------------
