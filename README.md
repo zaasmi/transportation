@@ -1,5 +1,7 @@
 # transportation-511
 
+***This transportation-511 repo has been replaced by the Info Summary widget in the [solutions-webappbuilder-widgets repo](https://github.com/Esri/solutions-webappbuilder-widgets) and the Transportation 511 script in the [511-script repo](https://github.com/Esri/511-Script). Applications built from this transportation-511 repo are in mature support.***
+
 The Transportation 511 application is a configuration of ArcGIS for Server and a JavaScript application
 that allows the public to find information about road conditions, 511 alerts, traffic incidents, et al.
 
