@@ -17,17 +17,10 @@ that allows the public to find information about road conditions, 511 alerts, tr
 
 ## Instructions
 
-### Esri Sample Services
-
-Esri's sample services can be used with this repository to extend the application.
-
-
 ### General Help
 [New to Github? Get started here.](http://htmlpreview.github.com/?https://github.com/Esri/esri.github.com/blob/master/help/esri-getting-to-know-github.html)
 
 ## Requirements
-
-### Esri Sample Services
 
 * Microsoft ASP.NET Framework 4.0 available from the [Microsoft website](http://www.microsoft.com/en-us/download/details.aspx?id=17851)
 
@@ -42,9 +35,6 @@ Esri's sample services can be used with this repository to extend the applicatio
 Learn more about Esri's [ArcGIS for State Government maps and apps](http://solutions.arcgis.com/state-government/).
 
 Show me a list of other [Government GitHub repositories](http://esri.github.io/#Government).
-
-Additional [information and sample data](http://www.arcgis.com/home/item.html?id=a57e96b9240e4311b7fd863b80a6d389)
-are available for the application.
 
 This application uses the 3.8 version of
 [Esri's ArcGIS API for JavaScript](http://help.arcgis.com/en/webapi/javascript/arcgis/);

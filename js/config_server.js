@@ -131,34 +131,34 @@ define([], function () {
         //                    Supported service types are 'dynamic' or 'feature'.
         OperationalLayers: [
             {
-                ServiceURL: "http://arcgis-gov-1244222493.us-west-2.elb.amazonaws.com/arcgis/rest/services/Transportation511/MapServer/9",
+                ServiceURL: "http://yourserver/arcgis/rest/services/Transportation511/MapServer/9",
                 LoadAsServiceType: "dynamic"
             }, {
-                ServiceURL: "http://arcgis-gov-1244222493.us-west-2.elb.amazonaws.com/arcgis/rest/services/Transportation511/MapServer/8",
+                ServiceURL: "http://yourserver/arcgis/rest/services/Transportation511/MapServer/8",
                 LoadAsServiceType: "dynamic"
             }, {
-                ServiceURL: "http://arcgis-gov-1244222493.us-west-2.elb.amazonaws.com/arcgis/rest/services/Transportation511/MapServer/7",
+                ServiceURL: "http://yourserver/arcgis/rest/services/Transportation511/MapServer/7",
                 LoadAsServiceType: "dynamic"
             }, {
-                ServiceURL: "http://arcgis-gov-1244222493.us-west-2.elb.amazonaws.com/arcgis/rest/services/Transportation511/MapServer/6",
+                ServiceURL: "http://yourserver/arcgis/rest/services/Transportation511/MapServer/6",
                 LoadAsServiceType: "dynamic"
             }, {
-                ServiceURL: "http://arcgis-gov-1244222493.us-west-2.elb.amazonaws.com/arcgis/rest/services/Transportation511/MapServer/5",
+                ServiceURL: "http://yourserver/arcgis/rest/services/Transportation511/MapServer/5",
                 LoadAsServiceType: "dynamic"
             }, {
-                ServiceURL: "http://arcgis-gov-1244222493.us-west-2.elb.amazonaws.com/arcgis/rest/services/Transportation511/MapServer/4",
+                ServiceURL: "http://yourserver/arcgis/rest/services/Transportation511/MapServer/4",
                 LoadAsServiceType: "dynamic"
             }, {
-                ServiceURL: "http://arcgis-gov-1244222493.us-west-2.elb.amazonaws.com/arcgis/rest/services/Transportation511/MapServer/3",
+                ServiceURL: "http://yourserver/arcgis/rest/services/Transportation511/MapServer/3",
                 LoadAsServiceType: "dynamic"
             }, {
-                ServiceURL: "http://arcgis-gov-1244222493.us-west-2.elb.amazonaws.com/arcgis/rest/services/Transportation511/MapServer/2",
+                ServiceURL: "http://yourserver/arcgis/rest/services/Transportation511/MapServer/2",
                 LoadAsServiceType: "dynamic"
             }, {
-                ServiceURL: "http://arcgis-gov-1244222493.us-west-2.elb.amazonaws.com/arcgis/rest/services/Transportation511/MapServer/1",
+                ServiceURL: "http://yourserver/arcgis/rest/services/Transportation511/MapServer/1",
                 LoadAsServiceType: "dynamic"
             }, {
-                ServiceURL: "http://arcgis-gov-1244222493.us-west-2.elb.amazonaws.com/arcgis/rest/services/Transportation511/MapServer/0",
+                ServiceURL: "http://yourserver/arcgis/rest/services/Transportation511/MapServer/0",
                 LoadAsServiceType: "dynamic"
             }
         ],
